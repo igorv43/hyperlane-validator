@@ -400,14 +400,53 @@ cast send SEU_ENDERECO_DESTINO \
   --rpc-url https://bsc.drpc.org
 ```
 
-### Para LUNC (Terra Classic) - Requer Script
+### Para LUNC (Terra Classic) - Script Completo Disponível
 
-Para sacar LUNC, você precisará criar um script Python ou Node.js que:
-1. Crie a transação de transferência
-2. Use o AWS SDK para pedir ao KMS que assine
-3. Transmita a transação para a rede
+**📚 GUIA COMPLETO:** Consulte `TRANSFER-GUIDE.md` para instruções detalhadas!
 
-Exemplo básico disponível na documentação oficial do AWS SDK para Cosmos.
+#### Método Rápido
+
+```bash
+# 1. Instalar dependências
+pip3 install boto3 bech32 ecdsa requests
+
+# 2. Transferir LUNC
+./transfer-lunc-kms.py <destino> <quantidade_uluna> [memo]
+
+# Exemplo: Transferir 10 LUNC (10,000,000 uluna)
+./transfer-lunc-kms.py terra1destinatario... 10000000 "Saque"
+```
+
+**Nota:** 1 LUNC = 1,000,000 uluna
+
+#### O que o script faz
+
+1. ✅ Verifica o saldo da sua carteira KMS
+2. ✅ Calcula automaticamente as taxas de gas
+3. ✅ Cria a transação de transferência
+4. ✅ Assina com AWS KMS (sua chave nunca sai do HSM)
+5. ✅ Transmite para a rede Terra Classic
+6. ✅ Retorna o hash da transação
+
+#### Exemplo de Uso Completo
+
+```bash
+# Descobrir seu endereço
+./get-kms-addresses.sh
+
+# Verificar saldo
+terrad query bank balances terra1SEU_ENDERECO \
+  --node https://rpc.terra-classic.hexxagon.io:443
+
+# Transferir 50 LUNC para sua carteira pessoal
+./transfer-lunc-kms.py terra1sua_carteira_pessoal 50000000 "Saque mensal"
+```
+
+**📖 Para mais detalhes, troubleshooting e métodos alternativos:**
+- Veja `TRANSFER-GUIDE.md` - Guia completo com exemplos
+- Método usando CosmPy (biblioteca oficial Cosmos)
+- Exemplos de scripts de verificação rápida
+- Calculadora de conversão LUNC ↔ uluna
 
 ---
 
