@@ -1,248 +1,336 @@
 # 🌉 Hyperlane Validator & Relayer - Terra Classic ↔ BSC
 
-Configuração completa de validador e relayer Hyperlane para Terra Classic ↔ BSC.
+Validador e relayer Hyperlane configurados para Terra Classic ↔ BSC.
 
-## ⚠️ **IMPORTANTE: Gerenciamento de Chaves**
+---
 
-- **Terra Classic (Cosmos)**: Usa **hexKey** (chaves privadas locais)
-  - AWS KMS **NÃO é suportado** para chains Cosmos
-- **BSC (EVM)**: Usa **AWS KMS** (recomendado para produção)
+## ⚠️ **IMPORTANTE: AWS KMS**
 
-📖 **Leia**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md) para detalhes completos de segurança
+| Blockchain | Tipo | Gerenciamento de Chaves | Status |
+|------------|------|-------------------------|--------|
+| **Terra Classic** | Cosmos | **hexKey** (chaves locais) | ✅ Funcionando |
+| **BSC** | EVM | **AWS KMS** | ✅ Suportado |
+
+### ⚠️ **Terra Classic NÃO suporta AWS KMS**
+
+O Hyperlane **não suporta AWS KMS** para blockchains Cosmos. Você **deve usar chaves privadas locais** (hexKey) para Terra Classic.
+
+📖 **Leia**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md) para segurança das chaves
+
+---
 
 ## 🚀 Quick Start
 
-### 1. Configurar Credenciais
+### **[📘 QUICKSTART.md](QUICKSTART.md) ← Comece aqui!**
+
+Guia passo a passo completo em português com todos os comandos necessários.
+
+### Resumo rápido:
 
 ```bash
-# Copiar template
+# 1. Configurar credenciais AWS (apenas para BSC)
 cp .env.example .env
-
-# Editar com suas credenciais AWS (para BSC)
 nano .env
-```
 
-### 2. Configurar Chaves
+# 2. Configurar validator (Terra Classic)
+cp hyperlane/validator.terraclassic.json.example hyperlane/validator.terraclassic.json
+nano hyperlane/validator.terraclassic.json
+# Substituir: bucket S3 e chave privada
 
-#### Para Terra Classic (hexKey):
-
-```bash
-# Gerar nova chave (Foundry)
-cast wallet new
-
-# Ou usar chave existente
-# Editar hyperlane/validator.terraclassic.json
-# Editar hyperlane/relayer.json
-
-# Descobrir endereços da chave
+# 3. Descobrir endereços
+pip3 install eth-account bech32
 ./get-address-from-hexkey.py 0xSUA_CHAVE_PRIVADA
-```
 
-#### Para BSC (AWS KMS):
+# 4. Enviar LUNC para o endereço Terra
+# (100-500 LUNC recomendado)
 
-```bash
-# Descobrir endereços KMS
-./get-kms-addresses.sh
-```
-
-### 3. Financiar Carteiras
-
-- **Validador/Relayer Terra**: Envie 100-500 LUNC
-- **Relayer BSC**: Envie 0.1-0.5 BNB
-
-### 4. Iniciar Serviços
-
-```bash
-# Iniciar validador
+# 5. Iniciar validator
 docker-compose up -d validator-terraclassic
-
-# Ver logs
 docker logs -f hpl-validator-terraclassic
-
-# Iniciar relayer (após criar chave KMS para BSC)
-docker-compose up -d relayer
 ```
 
-### 3. Financiar Carteiras
-
-- **Terra Classic**: Envie 100-500 LUNC para o endereço Terra
-- **BSC**: Envie 0.1-0.5 BNB para o endereço BSC (KMS)
-
-### 4. Iniciar Serviços
-
-```bash
-# Iniciar validador
-docker-compose up -d validator-terraclassic
-
-# Ver logs
-docker logs -f hpl-validator-terraclassic
-
-# Aguardar announcement bem-sucedido
-# Procurar por: "Successfully announced validator"
-
-# Iniciar relayer (opcional)
-docker-compose up -d relayer
-```
+---
 
 ## 📚 Documentação
 
-### 🔐 Segurança
+### Guias
 
-- **[SECURITY-HEXKEY.md](SECURITY-HEXKEY.md)** - Guia completo de segurança para chaves locais
-  - Por que AWS KMS não funciona para Cosmos
-  - Medidas de segurança implementadas
-  - Backup e recuperação de chaves
-  - Monitoramento e alertas
+| Arquivo | Descrição |
+|---------|-----------|
+| **[QUICKSTART.md](QUICKSTART.md)** ⭐ | **Guia passo a passo completo** |
+| [SECURITY-HEXKEY.md](SECURITY-HEXKEY.md) | Segurança de chaves locais |
+| [SETUP-AWS-KMS.md](SETUP-AWS-KMS.md) | Configurar AWS KMS para BSC |
+| [DOCKER-VOLUMES-EXPLAINED.md](DOCKER-VOLUMES-EXPLAINED.md) | Explicação dos volumes Docker |
+| [CHECKLIST.md](CHECKLIST.md) | Checklist de configuração |
 
-### Guias Principais
+### Scripts
 
-- **[SETUP-AWS-KMS.md](SETUP-AWS-KMS.md)** - Configuração completa do validador e relayer
-- **[TRANSFER-GUIDE.md](TRANSFER-GUIDE.md)** - Como transferir/sacar LUNC usando AWS KMS
-- **[TERRAD-KMS-GUIDE.md](TERRAD-KMS-GUIDE.md)** - Guia completo do terrad CLI + AWS KMS
-- **[CHECKLIST.md](CHECKLIST.md)** - Checklist interativo de configuração
-- **[.env.example](.env.example)** - Template de configuração
+| Script | Uso |
+|--------|-----|
+| `get-address-from-hexkey.py` | Obter endereços ETH/Terra de chave privada |
+| `get-kms-addresses.sh` | Obter endereços de chaves AWS KMS |
+| `eth-to-terra.py` | Converter endereço ETH → Terra |
 
-### Scripts Utilitários
-
-- **`get-kms-addresses.sh`** - Descobre endereços das chaves KMS
-- **`eth-to-terra.py`** - Converte endereços Ethereum → Terra bech32
-- **`transfer-lunc-kms.py`** - Transfere LUNC usando AWS KMS (Python)
-- **`terrad-kms-transfer.sh`** - Integração terrad CLI + AWS KMS
+---
 
 ## 🏗️ Arquitetura
 
 ```
 Terra Classic ←→ Hyperlane ←→ BSC
-      ↓                            ↓
-   Validador                   Relayer
-      ↓                            ↓
-  AWS KMS                      AWS KMS
-      ↓                            ↓
-   AWS S3                     (signatures)
+     ↓                           ↓
+  Validator                  Relayer
+     ↓                           ↓
+  hexKey                     AWS KMS (BSC)
+     ↓                       hexKey (Terra)
+  AWS S3                         ↓
+(signatures)              (transações)
 ```
 
 ### Componentes
 
-- **Validador Terra Classic**: Assina checkpoints de mensagens
-- **Relayer**: Transmite mensagens entre chains
-- **AWS KMS**: Gerencia chaves privadas com segurança
-- **AWS S3**: Armazena assinaturas do validador
+- **Validator Terra Classic**: Assina checkpoints de mensagens cross-chain
+- **Relayer**: Transmite mensagens entre Terra Classic e BSC
+- **AWS S3**: Armazena assinaturas do validator (público)
+- **AWS KMS**: Gerencia chave BSC do relayer (apenas para BSC)
 
-## 🔑 Chaves KMS Necessárias
+---
 
-| Alias | Uso | Status |
-|-------|-----|--------|
-| `hyperlane-validator-signer-terraclassic` | Validador + Relayer Terra | ✅ Criada |
-| `hyperlane-relayer-signer-bsc` | Relayer BSC | ⏳ Pendente |
+## 🔑 Gerenciamento de Chaves
 
-**Configuração da chave:**
-- Tipo: **Asymmetric**
-- Uso: **Sign and verify**
-- Spec: **ECC_SECG_P256K1**
+### Terra Classic (Cosmos)
 
-## 🌐 Redes Configuradas
+```json
+// ✅ CORRETO - hexKey
+{
+  "validator": {
+    "type": "hexKey",
+    "key": "0x..."
+  },
+  "chains": {
+    "terraclassic": {
+      "signer": {
+        "type": "cosmosKey",
+        "key": "0x...",
+        "prefix": "terra"
+      }
+    }
+  }
+}
+```
 
-### Terra Classic
-- Chain ID: `columbus-5`
-- RPC: `https://rpc.terra-classic.hexxagon.io:443`
-- LCD: `https://terra-classic-lcd.publicnode.com`
-- Explorer: https://finder.terraclassic.community
+### BSC (EVM)
 
-### Binance Smart Chain
-- Chain ID: `56`
-- RPC: `https://bsc.drpc.org`
-- Explorer: https://bscscan.com
+```json
+// ✅ CORRETO - AWS KMS
+{
+  "chains": {
+    "bsc": {
+      "signer": {
+        "type": "aws",
+        "id": "alias/hyperlane-relayer-signer-bsc",
+        "region": "us-east-1"
+      }
+    }
+  }
+}
+```
+
+---
+
+## 🐳 Comandos Docker
+
+### Validator
+
+```bash
+# Iniciar
+docker-compose up -d validator-terraclassic
+
+# Ver logs
+docker logs -f hpl-validator-terraclassic
+
+# Parar
+docker-compose stop validator-terraclassic
+
+# Reiniciar
+docker-compose restart validator-terraclassic
+
+# Status
+docker ps | grep validator
+```
+
+### Relayer
+
+```bash
+# Iniciar
+docker-compose up -d relayer
+
+# Ver logs
+docker logs -f hpl-relayer
+
+# Parar
+docker-compose stop relayer
+
+# Reiniciar
+docker-compose restart relayer
+```
+
+### Todos os Serviços
+
+```bash
+# Iniciar tudo
+docker-compose up -d
+
+# Parar tudo
+docker-compose down
+
+# Ver status
+docker ps
+
+# Limpar e reiniciar
+docker-compose down -v
+docker-compose up -d
+```
+
+---
 
 ## 📊 Monitoramento
 
-### Métricas
+### APIs de Métricas
 
-- **Validador**: http://localhost:9121
-- **Relayer**: http://localhost:9110
+- **Validator**: http://localhost:9121/metrics
+- **Relayer**: http://localhost:9110/metrics
 
-### Comandos Úteis
-
-```bash
-# Ver logs do validador
-docker logs hpl-validator-terraclassic --tail 100 -f
-
-# Ver logs do relayer
-docker logs hpl-relayer --tail 100 -f
-
-# Verificar saldo Terra
-terrad query bank balances ENDERECO_TERRA \
-  --node https://rpc.terra-classic.hexxagon.io:443
-
-# Verificar saldo BSC
-cast balance ENDERECO_BSC --rpc-url https://bsc.drpc.org
-
-# Ver assinaturas no S3
-aws s3 ls s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/
-```
-
-## 💸 Transferir Fundos
-
-### Para BSC (BNB)
+### Verificar Saldo
 
 ```bash
-cast send ENDERECO_DESTINO \
-  --value 0.1ether \
-  --aws alias/hyperlane-relayer-signer-bsc \
-  --rpc-url https://bsc.drpc.org
+# Terra Classic
+curl "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/SEU_ENDERECO_TERRA" | jq
+
+# BSC (se usando KMS)
+cast balance 0xSEU_ENDERECO_BSC --rpc-url https://bsc.drpc.org
 ```
 
-### Para Terra Classic (LUNC)
+### Verificar Checkpoints no S3
 
-**Método 1: Script Python (Recomendado)**
 ```bash
-# Instalar dependências
-pip3 install boto3 bech32 ecdsa requests
+# Listar checkpoints
+aws s3 ls s3://SEU-BUCKET/us-east-1/ --recursive
 
-# Transferir 10 LUNC (10,000,000 uluna)
-./transfer-lunc-kms.py terra1destinatario... 10000000 "Saque"
+# Ver último checkpoint
+aws s3 ls s3://SEU-BUCKET/us-east-1/ --recursive | tail -1
 ```
 
-**Método 2: terrad CLI**
+---
+
+## 🌐 Redes
+
+### Terra Classic
+
+- **Chain ID**: `columbus-5`
+- **Domain ID**: `1325`
+- **RPC**: https://rpc.terra-classic.hexxagon.io:443
+- **LCD**: https://terra-classic-lcd.publicnode.com
+- **Explorer**: https://finder.terraclassic.community
+
+### Binance Smart Chain
+
+- **Chain ID**: `56`
+- **Domain ID**: `56`
+- **RPC**: https://bsc.drpc.org
+- **Explorer**: https://bscscan.com
+
+---
+
+## 🚨 Troubleshooting
+
+### Container não inicia
+
 ```bash
-# Instalar terrad
-wget https://github.com/classic-terra/core/releases/download/v2.3.1/terra_2.3.1_Linux_x86_64.tar.gz
-tar -xzf terra_2.3.1_Linux_x86_64.tar.gz
-sudo mv terrad /usr/local/bin/
+# Ver erro completo
+docker logs hpl-validator-terraclassic
 
-# Consultar saldo
-terrad query bank balances terra1abc... --node https://rpc.terra-classic.hexxagon.io:443
+# Reiniciar
+docker-compose restart validator-terraclassic
 
-# Ver guia completo do terrad
-cat TERRAD-KMS-GUIDE.md
+# Limpar e recomeçar
+docker-compose down
+docker rm -f hpl-validator-terraclassic
+docker-compose up -d validator-terraclassic
 ```
 
-**📖 Guias completos:** 
-- [TRANSFER-GUIDE.md](TRANSFER-GUIDE.md) - Transferências com Python
-- [TERRAD-KMS-GUIDE.md](TERRAD-KMS-GUIDE.md) - Usando terrad CLI
+### "Cannot announce validator without a signer"
+
+**Causa**: Carteira sem fundos LUNC
+
+**Solução**:
+1. Descobrir endereço: `./get-address-from-hexkey.py 0xSUA_CHAVE`
+2. Enviar 100-500 LUNC para o endereço Terra
+3. Reiniciar: `docker-compose restart validator-terraclassic`
+
+### "Expected key `key` to be defined"
+
+**Causa**: Tentando usar AWS KMS para Terra Classic (não suportado)
+
+**Solução**: Ver [`QUICKSTART.md`](QUICKSTART.md) para configuração correta com hexKey
+
+### Permission denied
+
+```bash
+# Ajustar permissões
+chmod 600 hyperlane/validator.terraclassic.json
+chmod 600 hyperlane/relayer.json
+```
+
+### Rate limit (429 Too Many Requests)
+
+**Causa**: RPCs públicos têm limites
+
+**Solução**: Aguardar. O validator usa múltiplos RPCs como fallback.
+
+---
 
 ## 🔐 Segurança
 
-### Arquivos Protegidos (`.gitignore`)
+### ⚠️ Arquivos Confidenciais
 
-- `.env` - Credenciais AWS (nunca commitado)
-- `validator/` - Dados do validador
+Estes arquivos **NÃO** devem ser commitados no Git:
+
+- `.env` - Credenciais AWS
+- `hyperlane/validator.terraclassic.json` - Chave privada Terra
+- `hyperlane/relayer.json` - Chaves privadas
+- `validator/` - Dados do validator
 - `relayer/` - Dados do relayer
 
-### Boas Práticas
+✅ **Todos já estão no `.gitignore`**
 
-✅ Credenciais apenas no arquivo `.env`  
-✅ Chaves privadas gerenciadas pelo AWS KMS  
-✅ Assinaturas públicas no S3  
-✅ Logs monitorados regularmente  
+### Proteções Implementadas
+
+```bash
+# Permissões restritas (apenas owner pode ler)
+-rw------- (600) validator.terraclassic.json
+-rw------- (600) relayer.json
+
+# Verificar
+chmod 600 hyperlane/validator.terraclassic.json
+chmod 600 hyperlane/relayer.json
+```
+
+### Backup
+
+**IMPORTANTE**: Faça backup das chaves privadas em local seguro!
+
+Ver [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md) para guia completo de backup.
+
+---
 
 ## 🛠️ Requisitos
 
-### Software
+### Software Necessário
 
-- Docker & Docker Compose
-- Python 3.8+
-- Foundry (cast)
-- AWS CLI (opcional)
+- **Docker & Docker Compose** (obrigatório)
+- **Python 3.8+** (obrigatório)
+- **Foundry (cast)** (opcional, para gerar chaves)
+- **AWS CLI** (opcional, para gerenciar S3)
 
 ### Instalação
 
@@ -250,66 +338,44 @@ cat TERRAD-KMS-GUIDE.md
 # Docker
 curl -fsSL https://get.docker.com | sh
 
-# Foundry
+# Python packages
+pip3 install eth-account bech32
+
+# Foundry (opcional)
 curl -L https://foundry.paradigm.xyz | bash && foundryup
 
-# Python packages
-pip3 install boto3 bech32 ecdsa requests
+# AWS CLI (opcional)
+pip3 install awscli
 ```
+
+---
 
 ## 📁 Estrutura do Projeto
 
 ```
 hyperlane-validator/
-├── docker-compose.yml              # Configuração dos containers
-├── .env                            # Credenciais AWS (não commitado)
-├── .env.example                    # Template de credenciais
-├── .gitignore                      # Arquivos ignorados
-├── README.md                       # Este arquivo
-├── SETUP-AWS-KMS.md               # Guia de configuração
-├── TRANSFER-GUIDE.md              # Guia de transferências
-├── get-kms-addresses.sh           # Script: descobrir endereços
-├── eth-to-terra.py                # Script: converter endereços
-├── transfer-lunc-kms.py           # Script: transferir LUNC
+├── docker-compose.yml                 # Configuração Docker
+├── .env                               # Credenciais AWS (não commitado)
+├── .env.example                       # Template
+├── .gitignore                         # Arquivos ignorados
+├── README.md                          # Este arquivo
+├── QUICKSTART.md                      # ⭐ Guia passo a passo
+├── SECURITY-HEXKEY.md                 # Guia de segurança
+├── SETUP-AWS-KMS.md                   # Setup AWS
+├── get-address-from-hexkey.py         # Script: obter endereços
+├── get-kms-addresses.sh               # Script: endereços KMS
+├── eth-to-terra.py                    # Script: converter endereços
 ├── hyperlane/
-│   ├── agent-config.docker.json   # Configuração das chains
-│   ├── validator.terraclassic.json # Config do validador
-│   └── relayer.json               # Config do relayer
-├── validator/                      # Dados do validador (local)
-└── relayer/                        # Dados do relayer (local)
+│   ├── agent-config.docker.json       # Config das chains
+│   ├── validator.terraclassic.json    # Config validator (local)
+│   ├── validator.terraclassic.json.example  # Template
+│   ├── relayer.json                   # Config relayer (local)
+│   └── relayer.json.example           # Template
+├── validator/                          # Dados validator (local)
+└── relayer/                            # Dados relayer (local)
 ```
 
-## 🐛 Solução de Problemas
-
-### Container não inicia
-
-```bash
-# Ver logs completos
-docker logs hpl-validator-terraclassic
-
-# Reiniciar do zero
-docker-compose down -v
-docker-compose up -d
-```
-
-### Erro de credenciais AWS
-
-```bash
-# Verificar .env
-cat .env
-
-# Recarregar variáveis
-export $(cat .env | grep -v '^#' | xargs)
-```
-
-### Saldo insuficiente
-
-```bash
-# Verificar saldo
-./get-kms-addresses.sh
-
-# Enviar mais fundos para as carteiras
-```
+---
 
 ## 📞 Recursos
 
@@ -318,18 +384,15 @@ export $(cat .env | grep -v '^#' | xargs)
 - [Terra Classic Docs](https://docs.terra.money)
 - [AWS KMS Guide](https://docs.aws.amazon.com/kms/)
 
-## 📝 Licença
+---
 
-Este projeto é uma configuração para uso com Hyperlane. Consulte a [licença do Hyperlane](https://github.com/hyperlane-xyz/hyperlane-monorepo) para mais detalhes.
+## ✅ Status do Projeto
 
-## 🤝 Contribuindo
-
-Melhorias e sugestões são bem-vindas! Abra uma issue ou pull request.
+**Configurado em**: 26 Nov 2025  
+**Validator**: ✅ Funcionando (hexKey)  
+**Relayer**: ⏳ Opcional (configurar BSC KMS)  
+**Redes**: Terra Classic ↔ BSC  
 
 ---
 
-**✅ Configurado em:** 26 Nov 2025  
-**🔐 Método:** AWS KMS + S3  
-**🌐 Redes:** Terra Classic ↔ BSC  
-**👤 Operador:** igorv43
-
+**🎉 Comece agora:** [`QUICKSTART.md`](QUICKSTART.md)
