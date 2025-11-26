@@ -32,6 +32,15 @@ python3 --version
 pip3 install bech32
 ```
 
+### 📚 Documentação Oficial de Referência
+
+Antes de começar, consulte a documentação oficial do Hyperlane:
+
+- **[Agent Keys Setup](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys)** - Configuração de chaves para agentes
+- **[Cast CLI Method](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#cast-cli)** - Gerar chaves com Foundry
+- **[AWS Signatures Bucket](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)** - Configuração de bucket S3 para validadores
+- **[Validator Operations](https://docs.hyperlane.xyz/docs/operate/validators/validator-guide)** - Guia completo de operação de validadores
+
 ### Recursos AWS Criados
 
 ✅ **Usuário IAM:**
@@ -43,6 +52,7 @@ pip3 install bech32
 - Nome: `hyperlane-validator-signatures-igorverasvalidador-terraclassic`
 - Região: `us-east-1`
 - Uso: Armazenar assinaturas do validador
+- **📖 Referência:** [AWS Signatures Bucket Setup](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
 
 ✅ **Chave KMS Criada:**
 - Alias: `hyperlane-validator-signer-terraclassic`
@@ -56,6 +66,10 @@ pip3 install bech32
 ---
 
 ## 🔑 Configuração AWS
+
+**📖 Referências:**
+- [Agent Keys Setup](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys)
+- [AWS KMS Configuration](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#2-aws-kms)
 
 ### 1. Criar Chave KMS para BSC (Pendente)
 
@@ -473,10 +487,28 @@ terrad query bank balances terra1SEU_ENDERECO \
 
 ## 📚 Recursos Adicionais
 
-- [Documentação Oficial Hyperlane](https://docs.hyperlane.xyz)
-- [Configuração de Chaves AWS](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys)
-- [Configuração de Validadores](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
-- [AWS KMS Developer Guide](https://docs.aws.amazon.com/kms/)
+### Documentação Oficial Hyperlane
+
+- **[Hyperlane Documentation](https://docs.hyperlane.xyz)** - Documentação principal
+- **[Set up Agent Keys](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys)** - Guia completo de configuração de chaves
+- **[Cast CLI Method](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#cast-cli)** - Gerar chaves com Foundry cast
+- **[AWS KMS Setup](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#2-aws-kms)** - Configuração AWS KMS
+- **[Validator Signatures AWS](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)** - Bucket S3 para assinaturas
+- **[Validator Operations Guide](https://docs.hyperlane.xyz/docs/operate/validators/validator-guide)** - Guia operacional completo
+- **[Relayer Operations](https://docs.hyperlane.xyz/docs/operate/relayer/run-relayer)** - Como operar relayers
+- **[Config Reference](https://docs.hyperlane.xyz/docs/operate/config/config-reference)** - Referência de configuração
+
+### AWS Documentation
+
+- **[AWS KMS Developer Guide](https://docs.aws.amazon.com/kms/)** - Guia do KMS
+- **[AWS S3 User Guide](https://docs.aws.amazon.com/s3/)** - Guia do S3
+- **[AWS IAM Best Practices](https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html)** - Melhores práticas IAM
+
+### Comunidade
+
+- **[Hyperlane Discord](https://discord.gg/hyperlane)** - Suporte da comunidade
+- **[Hyperlane GitHub](https://github.com/hyperlane-xyz/hyperlane-monorepo)** - Código fonte
+- **[Hyperlane Twitter](https://twitter.com/Hyperlane_xyz)** - Atualizações
 
 ---
 
