@@ -58,6 +58,7 @@ docker logs -f hpl-validator-terraclassic
 | Arquivo | Descrição |
 |---------|-----------|
 | **[QUICKSTART.md](QUICKSTART.md)** ⭐ | **Guia passo a passo completo** |
+| [RELAYER-CONFIG-GUIDE.md](RELAYER-CONFIG-GUIDE.md) 🔄 | **Configurar relayer para outras blockchains** |
 | [SECURITY-HEXKEY.md](SECURITY-HEXKEY.md) | Segurança de chaves locais |
 | [SETUP-AWS-KMS.md](SETUP-AWS-KMS.md) | Configurar AWS KMS para BSC |
 | [DOCKER-VOLUMES-EXPLAINED.md](DOCKER-VOLUMES-EXPLAINED.md) | Explicação dos volumes Docker |
