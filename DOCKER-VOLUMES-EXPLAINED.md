@@ -126,6 +126,18 @@ s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/
 
 ```yaml
 services:
+  relayer:
+    container_name: hpl-relayer
+    image: gcr.io/abacus-labs-dev/hyperlane-agent:latest
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
+    volumes:
+      - ./hyperlane:/etc/hyperlane    # Configurações
+      - ./relayer:/etc/data           # Database do relayer
+    # Relayer lê checkpoints do S3 (allowLocalCheckpointSyncers: false)
+
   validator-terraclassic:
     container_name: hpl-validator-terraclassic
     image: gcr.io/abacus-labs-dev/hyperlane-agent:latest
@@ -135,7 +147,7 @@ services:
       - AWS_REGION=${AWS_REGION:-us-east-1}
     volumes:
       - ./hyperlane:/etc/hyperlane    # Configurações
-      - ./validator:/etc/data         # Database apenas
+      - ./validator:/etc/data         # Database do validator
     # Checkpoints vão direto para S3, não precisam de volume!
 ```
 

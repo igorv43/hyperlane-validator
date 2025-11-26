@@ -22,7 +22,6 @@ services:
     volumes:
       - ./hyperlane:/etc/hyperlane
       - ./relayer:/etc/data
-      - ./validator:/etc/validator
 
   validator-terraclassic:
     container_name: hpl-validator-terraclassic
