@@ -2,14 +2,15 @@ version: '2'
 services:
   relayer:
     container_name: hpl-relayer
-    # image: gcr.io/abacus-labs-dev/hyperlane-agent:9736164-20240307-131918
-    image:  gcr.io/abacus-labs-dev/hyperlane-agent:latest
+    image: gcr.io/abacus-labs-dev/hyperlane-agent:latest
     user: root
-    # restart: always
     entrypoint: ['sh', '-c']
     environment:
       - RUST_LOG=info,hyperlane=debug,relayer=debug,hyperlane_cosmos=debug
       - HYP_BASE_TRACING_LEVEL=debug
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
     command:
       - |
         rm -rf /app/config/* && \
@@ -22,17 +23,16 @@ services:
       - ./hyperlane:/etc/hyperlane
       - ./relayer:/etc/data
       - ./validator:/etc/validator
-      
-
-  
 
   validator-terraclassic:
     container_name: hpl-validator-terraclassic
-    # image: gcr.io/abacus-labs-dev/hyperlane-agent:9736164-20240307-131918
     image: gcr.io/abacus-labs-dev/hyperlane-agent:latest
     user: root
-    # restart: always
     entrypoint: ['sh', '-c']
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION:-us-east-1}
     command:
       - |
         rm -rf /app/config/* && \
@@ -44,4 +44,3 @@ services:
     volumes:
       - ./hyperlane:/etc/hyperlane
       - ./validator:/etc/validator
-      - ./validator/terraclassic:/etc/data

@@ -1,22 +1,26 @@
 {
   "db": "/etc/data/db",
   "checkpointSyncer": {
-    "type": "localStorage",
-    "path": "/etc/validator/terraclassic/checkpoint"
+    "type": "s3",
+    "bucket": "hyperlane-validator-signatures-igorverasvalidador-terraclassic",
+    "region": "us-east-1"
   },
   "originChainName": "terraclassic",
   "validator": {
-    "type": "hexKey",
-    "key": "0xe45624f7aca7eb9e964eddbfbdb230a369a6dcc26d508778ae8dfc928bafe6c9"
+    "type": "aws",
+    "id": "alias/hyperlane-validator-signer-terraclassic",
+    "region": "us-east-1"
   },
   "chains": {
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "key": "0xe45624f7aca7eb9e964eddbfbdb230a369a6dcc26d508778ae8dfc928bafe6c9",
+        "aws": {
+          "keyId": "alias/hyperlane-validator-signer-terraclassic",
+          "region": "us-east-1"
+        },
         "prefix": "terra"
       }
-     
     }
   }
 }

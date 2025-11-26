@@ -1,0 +1,13 @@
+# Arquivos de ambiente com credenciais
+.env
+
+# Dados dos agentes
+validator/
+relayer/
+
+# Logs
+*.log
+
+# Docker
+docker-compose.override.yml
+

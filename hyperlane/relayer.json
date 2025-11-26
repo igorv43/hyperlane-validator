@@ -15,22 +15,23 @@
     }
   ],
   "chains": {
-   
     "bsc": {
       "signer": {
-        "type": "hexKey",
-        "key": "0x5046246633e0b500026d3d94bbf80dfdb004695f363753aa58c37985e66a6752"
+        "type": "aws",
+        "id": "alias/hyperlane-relayer-signer-bsc",
+        "region": "us-east-1"
       }
     },
     
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "key": "0xe45624f7aca7eb9e964eddbfbdb230a369a6dcc26d508778ae8dfc928bafe6c9",
+        "aws": {
+          "keyId": "alias/hyperlane-validator-signer-terraclassic",
+          "region": "us-east-1"
+        },
         "prefix": "terra"
       }
     }
-    
   }
-  
 }
