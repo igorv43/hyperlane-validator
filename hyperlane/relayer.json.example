@@ -26,12 +26,10 @@
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "aws": {
-          "keyId": "alias/hyperlane-validator-signer-terraclassic",
-          "region": "us-east-1"
-        },
+        "key": "0xYOUR_PRIVATE_KEY_HERE",
         "prefix": "terra"
       }
     }
   }
 }
+
