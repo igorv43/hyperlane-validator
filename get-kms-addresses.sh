@@ -1,14 +1,19 @@
 #!/bin/bash
 
-# Script para descobrir endereços das carteiras AWS KMS
+# Script para descobrir endereços das chaves AWS KMS
+# ⚠️ APENAS PARA BSC (EVM) - Terra Classic usa hexKey
 # Autor: Configuração Hyperlane Validator
 # Data: 2025-11-26
 
 set -e
 
 echo "============================================"
-echo "   DESCOBRINDO ENDEREÇOS DAS CHAVES KMS"
+echo "   DESCOBRIR ENDEREÇOS AWS KMS (BSC)"
 echo "============================================"
+echo ""
+echo "⚠️  IMPORTANTE: Este script é APENAS para BSC!"
+echo "    Terra Classic NÃO suporta AWS KMS."
+echo "    Use hexKey para Terra Classic."
 echo ""
 
 # Cores para output
@@ -50,37 +55,29 @@ echo -e "${GREEN}✅ Ferramentas verificadas${NC}"
 echo ""
 
 # Descobrir endereços
-echo -e "${BLUE}🔍 Descobrindo endereços...${NC}"
+echo -e "${BLUE}🔍 Descobrindo endereço KMS para BSC...${NC}"
 echo ""
 
-# 1. Validador/Relayer Terra Classic
-echo -e "${YELLOW}1️⃣  VALIDADOR + RELAYER TERRA CLASSIC${NC}"
-echo "Chave KMS: alias/hyperlane-validator-signer-terraclassic"
-VALIDATOR_TERRA_ETH=$(cast wallet address --aws alias/hyperlane-validator-signer-terraclassic 2>/dev/null || echo "ERRO")
-
-if [ "$VALIDATOR_TERRA_ETH" != "ERRO" ]; then
-    echo -e "   Formato Ethereum: ${GREEN}$VALIDATOR_TERRA_ETH${NC}"
-    echo "   ⚠️  Conversão para Terra bech32 necessária"
-    echo "   Use: https://www.mintscan.io/cosmos/address-converter"
-    echo "   Ou use o script: ./eth-to-terra.py $VALIDATOR_TERRA_ETH"
-    echo ""
-else
-    echo -e "   ${RED}❌ Erro ao obter endereço${NC}"
-    echo "   Verifique se a chave KMS existe e tem as permissões corretas"
-    echo ""
-fi
-
-# 2. Relayer BSC (verificar se existe)
-echo -e "${YELLOW}2️⃣  RELAYER BSC${NC}"
+# Relayer BSC
+echo -e "${YELLOW}📍 RELAYER BSC (EVM)${NC}"
 echo "Chave KMS: alias/hyperlane-relayer-signer-bsc"
 RELAYER_BSC=$(cast wallet address --aws alias/hyperlane-relayer-signer-bsc 2>/dev/null || echo "NAO_CRIADA")
 
 if [ "$RELAYER_BSC" == "NAO_CRIADA" ]; then
     echo -e "   ${RED}⏳ Chave ainda não criada${NC}"
-    echo "   Esta chave será necessária para o Relayer funcionar com BSC"
+    echo ""
+    echo "   Para criar:"
+    echo "   1. Acesse: https://console.aws.amazon.com/kms"
+    echo "   2. Clique em 'Create key'"
+    echo "   3. Tipo: Asymmetric"
+    echo "   4. Uso: Sign and verify"
+    echo "   5. Spec: ECC_SECG_P256K1"
+    echo "   6. Alias: hyperlane-relayer-signer-bsc"
+    echo ""
+    echo "   Ou siga: SETUP-AWS-KMS.md - Passo 2.2"
     echo ""
 else
-    echo -e "   Endereço: ${GREEN}$RELAYER_BSC${NC}"
+    echo -e "   ✅ Endereço: ${GREEN}$RELAYER_BSC${NC}"
     echo ""
 fi
 
@@ -91,76 +88,70 @@ echo "             📋 RESUMO"
 echo "============================================"
 echo ""
 
-if [ "$VALIDATOR_TERRA_ETH" != "ERRO" ]; then
-    echo -e "${GREEN}✅ Validador Terra Classic:${NC}"
-    echo "   Ethereum: $VALIDATOR_TERRA_ETH"
-    echo "   Terra:    (converter manualmente)"
-    echo ""
-    echo "   💰 Envie LUNC para esta carteira Terra!"
-    echo "   Sugestão: 50-100 LUNC para começar"
-    echo ""
-fi
-
 if [ "$RELAYER_BSC" != "NAO_CRIADA" ]; then
-    echo -e "${GREEN}✅ Relayer BSC:${NC}"
+    echo -e "${GREEN}✅ Relayer BSC (AWS KMS):${NC}"
     echo "   Endereço: $RELAYER_BSC"
     echo ""
     echo "   💰 Envie BNB para esta carteira!"
     echo "   Sugestão: 0.1-0.5 BNB para começar"
     echo ""
+    echo "   Verificar saldo:"
+    echo "   cast balance $RELAYER_BSC --rpc-url https://bsc.drpc.org"
+    echo ""
 else
     echo -e "${YELLOW}⏳ Pendente:${NC}"
     echo "   - Criar chave KMS: hyperlane-relayer-signer-bsc"
-    echo "   - Especificações: Asymmetric, Sign/Verify, ECC_SECG_P256K1"
+    echo "   - Seguir: SETUP-AWS-KMS.md - Passo 2.2"
     echo ""
 fi
 
-# Instruções de conversão
+# Lembrete sobre Terra Classic
 echo "============================================"
-echo "      🔄 CONVERTER PARA FORMATO TERRA"
+echo "      ⚠️  TERRA CLASSIC (COSMOS)"
 echo "============================================"
 echo ""
-echo "Para converter o endereço Ethereum para Terra:"
+echo -e "${RED}Terra Classic NÃO usa AWS KMS!${NC}"
 echo ""
-echo "Opção 1 - Script Python (recomendado):"
-if [ -f "./eth-to-terra.py" ]; then
-    echo "   ./eth-to-terra.py $VALIDATOR_TERRA_ETH"
-else
-    echo "   (Script não encontrado - crie com o conteúdo fornecido)"
-fi
+echo "Para Terra Classic, use hexKey (chave privada local):"
 echo ""
-echo "Opção 2 - Online:"
-echo "   1. Acesse: https://www.mintscan.io/cosmos/address-converter"
-echo "   2. Cole o endereço Ethereum: $VALIDATOR_TERRA_ETH"
-echo "   3. Selecione 'terra' como prefix"
-echo "   4. Copie o endereço 'terra1...'"
+echo "1. Gerar nova chave:"
+echo "   cast wallet new"
+echo ""
+echo "2. Ou usar chave existente"
+echo ""
+echo "3. Descobrir endereços:"
+echo "   ./get-address-from-hexkey.py 0xSUA_CHAVE_PRIVADA"
+echo ""
+echo "4. Configurar em:"
+echo "   - hyperlane/validator.terraclassic.json"
+echo "   - hyperlane/relayer.json"
+echo ""
+echo "📖 Ver guia completo: QUICKSTART.md"
 echo ""
 
-# Gerar comandos úteis
+# Comandos úteis
 echo "============================================"
 echo "         📝 COMANDOS ÚTEIS"
 echo "============================================"
 echo ""
-echo "# Verificar saldo Terra Classic:"
-echo "terrad query bank balances <ENDEREÇO_TERRA> \\"
-echo "  --node https://rpc.terra-classic.hexxagon.io:443"
-echo ""
-echo "# Verificar saldo BSC:"
+
 if [ "$RELAYER_BSC" != "NAO_CRIADA" ]; then
-echo "cast balance $RELAYER_BSC --rpc-url https://bsc.drpc.org"
-else
-echo "cast balance <ENDEREÇO> --rpc-url https://bsc.drpc.org"
+    echo "# Verificar saldo BSC:"
+    echo "cast balance $RELAYER_BSC --rpc-url https://bsc.drpc.org"
+    echo ""
+    echo "# Enviar BNB (exemplo):"
+    echo "cast send <DESTINO> \\"
+    echo "  --value 0.1ether \\"
+    echo "  --aws alias/hyperlane-relayer-signer-bsc \\"
+    echo "  --rpc-url https://bsc.drpc.org"
+    echo ""
 fi
-echo ""
-echo "# Iniciar apenas o validador:"
-echo "docker-compose up -d validator-terraclassic"
-echo ""
-echo "# Ver logs do validador:"
-echo "docker logs -f hpl-validator-terraclassic"
-echo ""
-echo "# Iniciar o relayer (após criar chave BSC):"
+
+echo "# Iniciar relayer:"
 echo "docker-compose up -d relayer"
+echo ""
+echo "# Ver logs do relayer:"
+echo "docker logs -f hpl-relayer"
 echo ""
 
 echo -e "${GREEN}✅ Script concluído!${NC}"
-
