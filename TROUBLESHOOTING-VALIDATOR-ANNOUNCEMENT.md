@@ -1,105 +1,26 @@
-# 🔧 Solução: Erro de Announcement do Validator
+# 🔧 Solução: Erro de Parsing do Validator
 
 ## 🚨 Erro Atual
 
 ```
-WARN validator::validator: Cannot announce validator without a signer; 
-make sure a signer is set for the origin chain, origin_chain: terraclassic
+error: Expected key `key` to be defined
+
+Caused by:
+    ParsingError
+    
+    config_path: `chains.terraclassic.signer.key`
+    env_path: `HYP_CHAINS_TERRACLASSIC_SIGNER_KEY`
+    arg_key: `--chains.terraclassic.signer.key`
+    error: Expected key `key` to be defined
 ```
 
-## 🎯 O Que é o "Announcement"?
+## 🎯 Causa do Erro
 
-O **validator announcement** é uma transação on-chain que informa a outros agentes Hyperlane onde encontrar suas assinaturas de checkpoints.
+A seção `chains.terraclassic.signer` **não deve existir** no arquivo de configuração do **validador**.
 
-**Referência:** [Validator Signatures AWS](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
+### ✅ Configuração Correta
 
-### Fluxo do Announcement
-
-```
-Validator inicia
-     ↓
-Verifica se já fez announcement
-     ↓
-Se NÃO anunciou:
-     ├─→ Cria transação de announcement
-     ├─→ Assina com signer da chain
-     ├─→ Envia para ValidatorAnnounce contract
-     └─→ ✅ Announcement registrado on-chain
-```
-
-## 🔍 Diagnóstico do Problema
-
-### Problema 1: Formato do Signer para Cosmos + AWS KMS
-
-O Hyperlane pode não suportar completamente AWS KMS para `cosmosKey` nesta versão.
-
-**Teste:**
-```bash
-# 1. Instalar AWS CLI (se não tiver)
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-
-# 2. Verificar se a chave KMS existe
-aws kms describe-key \
-  --key-id alias/hyperlane-validator-signer-terraclassic \
-  --region us-east-1
-```
-
-### Problema 2: Falta de Fundos
-
-O announcement é uma transação que requer **gas (LUNC)** para ser enviada.
-
-**Teste:**
-```bash
-# Descobrir endereço (requer cast funcional)
-cast wallet address --aws alias/hyperlane-validator-signer-terraclassic
-
-# Ou usar Python script
-python3 << EOF
-import boto3
-import hashlib
-
-kms = boto3.client('kms', region_name='us-east-1')
-response = kms.get_public_key(KeyId='alias/hyperlane-validator-signer-terraclassic')
-pub_key = response['PublicKey']
-print("Chave pública obtida com sucesso!")
-print(f"Tamanho: {len(pub_key)} bytes")
-EOF
-```
-
-## ✅ Soluções
-
-### Solução 1: Usar hexKey Temporário para Announcement (Recomendado)
-
-Use uma chave hex temporária APENAS para o announcement, mantendo AWS KMS para checkpoints.
-
-**Passo 1:** Gerar chave temporária para announcement
-```bash
-# Gerar chave
-cast wallet new
-
-# Output:
-# Address: 0x1234...
-# Private Key: 0xabcd...
-```
-
-**Passo 2:** Converter para formato Terra
-```bash
-./eth-to-terra.py 0x1234...
-
-# Output:
-# Terra: terra1abc...
-```
-
-**Passo 3:** Enviar pequena quantidade de LUNC (5-10 LUNC)
-```
-Envie para: terra1abc...
-Quantidade: 10 LUNC (10,000,000 uluna)
-Propósito: Apenas para announcement (transação única)
-```
-
-**Passo 4:** Atualizar configuração
+Para validadores Cosmos com AWS KMS, use apenas:
 
 ```json
 {
@@ -114,234 +35,136 @@ Propósito: Apenas para announcement (transação única)
     "type": "aws",
     "id": "alias/hyperlane-validator-signer-terraclassic",
     "region": "us-east-1"
-  },
+  }
+}
+```
+
+### ❌ Configuração Incorreta
+
+**NÃO adicione** a seção `chains`:
+
+```json
+{
+  ...,
   "chains": {
     "terraclassic": {
-      "signer": {
-        "type": "cosmosKey",
-        "key": "0xSUA_CHAVE_TEMPORARIA_HEX",
-        "prefix": "terra"
-      }
+      "signer": { ... }  // ❌ REMOVE ISSO DO VALIDADOR
     }
   }
 }
 ```
 
-**Passo 5:** Reiniciar validador
+## 📋 Diferença: Validator vs Relayer
+
+| Aspecto | Validator | Relayer |
+|---------|-----------|---------|
+| **Propósito** | Assinar checkpoints | Enviar mensagens |
+| **Signer** | Campo `validator` | Campo `chains.{chain}.signer` |
+| **On-chain TX** | Apenas announcement | Muitas transações |
+| **Seção `chains`** | ❌ NÃO necessária | ✅ Necessária |
+
+## 🔍 Por Que o Erro?
+
+### Para Validadores:
+- O campo `validator` já define o signer para **assinar checkpoints**
+- A seção `chains.terraclassic.signer` é **apenas para relayers**
+- Adicionar `chains` no validador causa erro de parsing
+
+### Para Relayers:
+- Precisa de `chains.{chain}.signer` para **enviar transações on-chain**
+- Usa diferentes signers para diferentes chains
+
+## ⚠️ Aviso: "Cannot announce validator without a signer"
+
+Se você ver este aviso **após corrigir o erro de parsing**, significa:
+
+```
+WARN validator::validator: Cannot announce validator without a signer; 
+make sure a signer is set for the origin chain, origin_chain: terraclassic
+```
+
+**Causa:** A carteira KMS **não tem fundos LUNC** para pagar o gas do announcement!
+
+**Solução:** Envie LUNC para o endereço Terra:
+
 ```bash
+# 1. Obter endereço Terra
+./get-terra-address-from-kms.py
+
+# 2. Enviar 50-100 LUNC para o endereço mostrado
+# Exemplo: terra1avet9au6nnjakqlffgegkcckxmtcanm9a6wpnc
+
+# 3. Verificar saldo
+curl "https://terra-classic-lcd.publicnode.com/cosmos/bank/v1beta1/balances/terra1avet9au6nnjakqlffgegkcckxmtcanm9a6wpnc/uluna"
+
+# 4. Reiniciar validador
+docker-compose restart validator-terraclassic
+```
+
+## 📊 Fluxo de Correção
+
+```
+Erro de Parsing
+     ↓
+Remover seção chains do validator.terraclassic.json
+     ↓
+Reiniciar validador
+     ↓
+Validador inicia OK
+     ↓
+Verifica se já fez announcement
+     ↓
+Se NÃO tem fundos LUNC:
+     ├─→ ⚠️ WARN: Cannot announce validator without a signer
+     ├─→ Enviar LUNC para endereço KMS
+     └─→ Reiniciar validador
+     ↓
+Se TEM fundos LUNC:
+     ├─→ Cria transação de announcement
+     ├─→ Assina com AWS KMS
+     ├─→ Envia para ValidatorAnnounce contract
+     └─→ ✅ Announcement registrado on-chain
+     ↓
+Validador começa a assinar checkpoints
+     ↓
+✅ Checkpoints aparecem no S3
+```
+
+## 🛠️ Comandos de Diagnóstico
+
+```bash
+# 1. Verificar configuração do validador
+cat /home/lunc/hyperlane-validator/hyperlane/validator.terraclassic.json
+
+# 2. Obter endereço Terra da chave KMS
+cd /home/lunc/hyperlane-validator
+./get-terra-address-from-kms.py
+
+# 3. Verificar saldo da carteira
+curl "https://terra-classic-lcd.publicnode.com/cosmos/bank/v1beta1/balances/ENDEREÇO_TERRA/uluna"
+
+# 4. Testar validador
 docker-compose restart validator-terraclassic
 docker logs -f hpl-validator-terraclassic
+
+# 5. Verificar checkpoints no S3 (após announcement)
+aws s3 ls s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/ --region us-east-1
 ```
 
-**O que vai acontecer:**
-1. ✅ Validator assina checkpoints com AWS KMS
-2. ✅ Validator faz announcement com hexKey temporária
-3. ✅ Após announcement, os checkpoints assinados são públicos no S3
-4. ⚠️ A hexKey fica exposta no arquivo
+## 📚 Referências
 
-### Solução 2: Financiar a Carteira KMS (Ideal)
+- [Hyperlane Validator Setup](https://docs.hyperlane.xyz/docs/operate/validators/run-validators)
+- [AWS KMS Keys](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#cast-cli)
+- [Validator Signatures AWS](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
+- [Cosmos Signer Configuration](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/main/rust/main/hyperlane-base/src/settings/signers.rs)
 
-Se conseguir obter o endereço Terra da chave KMS:
+## ✅ Correção Aplicada
 
-**Passo 1:** Instalar AWS CLI
-```bash
-# Método 1: Via pip
-pip3 install awscli
+A seção `chains.terraclassic.signer` foi **removida** de `validator.terraclassic.json`.
 
-# Método 2: Download oficial
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
-```
-
-**Passo 2:** Obter endereço
-```bash
-# Via Python (não precisa de cast)
-python3 << 'EOF'
-import boto3
-import hashlib
-import bech32
-
-kms = boto3.client('kms', region_name='us-east-1')
-response = kms.get_public_key(KeyId='alias/hyperlane-validator-signer-terraclassic')
-pub_key_der = response['PublicKey']
-
-# Extrair chave pública (últimos 65 bytes)
-pub_key_bytes = pub_key_der[-65:]
-if pub_key_bytes[0] == 0x04:
-    pub_key_bytes = pub_key_bytes[1:]
-
-# Hash
-sha256_hash = hashlib.sha256(pub_key_bytes).digest()
-ripemd160 = hashlib.new('ripemd160', sha256_hash).digest()
-
-# Bech32
-five_bit = bech32.convertbits(ripemd160, 8, 5)
-terra_addr = bech32.bech32_encode('terra', five_bit)
-
-print(f"Endereço Terra: {terra_addr}")
-EOF
-```
-
-**Passo 3:** Enviar LUNC
-```
-Envie 50-100 LUNC para o endereço Terra obtido
-```
-
-**Passo 4:** Manter configuração AWS KMS
-```json
-{
-  "chains": {
-    "terraclassic": {
-      "signer": {
-        "type": "cosmosKey",
-        "aws": {
-          "keyId": "alias/hyperlane-validator-signer-terraclassic",
-          "region": "us-east-1"
-        },
-        "prefix": "terra"
-      }
-    }
-  }
-}
-```
-
-### Solução 3: Desabilitar Announcement (Temporário)
-
-O announcement pode ser feito depois. O validator pode funcionar sem announcement, mas você precisará anunciar manualmente depois.
-
-**Configuração:**
-```json
-{
-  "validator": {
-    "type": "aws",
-    "id": "alias/hyperlane-validator-signer-terraclassic",
-    "region": "us-east-1"
-  }
-  // Sem seção chains - validator funcionará mas não anunciará
-}
-```
-
-**⚠️ Consequência:** Outros agentes não saberão automaticamente onde encontrar suas assinaturas.
-
-## 🎯 Recomendação
-
-**Para começar rapidamente:**
-1. Use **Solução 1** (hexKey temporária)
-2. Faça o announcement
-3. Depois migre para AWS KMS completo
-
-**Para produção segura:**
-1. Use **Solução 2** (financiar carteira KMS)
-2. Tudo gerenciado pelo AWS KMS
-3. Mais seguro, sem exposição de chaves
-
-## 📊 Comparação
-
-| Solução | Segurança | Complexidade | Tempo | Recomendado |
-|---------|-----------|--------------|-------|-------------|
-| **1. hexKey temporária** | ⚠️ Média | Baixa | 10 min | ✅ Teste |
-| **2. Financiar KMS** | ✅ Alta | Média | 30 min | ✅ Produção |
-| **3. Sem announcement** | ✅ Alta | Baixa | 5 min | ⚠️ Temporário |
-
-## 🛠️ Script para Obter Endereço Terra do KMS
-
-Salve como `get-terra-address-from-kms.py`:
-
-```python
-#!/usr/bin/env python3
-import boto3
-import hashlib
-import os
-
-# Carregar credenciais
-if os.path.exists('.env'):
-    with open('.env') as f:
-        for line in f:
-            if line.strip() and not line.startswith('#') and '=' in line:
-                key, value = line.split('=', 1)
-                os.environ[key.strip()] = value.strip()
-
-try:
-    import bech32
-except ImportError:
-    print("Instale: pip3 install bech32")
-    exit(1)
-
-kms = boto3.client('kms', region_name='us-east-1')
-
-try:
-    response = kms.get_public_key(KeyId='alias/hyperlane-validator-signer-terraclassic')
-    pub_key_der = response['PublicKey']
-    
-    # Extrair chave pública (últimos 65 bytes do DER)
-    pub_key_bytes = pub_key_der[-65:]
-    
-    # Remover prefixo 0x04 se presente
-    if pub_key_bytes[0] == 0x04:
-        pub_key_bytes = pub_key_bytes[1:]
-    
-    # Hash SHA256 -> RIPEMD160
-    sha256_hash = hashlib.sha256(pub_key_bytes).digest()
-    ripemd160 = hashlib.new('ripemd160', sha256_hash).digest()
-    
-    # Converter para bech32 Terra
-    five_bit = bech32.convertbits(ripemd160, 8, 5)
-    terra_addr = bech32.bech32_encode('terra', five_bit)
-    
-    print("=" * 60)
-    print("  ENDEREÇO TERRA DA CHAVE KMS")
-    print("=" * 60)
-    print()
-    print(f"Endereço Terra: {terra_addr}")
-    print()
-    print("📋 Próximos passos:")
-    print(f"1. Envie 50-100 LUNC para: {terra_addr}")
-    print("2. Aguarde confirmação na blockchain")
-    print("3. Reinicie o validador: docker-compose restart validator-terraclassic")
-    print()
-    
-except Exception as e:
-    print(f"❌ Erro: {e}")
-    print()
-    print("Possíveis causas:")
-    print("1. AWS CLI não configurado")
-    print("2. Credenciais no .env incorretas")
-    print("3. Chave KMS não existe ou sem permissões")
-    print()
-    print("Solução:")
-    print("- Verifique o arquivo .env")
-    print("- Confirme que a chave KMS existe no AWS Console")
-```
-
----
-
-**Execute:**
-```bash
-chmod +x get-terra-address-from-kms.py
-./get-terra-address-from-kms.py
-```
-
-## 📞 Precisa de Ajuda?
-
-Se continuar com problemas:
-
-1. **Instale AWS CLI:**
-   ```bash
-   pip3 install awscli --user
-   # Ou
-   curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-   unzip awscliv2.zip
-   sudo ./aws/install
-   ```
-
-2. **Verifique a chave KMS no AWS Console:**
-   - https://console.aws.amazon.com/kms
-   - Procure por: `hyperlane-validator-signer-terraclassic`
-
-3. **Use a Solução 1** (hexKey temporária) se tiver urgência
-
----
-
-**✅ Próximo passo:** Escolha uma solução e execute!
-
+**Próximos passos:**
+1. ✅ Configuração corrigida
+2. ⏳ Reiniciar validador
+3. ⏳ Enviar LUNC para o endereço KMS
+4. ⏳ Verificar announcement on-chain
+5. ⏳ Monitorar checkpoints no S3
