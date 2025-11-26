@@ -1,35 +1,35 @@
-# ⚠️ AWS KMS não funciona para Cosmos (Terra Classic)
+# ⚠️ AWS KMS does not work for Cosmos (Terra Classic)
 
-## 🚨 **Conclusão Direta**
+## 🚨 **Direct Conclusion**
 
-**AWS KMS NÃO é suportado para blockchains Cosmos** (incluindo Terra Classic) no Hyperlane.
+**AWS KMS is NOT supported for Cosmos blockchains** (including Terra Classic) in Hyperlane.
 
-**Solução**: Use **hexKey** (chaves privadas locais) conforme o guia [`QUICKSTART.md`](QUICKSTART.md).
+**Solution**: Use **hexKey** (local private keys) as shown in [`QUICKSTART.md`](QUICKSTART.md).
 
 ---
 
-## 🔍 **Por Que Não Funciona?**
+## 🔍 **Why Doesn't It Work?**
 
-O Hyperlane validator/relayer **requer DUAS operações** para chains Cosmos:
+Hyperlane validator/relayer **requires TWO operations** for Cosmos chains:
 
-| Operação | Signer | Suporte AWS KMS | Status |
-|----------|--------|-----------------|--------|
-| **Assinar Checkpoints** | `validator.type` | ✅ Sim | ✅ Funciona |
-| **Transações On-Chain** | `chains.{chain}.signer` | ❌ **NÃO** | ❌ Não funciona |
+| Operation | Signer | AWS KMS Support | Status |
+|-----------|--------|-----------------|--------|
+| **Sign Checkpoints** | `validator.type` | ✅ Yes | ✅ Works |
+| **On-Chain Transactions** | `chains.{chain}.signer` | ❌ **NO** | ❌ Doesn't work |
 
-### Problema Técnico
+### Technical Problem
 
-O parser do Hyperlane (`hyperlane-base/src/settings/parser`) **exige** um campo `key` (chave hexadecimal) para signers do tipo `cosmosKey`:
+Hyperlane parser (`hyperlane-base/src/settings/parser`) **requires** a `key` field (hexadecimal key) for `cosmosKey` type signers:
 
 ```json
-// ❌ NÃO FUNCIONA
+// ❌ DOESN'T WORK
 {
   "chains": {
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
         "aws": {
-          "keyId": "alias/...",  // ❌ Parser não aceita
+          "keyId": "alias/...",  // ❌ Parser doesn't accept
           "region": "us-east-1"
         }
       }
@@ -38,7 +38,7 @@ O parser do Hyperlane (`hyperlane-base/src/settings/parser`) **exige** um campo 
 }
 ```
 
-**Erro resultante:**
+**Resulting error:**
 ```
 error: Expected key `key` to be defined
 
@@ -48,12 +48,12 @@ error: Expected key `key` to be defined
 
 ---
 
-## ✅ **Solução: hexKey**
+## ✅ **Solution: hexKey**
 
-Use chaves privadas locais:
+Use local private keys:
 
 ```json
-// ✅ FUNCIONA
+// ✅ WORKS
 {
   "validator": {
     "type": "hexKey",
@@ -63,7 +63,7 @@ Use chaves privadas locais:
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "key": "0x...",  // ✅ Campo obrigatório
+        "key": "0x...",  // ✅ Required field
         "prefix": "terra"
       }
     }
@@ -71,122 +71,122 @@ Use chaves privadas locais:
 }
 ```
 
-📖 **Guia completo**: [`QUICKSTART.md`](QUICKSTART.md)  
-🔐 **Segurança**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md)
+📖 **Complete guide**: [`QUICKSTART.md`](QUICKSTART.md)  
+🔐 **Security**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md)
 
 ---
 
-## 🔐 **Comparação: EVM vs Cosmos**
+## 🔐 **Comparison: EVM vs Cosmos**
 
-| Aspecto | EVM (BSC) | Cosmos (Terra Classic) |
+| Aspect | EVM (BSC) | Cosmos (Terra Classic) |
 |---------|-----------|------------------------|
-| **AWS KMS** | ✅ Suportado | ❌ NÃO suportado |
+| **AWS KMS** | ✅ Supported | ❌ NOT supported |
 | **Signer Type** | `"type": "aws"` | `"type": "cosmosKey"` + `"key"` |
-| **Exemplo** | `{"type": "aws", "id": "alias/..."}` | `{"type": "cosmosKey", "key": "0x..."}` |
-| **Segurança** | KMS (CloudHSM) | Chave local (arquivo 600) |
+| **Example** | `{"type": "aws", "id": "alias/..."}` | `{"type": "cosmosKey", "key": "0x..."}` |
+| **Security** | KMS (CloudHSM) | Local key (file 600) |
 
 ---
 
-## 🎯 **O Que Funciona**
+## 🎯 **What Works**
 
-### ✅ Validator Operacional
+### ✅ Operational Validator
 
-Mesmo usando hexKey, o validator **funciona perfeitamente**:
+Even using hexKey, validator **works perfectly**:
 
 ```bash
-# Status do validator
+# Validator status
 docker logs hpl-validator-terraclassic --tail 20
 
-# Procurar por:
+# Look for:
 # ✅ "Successfully announced validator"
 # ✅ "Validator has announced signature storage location"
 # ✅ "s3://hyperlane-validator-signatures-.../us-east-1"
 ```
 
-### ✅ Funcionalidades
+### ✅ Features
 
-- ✅ Assina checkpoints de mensagens
-- ✅ Salva assinaturas no AWS S3
-- ✅ Faz announcement on-chain
-- ✅ Valida mensagens cross-chain
-- ✅ API de métricas disponível
-
----
-
-## 🔄 **Alternativas Futuras**
-
-### Opção 1: Aguardar Suporte Oficial
-
-Hyperlane pode adicionar suporte AWS KMS para Cosmos no futuro.
-
-**Referência**: https://github.com/hyperlane-xyz/hyperlane-monorepo
-
-### Opção 2: Hardware Wallet
-
-Use hardware wallets (Ledger, Trezor) para Cosmos:
-- Chaves nunca expostas
-- Requer integração manual
-- Complexidade elevada
-
-### Opção 3: Custódia Terceirizada
-
-Serviços como Fireblocks, Anchorage oferecem custódia para Cosmos:
-- Requer contrato comercial
-- Custos elevados
-- Para operadores enterprise
+- ✅ Signs message checkpoints
+- ✅ Saves signatures to AWS S3
+- ✅ Makes announcement on-chain
+- ✅ Validates cross-chain messages
+- ✅ Metrics API available
 
 ---
 
-## 📊 **Impacto na Segurança**
+## 🔄 **Future Alternatives**
+
+### Option 1: Wait for Official Support
+
+Hyperlane may add AWS KMS support for Cosmos in the future.
+
+**Reference**: https://github.com/hyperlane-xyz/hyperlane-monorepo
+
+### Option 2: Hardware Wallet
+
+Use hardware wallets (Ledger, Trezor) for Cosmos:
+- Keys never exposed
+- Requires manual integration
+- High complexity
+
+### Option 3: Third-Party Custody
+
+Services like Fireblocks, Anchorage offer Cosmos custody:
+- Requires commercial contract
+- High costs
+- For enterprise operators
+
+---
+
+## 📊 **Security Impact**
 
 ### hexKey (Local) vs AWS KMS
 
-| Aspecto | hexKey | AWS KMS |
+| Aspect | hexKey | AWS KMS |
 |---------|--------|---------|
-| **Chave exposta** | ⚠️ Arquivo local | ✅ CloudHSM |
-| **Backup** | 📝 Manual | ✅ Automático |
-| **Auditoria** | ❌ Limitada | ✅ CloudTrail |
-| **Custo** | ✅ Grátis | 💰 ~$1/mês |
-| **Complexidade** | ✅ Simples | ⚠️ Configuração AWS |
+| **Key exposed** | ⚠️ Local file | ✅ CloudHSM |
+| **Backup** | 📝 Manual | ✅ Automatic |
+| **Audit** | ❌ Limited | ✅ CloudTrail |
+| **Cost** | ✅ Free | 💰 ~$1/month |
+| **Complexity** | ✅ Simple | ⚠️ AWS setup |
 
-### Mitigações Implementadas
+### Implemented Mitigations
 
-✅ **Permissões 600** (apenas owner lê)  
-✅ **`.gitignore`** (não vai para Git)  
-✅ **Arquivos .example** (documentação sem chaves)  
-✅ **Guia de backup** ([`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md))
-
----
-
-## 🛡️ **Recomendações de Segurança**
-
-### Para Produção com hexKey
-
-1. **Servidor Dedicado**
-   - Não compartilhado
-   - Acesso restrito (SSH key-only)
-   - Firewall configurado
-
-2. **Backup Redundante**
-   - Mínimo 3 cópias
-   - Locais diferentes
-   - 1 offline (USB criptografado)
-
-3. **Monitoramento**
-   - Alertas de saldo baixo
-   - Logs centralizados
-   - Transações auditadas
-
-4. **Rotação de Chaves**
-   - A cada 3-6 meses
-   - Após suspeita de comprometimento
-   - Processo documentado
-
-📖 **Guia completo**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md)
+✅ **Permissions 600** (owner read only)  
+✅ **`.gitignore`** (not committed to Git)  
+✅ **`.example` files** (documentation without keys)  
+✅ **Backup guide** ([`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md))
 
 ---
 
-## 📚 **Referências**
+## 🛡️ **Production Security Recommendations**
+
+### For Production with hexKey
+
+1. **Dedicated Server**
+   - Not shared
+   - Restricted access (SSH key-only)
+   - Configured firewall
+
+2. **Redundant Backup**
+   - Minimum 3 copies
+   - Different locations
+   - 1 offline (encrypted USB)
+
+3. **Monitoring**
+   - Low balance alerts
+   - Centralized logs
+   - Audited transactions
+
+4. **Key Rotation**
+   - Every 3-6 months
+   - After suspected compromise
+   - Documented process
+
+📖 **Complete guide**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md)
+
+---
+
+## 📚 **References**
 
 - [Hyperlane Validator Setup](https://docs.hyperlane.xyz/docs/operate/validators/run-validators)
 - [AWS KMS Keys](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys)
@@ -195,14 +195,14 @@ Serviços como Fireblocks, Anchorage oferecem custódia para Cosmos:
 
 ---
 
-## ✅ **Próximos Passos**
+## ✅ **Next Steps**
 
-1. **Seguir**: [`QUICKSTART.md`](QUICKSTART.md)
-2. **Configurar**: hexKey para Terra Classic
-3. **Proteger**: Seguir [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md)
-4. **Iniciar**: `docker-compose up -d validator-terraclassic`
-5. **Monitorar**: `docker logs -f hpl-validator-terraclassic`
+1. **Follow**: [`QUICKSTART.md`](QUICKSTART.md)
+2. **Configure**: hexKey for Terra Classic
+3. **Secure**: Follow [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md)
+4. **Start**: `docker-compose up -d validator-terraclassic`
+5. **Monitor**: `docker logs -f hpl-validator-terraclassic`
 
 ---
 
-**🎯 Conclusão**: Use hexKey conforme documentado. Funciona perfeitamente! ✅
+**🎯 Conclusion**: Use hexKey as documented. Works perfectly! ✅
