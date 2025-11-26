@@ -43,4 +43,4 @@ services:
       - 9121:9090
     volumes:
       - ./hyperlane:/etc/hyperlane
-      - ./validator:/etc/validator
+      - ./validator:/etc/data
