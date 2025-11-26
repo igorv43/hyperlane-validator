@@ -51,13 +51,16 @@ docker-compose up -d relayer
 
 - **[SETUP-AWS-KMS.md](SETUP-AWS-KMS.md)** - Configuração completa do validador e relayer
 - **[TRANSFER-GUIDE.md](TRANSFER-GUIDE.md)** - Como transferir/sacar LUNC usando AWS KMS
+- **[TERRAD-KMS-GUIDE.md](TERRAD-KMS-GUIDE.md)** - Guia completo do terrad CLI + AWS KMS
+- **[CHECKLIST.md](CHECKLIST.md)** - Checklist interativo de configuração
 - **[.env.example](.env.example)** - Template de configuração
 
 ### Scripts Utilitários
 
 - **`get-kms-addresses.sh`** - Descobre endereços das chaves KMS
 - **`eth-to-terra.py`** - Converte endereços Ethereum → Terra bech32
-- **`transfer-lunc-kms.py`** - Transfere LUNC usando AWS KMS
+- **`transfer-lunc-kms.py`** - Transfere LUNC usando AWS KMS (Python)
+- **`terrad-kms-transfer.sh`** - Integração terrad CLI + AWS KMS
 
 ## 🏗️ Arquitetura
 
@@ -143,6 +146,7 @@ cast send ENDERECO_DESTINO \
 
 ### Para Terra Classic (LUNC)
 
+**Método 1: Script Python (Recomendado)**
 ```bash
 # Instalar dependências
 pip3 install boto3 bech32 ecdsa requests
@@ -151,7 +155,23 @@ pip3 install boto3 bech32 ecdsa requests
 ./transfer-lunc-kms.py terra1destinatario... 10000000 "Saque"
 ```
 
-**📖 Guia completo:** Ver [TRANSFER-GUIDE.md](TRANSFER-GUIDE.md)
+**Método 2: terrad CLI**
+```bash
+# Instalar terrad
+wget https://github.com/classic-terra/core/releases/download/v2.3.1/terra_2.3.1_Linux_x86_64.tar.gz
+tar -xzf terra_2.3.1_Linux_x86_64.tar.gz
+sudo mv terrad /usr/local/bin/
+
+# Consultar saldo
+terrad query bank balances terra1abc... --node https://rpc.terra-classic.hexxagon.io:443
+
+# Ver guia completo do terrad
+cat TERRAD-KMS-GUIDE.md
+```
+
+**📖 Guias completos:** 
+- [TRANSFER-GUIDE.md](TRANSFER-GUIDE.md) - Transferências com Python
+- [TERRAD-KMS-GUIDE.md](TERRAD-KMS-GUIDE.md) - Usando terrad CLI
 
 ## 🔐 Segurança
 
