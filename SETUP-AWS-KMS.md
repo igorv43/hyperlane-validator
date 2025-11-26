@@ -65,30 +65,438 @@ Antes de começar, consulte a documentação oficial do Hyperlane:
 
 ---
 
-## 🔑 Configuração AWS
+## 🔑 Configuração AWS Completa
 
-**📖 Referências:**
+**📖 Referências Oficiais:**
 - [Agent Keys Setup](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys)
 - [AWS KMS Configuration](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#2-aws-kms)
+- [AWS Signatures Bucket](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
 
-### 1. Criar Chave KMS para BSC (Pendente)
+---
 
-Acesse o AWS Console → KMS → Chaves gerenciadas pelo cliente:
+## 📋 PASSO 1: Criar Usuário IAM
 
-1. **Criar chave**
-2. Configurações:
-   - Tipo: **Asymmetric**
-   - Uso: **Sign and verify**
-   - Spec: **ECC_SECG_P256K1**
-3. Alias: `hyperlane-relayer-signer-bsc`
-4. Permissões: Adicionar usuário `hyperlane-validator-terraclassic`
-5. Finalizar criação
+**Referência:** [Create an IAM user](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#create-an-iam-user)
 
-### 2. Verificar Permissões IAM
+Este usuário IAM terá permissões para usar as chaves KMS e acessar o bucket S3.
 
-Certifique-se que o usuário IAM tem permissões para:
-- Usar as chaves KMS (kms:GetPublicKey, kms:Sign)
-- Acessar o bucket S3 (s3:GetObject, s3:PutObject, s3:DeleteObject)
+### 1.1 Acessar AWS IAM Console
+
+1. Acesse: https://us-east-1.console.aws.amazon.com/iamv2/home
+2. No menu lateral esquerdo, clique em **"Users"** (Usuários)
+3. Clique no botão laranja **"Add users"** (Adicionar usuários)
+
+### 1.2 Configurar Usuário
+
+1. **Username** (Nome de usuário):
+   ```
+   hyperlane-validator-terraclassic
+   ```
+   ou use o formato: `hyperlane-validator-${chain_name}`
+
+2. Clique em **"Next"** (Próximo)
+
+3. **NÃO** selecione nenhuma permissão por enquanto
+   - As permissões serão dadas via políticas de KMS e S3
+
+4. Clique em **"Next"** novamente
+
+5. Clique em **"Create user"** (Criar usuário)
+
+### 1.3 Criar Access Keys
+
+1. Clique no usuário recém-criado para abrir seus detalhes
+
+2. Clique na aba **"Security credentials"** (Credenciais de segurança)
+
+3. Role para baixo até **"Access keys"** (Chaves de acesso)
+
+4. Clique em **"Create access key"** (Criar chave de acesso)
+
+5. Selecione **"Application running outside AWS"** (Aplicação executando fora da AWS)
+   - Marque a caixa de confirmação
+
+6. Clique em **"Next"**
+
+7. (Opcional) Adicione uma descrição, exemplo: "Hyperlane Validator Keys"
+
+8. Clique em **"Create access key"**
+
+9. **⚠️ IMPORTANTE**: Copie e guarde com segurança:
+   ```
+   Access key ID: AKIAIOSFODNN7EXAMPLE
+   Secret access key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+   ```
+
+10. Clique em **"Done"**
+
+✅ **Usuário IAM criado com sucesso!**
+
+---
+
+## 🔐 PASSO 2: Criar Chaves KMS
+
+**Referência:** [Create a KMS key](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#create-a-kms-key)
+
+Você precisa criar **2 chaves KMS**:
+- 1 para o Validator/Relayer Terra Classic (já criada: ✅)
+- 1 para o Relayer BSC (ainda não criada: ⏳)
+
+### 2.1 Acessar AWS KMS Console
+
+1. Acesse: https://console.aws.amazon.com/kms
+2. **⚠️ IMPORTANTE**: Verifique a região no canto superior direito
+   - Use: **US East (N. Virginia) us-east-1**
+   - A URL deve começar com: `us-east-1.console.aws.amazon.com`
+
+### 2.2 Criar Chave KMS para BSC
+
+#### 2.2.1 Iniciar Criação
+
+1. No menu lateral, clique em **"Customer managed keys"** (Chaves gerenciadas pelo cliente)
+
+2. Clique no botão **"Create key"** (Criar chave)
+
+#### 2.2.2 Configurar Tipo de Chave
+
+1. **Key type** (Tipo de chave):
+   - Selecione: ⚪ **Asymmetric** (Assimétrica)
+
+2. **Key usage** (Uso da chave):
+   - Selecione: ⚪ **Sign and verify** (Assinar e verificar)
+
+3. **Key spec** (Especificação da chave):
+   - Selecione: **ECC_SECG_P256K1**
+   - ⚠️ Este é o padrão usado por Ethereum/BSC
+
+4. Clique em **"Next"** (Próximo)
+
+#### 2.2.3 Configurar Alias e Descrição
+
+1. **Alias**:
+   ```
+   hyperlane-relayer-signer-bsc
+   ```
+
+2. **Description** (Descrição) - Opcional:
+   ```
+   Chave para assinar transações do Hyperlane Relayer na BSC
+   ```
+
+3. **Tags** (Etiquetas) - Opcional:
+   ```
+   Key: Project    Value: Hyperlane
+   Key: Chain      Value: BSC
+   Key: Service    Value: Relayer
+   ```
+
+4. Clique em **"Next"**
+
+#### 2.2.4 Definir Administradores
+
+1. **Key administrators** (Administradores da chave) - Opcional
+   - Você pode selecionar sua conta de usuário principal
+   - Ou deixar vazio
+
+2. Clique em **"Next"**
+
+#### 2.2.5 Definir Permissões de Uso
+
+1. **This account** (Esta conta):
+   - Procure e selecione: ☑️ **hyperlane-validator-terraclassic**
+   - Este é o usuário IAM que você criou no Passo 1
+
+2. **⚠️ IMPORTANTE**: Certifique-se de que o usuário está selecionado!
+
+3. Clique em **"Next"**
+
+#### 2.2.6 Revisar Key Policy
+
+1. A política gerada deve parecer com:
+   ```json
+   {
+     "Sid": "Allow use of the key",
+     "Effect": "Allow",
+     "Principal": {
+       "AWS": "arn:aws:iam::435929993977:user/hyperlane-validator-terraclassic"
+     },
+     "Action": [
+       "kms:GetPublicKey",
+       "kms:Sign"
+     ],
+     "Resource": "*"
+   }
+   ```
+
+2. **Opcional** - Para maior segurança, você pode:
+   - Remover `kms:DescribeKey` e `kms:Verify` (não são necessários)
+   - Remover a seção "Allow attachment of persistent resources"
+
+3. Clique em **"Finish"** (Concluir)
+
+#### 2.2.7 Anotar Informações
+
+Após a criação, anote:
+
+```
+Alias: hyperlane-relayer-signer-bsc
+Key ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+ARN: arn:aws:kms:us-east-1:435929993977:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Region: us-east-1
+```
+
+✅ **Chave KMS para BSC criada com sucesso!**
+
+### 2.3 Verificar Chaves KMS Criadas
+
+Liste suas chaves para confirmar:
+
+```bash
+# Via AWS CLI
+aws kms list-aliases --region us-east-1 | grep hyperlane
+
+# Ou via Console
+# https://console.aws.amazon.com/kms → Customer managed keys
+```
+
+Você deve ver:
+- ✅ `hyperlane-validator-signer-terraclassic` (já existente)
+- ✅ `hyperlane-relayer-signer-bsc` (recém-criada)
+
+---
+
+## 🪣 PASSO 3: Criar e Configurar Bucket S3
+
+**Referência:** [AWS Signatures Bucket Setup](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
+
+⚠️ **NOTA**: Você já criou o bucket! Esta seção documenta como foi feito.
+
+### 3.1 Criar Bucket S3
+
+#### 3.1.1 Acessar S3 Console
+
+1. Acesse: https://s3.console.aws.amazon.com/s3
+2. Clique em **"Create bucket"** (Criar bucket)
+
+#### 3.1.2 Configurar Bucket
+
+1. **Bucket name** (Nome do bucket):
+   ```
+   hyperlane-validator-signatures-igorverasvalidador-terraclassic
+   ```
+   
+   **Formato recomendado:**
+   ```
+   hyperlane-validator-signatures-${seu_nome}-${chain_name}
+   ```
+
+2. **AWS Region** (Região):
+   - Selecione: **US East (N. Virginia) us-east-1**
+   - ⚠️ Deve ser a mesma região das chaves KMS!
+
+3. **Object Ownership** (Propriedade de objetos):
+   - Mantenha: **ACLs disabled** (ACLs desabilitadas)
+
+4. **Block Public Access settings** (Configurações de acesso público):
+   - ⚠️ **DESMARQUE** "Block all public access"
+   - Marque a caixa de confirmação:
+     ☑️ "I acknowledge that the current settings might result in this bucket..."
+   
+   **Por quê?** Outros agentes Hyperlane precisam ler os checkpoints publicamente.
+
+5. **Bucket Versioning** (Versionamento):
+   - Mantenha: **Disable** (Desabilitado)
+
+6. **Tags** (Etiquetas) - Opcional:
+   ```
+   Key: Project    Value: Hyperlane
+   Key: Chain      Value: TerraClassic
+   Key: Service    Value: Validator
+   ```
+
+7. **Default encryption** (Criptografia padrão):
+   - Mantenha: **Server-side encryption with Amazon S3 managed keys (SSE-S3)**
+
+8. Clique em **"Create bucket"** (Criar bucket)
+
+✅ **Bucket S3 criado com sucesso!**
+
+### 3.2 Configurar Bucket Policy (Política de Acesso)
+
+**Referência:** [Bucket Policy](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws#bucket-policy)
+
+Esta política permite:
+- ✅ Leitura pública (qualquer agente Hyperlane)
+- ✅ Escrita apenas pelo seu usuário IAM
+
+#### 3.2.1 Acessar Permissões do Bucket
+
+1. No S3 Console, clique no bucket recém-criado
+
+2. Clique na aba **"Permissions"** (Permissões)
+
+3. Role até **"Bucket policy"** (Política do bucket)
+
+4. Clique em **"Edit"** (Editar)
+
+#### 3.2.2 Adicionar Policy
+
+Cole esta política (substituindo os valores):
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "PublicReadAccess",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::hyperlane-validator-signatures-igorverasvalidador-terraclassic",
+        "arn:aws:s3:::hyperlane-validator-signatures-igorverasvalidador-terraclassic/*"
+      ]
+    },
+    {
+      "Sid": "ValidatorWriteAccess",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::435929993977:user/hyperlane-validator-terraclassic"
+      },
+      "Action": [
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": "arn:aws:s3:::hyperlane-validator-signatures-igorverasvalidador-terraclassic/*"
+    }
+  ]
+}
+```
+
+**⚠️ Substitua:**
+- Nome do bucket: `hyperlane-validator-signatures-igorverasvalidador-terraclassic`
+- ARN do usuário: `arn:aws:iam::435929993977:user/hyperlane-validator-terraclassic`
+
+#### 3.2.3 Salvar Policy
+
+1. Clique em **"Save changes"** (Salvar alterações)
+
+2. Você verá um aviso sobre acesso público - isso é esperado!
+
+✅ **Política do bucket configurada com sucesso!**
+
+### 3.3 Testar Acesso ao Bucket
+
+```bash
+# Configurar credenciais
+export AWS_ACCESS_KEY_ID=sua_access_key
+export AWS_SECRET_ACCESS_KEY=sua_secret_key
+export AWS_REGION=us-east-1
+
+# Testar listagem
+aws s3 ls s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/
+
+# Testar escrita (upload)
+echo "test" > test.txt
+aws s3 cp test.txt s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/
+rm test.txt
+
+# Testar leitura pública (sem credenciais)
+curl https://hyperlane-validator-signatures-igorverasvalidador-terraclassic.s3.us-east-1.amazonaws.com/test.txt
+
+# Limpar
+aws s3 rm s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/test.txt
+```
+
+Se todos os comandos funcionarem, está configurado corretamente! ✅
+
+---
+
+## ✅ PASSO 4: Verificar Configuração Completa
+
+### 4.1 Checklist de Recursos AWS
+
+- [ ] ✅ Usuário IAM criado: `hyperlane-validator-terraclassic`
+- [ ] ✅ Access Key ID e Secret obtidos e guardados no `.env`
+- [ ] ✅ Chave KMS 1: `hyperlane-validator-signer-terraclassic` (Terra)
+- [ ] ✅ Chave KMS 2: `hyperlane-relayer-signer-bsc` (BSC)
+- [ ] ✅ Bucket S3: `hyperlane-validator-signatures-igorverasvalidador-terraclassic`
+- [ ] ✅ Bucket Policy configurada (leitura pública + escrita IAM)
+- [ ] ✅ Todas na mesma região: `us-east-1`
+
+### 4.2 Testar Permissões KMS
+
+```bash
+# Configurar ambiente
+export AWS_ACCESS_KEY_ID=sua_access_key
+export AWS_SECRET_ACCESS_KEY=sua_secret_key
+export AWS_REGION=us-east-1
+
+# Testar chave Terra Classic
+aws kms describe-key \
+  --key-id alias/hyperlane-validator-signer-terraclassic \
+  --region us-east-1
+
+# Testar chave BSC
+aws kms describe-key \
+  --key-id alias/hyperlane-relayer-signer-bsc \
+  --region us-east-1
+
+# Obter chaves públicas
+aws kms get-public-key \
+  --key-id alias/hyperlane-validator-signer-terraclassic \
+  --region us-east-1
+
+aws kms get-public-key \
+  --key-id alias/hyperlane-relayer-signer-bsc \
+  --region us-east-1
+```
+
+Se todos funcionarem sem erros, as permissões estão corretas! ✅
+
+### 4.3 Documentar Informações
+
+Crie um arquivo seguro com todas as informações:
+
+```bash
+# criar arquivo (somente você pode ler)
+touch ~/hyperlane-aws-info.txt
+chmod 600 ~/hyperlane-aws-info.txt
+
+# Adicionar informações
+cat >> ~/hyperlane-aws-info.txt << 'EOF'
+=== HYPERLANE AWS CONFIGURATION ===
+
+IAM User:
+- Username: hyperlane-validator-terraclassic
+- ARN: arn:aws:iam::435929993977:user/hyperlane-validator-terraclassic
+- Access Key ID: AKIAWK73T2L43T4Y46WJ
+- Secret Access Key: (no arquivo .env)
+
+KMS Keys:
+1. Validator/Relayer Terra Classic
+   - Alias: hyperlane-validator-signer-terraclassic
+   - Key ID: e04c688d-f13a-4031-99ad-8c7095f8c461
+   - ARN: arn:aws:kms:us-east-1:435929993977:key/e04c688d-f13a-4031-99ad-8c7095f8c461
+
+2. Relayer BSC
+   - Alias: hyperlane-relayer-signer-bsc
+   - Key ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+   - ARN: arn:aws:kms:us-east-1:435929993977:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+
+S3 Bucket:
+- Name: hyperlane-validator-signatures-igorverasvalidador-terraclassic
+- Region: us-east-1
+- URL: https://hyperlane-validator-signatures-igorverasvalidador-terraclassic.s3.us-east-1.amazonaws.com/
+
+Region: us-east-1
+EOF
+```
+
+✅ **Configuração AWS completa e documentada!**
 
 ---
 
