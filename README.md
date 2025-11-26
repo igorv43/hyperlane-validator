@@ -1,6 +1,14 @@
-# 🌉 Hyperlane Validator & Relayer com AWS KMS
+# 🌉 Hyperlane Validator & Relayer - Terra Classic ↔ BSC
 
-Configuração completa de validador e relayer Hyperlane para Terra Classic ↔ BSC usando AWS KMS para gerenciamento seguro de chaves.
+Configuração completa de validador e relayer Hyperlane para Terra Classic ↔ BSC.
+
+## ⚠️ **IMPORTANTE: Gerenciamento de Chaves**
+
+- **Terra Classic (Cosmos)**: Usa **hexKey** (chaves privadas locais)
+  - AWS KMS **NÃO é suportado** para chains Cosmos
+- **BSC (EVM)**: Usa **AWS KMS** (recomendado para produção)
+
+📖 **Leia**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md) para detalhes completos de segurança
 
 ## 🚀 Quick Start
 
@@ -10,21 +18,31 @@ Configuração completa de validador e relayer Hyperlane para Terra Classic ↔ 
 # Copiar template
 cp .env.example .env
 
-# Editar com suas credenciais AWS
+# Editar com suas credenciais AWS (para BSC)
 nano .env
 ```
 
-### 2. Descobrir Endereços das Carteiras
+### 2. Configurar Chaves
+
+#### Para Terra Classic (hexKey):
 
 ```bash
-# Instalar dependências
-pip3 install bech32
+# Gerar nova chave (Foundry)
+cast wallet new
 
+# Ou usar chave existente
+# Editar hyperlane/validator.terraclassic.json
+# Editar hyperlane/relayer.json
+
+# Descobrir endereços da chave
+./get-address-from-hexkey.py 0xSUA_CHAVE_PRIVADA
+```
+
+#### Para BSC (AWS KMS):
+
+```bash
 # Descobrir endereços KMS
 ./get-kms-addresses.sh
-
-# Converter para formato Terra
-./eth-to-terra.py 0xSEU_ENDERECO_ETHEREUM
 ```
 
 ### 3. Financiar Carteiras
@@ -45,7 +63,36 @@ docker logs -f hpl-validator-terraclassic
 docker-compose up -d relayer
 ```
 
+### 3. Financiar Carteiras
+
+- **Terra Classic**: Envie 100-500 LUNC para o endereço Terra
+- **BSC**: Envie 0.1-0.5 BNB para o endereço BSC (KMS)
+
+### 4. Iniciar Serviços
+
+```bash
+# Iniciar validador
+docker-compose up -d validator-terraclassic
+
+# Ver logs
+docker logs -f hpl-validator-terraclassic
+
+# Aguardar announcement bem-sucedido
+# Procurar por: "Successfully announced validator"
+
+# Iniciar relayer (opcional)
+docker-compose up -d relayer
+```
+
 ## 📚 Documentação
+
+### 🔐 Segurança
+
+- **[SECURITY-HEXKEY.md](SECURITY-HEXKEY.md)** - Guia completo de segurança para chaves locais
+  - Por que AWS KMS não funciona para Cosmos
+  - Medidas de segurança implementadas
+  - Backup e recuperação de chaves
+  - Monitoramento e alertas
 
 ### Guias Principais
 
