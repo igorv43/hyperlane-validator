@@ -10,17 +10,5 @@
     "type": "aws",
     "id": "alias/hyperlane-validator-signer-terraclassic",
     "region": "us-east-1"
-  },
-  "chains": {
-    "terraclassic": {
-      "signer": {
-        "type": "cosmosKey",
-        "aws": {
-          "keyId": "alias/hyperlane-validator-signer-terraclassic",
-          "region": "us-east-1"
-        },
-        "prefix": "terra"
-      }
-    }
   }
 }
