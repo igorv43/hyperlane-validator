@@ -1,44 +1,44 @@
-# 🔄 Guia de Configuração do Relayer
+# 🔄 Relayer Configuration Guide
 
-## 📋 **O Que é o Relayer?**
+## 📋 **What is the Relayer?**
 
-O **Relayer** é o componente que **transmite mensagens** entre blockchains diferentes. Ele lê mensagens de uma chain origem e as entrega na chain destino.
+The **Relayer** is the component that **transmits messages** between different blockchains. It reads messages from a source chain and delivers them to the destination chain.
 
-### Fluxo de Mensagens:
+### Message Flow:
 
 ```
-Chain A (origem)  →  Hyperlane Relayer  →  Chain B (destino)
+Chain A (source)  →  Hyperlane Relayer  →  Chain B (destination)
      ↓                       ↓                     ↓
-  Envia msg            Lê e valida            Entrega msg
+  Sends msg          Reads and validates       Delivers msg
 ```
 
 ---
 
-## 🔑 **Campos Principais do relayer.json**
+## 🔑 **Main Fields in relayer.json**
 
 ### 1. `relayChains`
 
-**Define quais chains o relayer irá monitorar.**
+**Defines which chains the relayer will monitor.**
 
 ```json
 "relayChains": "terraclassic,bsc"
 ```
 
-**Formato:** Lista separada por vírgulas, sem espaços.
+**Format:** Comma-separated list, no spaces.
 
-**Exemplos:**
+**Examples:**
 
 ```json
-// Apenas Terra Classic e BSC
+// Terra Classic and BSC only
 "relayChains": "terraclassic,bsc"
 
-// Adicionar Ethereum
+// Add Ethereum
 "relayChains": "terraclassic,bsc,ethereum"
 
-// Adicionar Polygon e Avalanche
+// Add Polygon and Avalanche
 "relayChains": "terraclassic,bsc,ethereum,polygon,avalanche"
 
-// Todas as chains suportadas
+// All supported chains
 "relayChains": "*"
 ```
 
@@ -46,11 +46,11 @@ Chain A (origem)  →  Hyperlane Relayer  →  Chain B (destino)
 
 ### 2. `whitelist`
 
-**Define quais rotas de mensagens são permitidas.**
+**Defines which message routes are allowed.**
 
-Cada rota especifica:
-- **`originDomain`**: Chain de origem (de onde a mensagem vem)
-- **`destinationDomain`**: Chain de destino (para onde a mensagem vai)
+Each route specifies:
+- **`originDomain`**: Source chain (where the message comes from)
+- **`destinationDomain`**: Destination chain (where the message goes to)
 
 ```json
 "whitelist": [
@@ -65,34 +65,35 @@ Cada rota especifica:
 ]
 ```
 
-**⚠️ IMPORTANTE:** 
-- Você precisa de **2 entradas** para comunicação bidirecional (A→B e B→A)
-- Sem whitelist, o relayer processa **todas** as mensagens (alto custo de gas!)
+**⚠️ IMPORTANT:** 
+- You need **2 entries** for bidirectional communication (A→B and B→A)
+- Without whitelist, the relayer processes **all** messages (high gas cost!)
 
 ---
 
-## 📊 **Domain IDs das Blockchains**
+## 📊 **Blockchain Domain IDs**
 
-| Blockchain | Domain ID | Tipo | KMS Suportado? |
+| Blockchain | Domain ID | Type | KMS Supported? |
 |------------|-----------|------|----------------|
-| **Terra Classic** | 1325 | Cosmos | ❌ Não (usar hexKey) |
-| **BSC** | 56 | EVM | ✅ Sim |
-| **Ethereum** | 1 | EVM | ✅ Sim |
-| **Polygon** | 137 | EVM | ✅ Sim |
-| **Avalanche** | 43114 | EVM | ✅ Sim |
-| **Arbitrum** | 42161 | EVM | ✅ Sim |
-| **Optimism** | 10 | EVM | ✅ Sim |
-| **Gnosis** | 100 | EVM | ✅ Sim |
-| **Moonbeam** | 1284 | EVM | ✅ Sim |
-| **Celo** | 42220 | EVM | ✅ Sim |
+| **Terra Classic** | 1325 | Cosmos | ❌ No (use hexKey) |
+| **BSC** | 56 | EVM | ✅ Yes |
+| **Ethereum** | 1 | EVM | ✅ Yes |
+| **Polygon** | 137 | EVM | ✅ Yes |
+| **Avalanche** | 43114 | EVM | ✅ Yes |
+| **Arbitrum** | 42161 | EVM | ✅ Yes |
+| **Optimism** | 10 | EVM | ✅ Yes |
+| **Gnosis** | 100 | EVM | ✅ Yes |
+| **Moonbeam** | 1284 | EVM | ✅ Yes |
+| **Celo** | 42220 | EVM | ✅ Yes |
+| **Solana** | 1399811150 | Sealevel | ✅ Yes |
 
-**Referência completa:** https://docs.hyperlane.xyz/docs/reference/domains
+**Complete reference:** https://docs.hyperlane.xyz/docs/reference/domains
 
 ---
 
-## 📝 **Exemplos de Configuração**
+## 📝 **Configuration Examples**
 
-### Exemplo 1: Terra Classic ↔ BSC (Atual)
+### Example 1: Terra Classic ↔ BSC (Current)
 
 ```json
 {
@@ -128,7 +129,7 @@ Cada rota especifica:
 
 ---
 
-### Exemplo 2: Terra Classic ↔ Ethereum
+### Example 2: Terra Classic ↔ Ethereum
 
 ```json
 {
@@ -164,7 +165,7 @@ Cada rota especifica:
 
 ---
 
-### Exemplo 3: Terra Classic ↔ BSC + Ethereum (3 chains)
+### Example 3: Terra Classic ↔ BSC + Ethereum (3 chains)
 
 ```json
 {
@@ -188,7 +189,7 @@ Cada rota especifica:
       "originDomain": [1],
       "destinationDomain": [1325]
     },
-    // BSC ↔ Ethereum (se necessário)
+    // BSC ↔ Ethereum (if needed)
     {
       "originDomain": [56],
       "destinationDomain": [1]
@@ -226,7 +227,7 @@ Cada rota especifica:
 
 ---
 
-### Exemplo 4: Múltiplas Chains EVM (sem Cosmos)
+### Example 4: Multiple EVM Chains (without Cosmos)
 
 ```json
 {
@@ -272,26 +273,26 @@ Cada rota especifica:
 
 ---
 
-### Exemplo 5: Todas as Chains (Sem Whitelist)
+### Example 5: All Chains (No Whitelist)
 
-**⚠️ Cuidado:** Alto custo de gas!
+**⚠️ Warning:** High gas cost!
 
 ```json
 {
   "relayChains": "*",
-  "whitelist": null,  // Sem restrição - processa TODAS as mensagens
+  "whitelist": null,  // No restriction - processes ALL messages
   "chains": {
-    // Configurar TODAS as chains aqui
-    // Cada chain precisa de um signer
+    // Configure ALL chains here
+    // Each chain needs a signer
   }
 }
 ```
 
 ---
 
-### Exemplo 6: Whitelist com Múltiplos Destinos
+### Example 6: Whitelist with Multiple Destinations
 
-Uma origem pode enviar para múltiplos destinos:
+One origin can send to multiple destinations:
 
 ```json
 {
@@ -308,14 +309,14 @@ Uma origem pode enviar para múltiplos destinos:
       "originDomain": [1],                       // Ethereum
       "destinationDomain": [1325]                 // → Terra Classic
     }
-    // ... outras rotas
+    // ... other routes
   ]
 }
 ```
 
 ---
 
-## 🔧 **Configurar Signers para Cada Chain**
+## 🔧 **Configure Signers for Each Chain**
 
 ### EVM Chains (AWS KMS) ✅
 
@@ -329,12 +330,24 @@ Uma origem pode enviar para múltiplos destinos:
 }
 ```
 
-**Exemplo BSC:**
+**BSC Example:**
 ```json
 "bsc": {
   "signer": {
     "type": "aws",
     "id": "alias/hyperlane-relayer-signer-bsc",
+    "region": "us-east-1"
+  }
+}
+```
+
+### Sealevel Chains (AWS KMS) ✅
+
+```json
+"solanatestnet": {
+  "signer": {
+    "type": "aws",
+    "id": "alias/hyperlane-relayer-signer-solana",
     "region": "us-east-1"
   }
 }
@@ -346,13 +359,13 @@ Uma origem pode enviar para múltiplos destinos:
 "chainName": {
   "signer": {
     "type": "cosmosKey",
-    "key": "0xSUA_CHAVE_PRIVADA",
-    "prefix": "PREFIXO"
+    "key": "0xYOUR_PRIVATE_KEY",
+    "prefix": "PREFIX"
   }
 }
 ```
 
-**Exemplo Terra Classic:**
+**Terra Classic Example:**
 ```json
 "terraclassic": {
   "signer": {
@@ -363,7 +376,7 @@ Uma origem pode enviar para múltiplos destinos:
 }
 ```
 
-**Outros Cosmos chains:**
+**Other Cosmos chains:**
 ```json
 "osmosis": {
   "signer": {
@@ -376,121 +389,122 @@ Uma origem pode enviar para múltiplos destinos:
 
 ---
 
-## 💰 **Financiar Carteiras**
+## 💰 **Fund Wallets**
 
-Cada chain precisa de **fundos para gas**:
+Each chain needs **gas funds**:
 
-### EVM Chains (AWS KMS):
+### EVM/Sealevel Chains (AWS KMS):
 
 ```bash
-# Descobrir endereço
+# Discover address
 cast wallet address --aws alias/hyperlane-relayer-signer-CHAINNAME
 
-# Ou usar script
+# Or use script
 ./get-kms-addresses.sh
 ```
 
-**Quantidades recomendadas:**
+**Recommended amounts:**
 - **Ethereum**: 0.5-1 ETH
 - **BSC**: 0.5-1 BNB
 - **Polygon**: 100-500 MATIC
 - **Avalanche**: 5-10 AVAX
 - **Arbitrum**: 0.1-0.5 ETH
+- **Solana**: 1-5 SOL
 
 ### Cosmos Chains (hexKey):
 
 ```bash
-# Descobrir endereço
-./get-address-from-hexkey.py 0xSUA_CHAVE_PRIVADA
+# Discover address
+./get-address-from-hexkey.py 0xYOUR_PRIVATE_KEY
 ```
 
-**Quantidades recomendadas:**
+**Recommended amounts:**
 - **Terra Classic**: 500-1000 LUNC
 - **Osmosis**: 10-50 OSMO
 
 ---
 
-## 📊 **Calcular Número de Rotas**
+## 📊 **Calculate Number of Routes**
 
-Para **N chains**, com comunicação bidirecional:
+For **N chains**, with bidirectional communication:
 
 ```
-Número de rotas = N × (N - 1)
+Number of routes = N × (N - 1)
 ```
 
-**Exemplos:**
-- 2 chains (Terra + BSC): 2 × 1 = **2 rotas**
-- 3 chains: 3 × 2 = **6 rotas**
-- 4 chains: 4 × 3 = **12 rotas**
-- 5 chains: 5 × 4 = **20 rotas**
+**Examples:**
+- 2 chains (Terra + BSC): 2 × 1 = **2 routes**
+- 3 chains: 3 × 2 = **6 routes**
+- 4 chains: 4 × 3 = **12 routes**
+- 5 chains: 5 × 4 = **20 routes**
 
-**Fórmula JSON:**
+**JSON formula:**
 ```json
-// Para N chains, precisa de N×(N-1) entradas na whitelist
+// For N chains, need N×(N-1) entries in whitelist
 ```
 
 ---
 
-## 🚀 **Passos para Adicionar Nova Chain**
+## 🚀 **Steps to Add New Chain**
 
-### 1. Verificar Se Chain é Suportada
+### 1. Verify Chain is Supported
 
-Consultar: https://docs.hyperlane.xyz/docs/reference/domains
+Check: https://docs.hyperlane.xyz/docs/reference/domains
 
-### 2. Adicionar à `relayChains`
+### 2. Add to `relayChains`
 
 ```json
-"relayChains": "terraclassic,bsc,NOVA_CHAIN"
+"relayChains": "terraclassic,bsc,NEW_CHAIN"
 ```
 
-### 3. Adicionar ao `whitelist`
+### 3. Add to `whitelist`
 
 ```json
 {
   "originDomain": [1325],           // Terra
-  "destinationDomain": [DOMAIN_ID]  // Nova chain
+  "destinationDomain": [DOMAIN_ID]  // New chain
 },
 {
-  "originDomain": [DOMAIN_ID],      // Nova chain
+  "originDomain": [DOMAIN_ID],      // New chain
   "destinationDomain": [1325]       // Terra
 }
 ```
 
-### 4. Configurar Signer
+### 4. Configure Signer
 
-**Se EVM:**
+**If EVM/Sealevel:**
 ```bash
-# Criar chave KMS
-# Ver: SETUP-AWS-KMS.md - Passo 3
+# Create KMS key
+# See: SETUP-AWS-KMS.md - Step 3
 
-# Adicionar ao relayer.json:
-"nova_chain": {
+# Add to relayer.json:
+"new_chain": {
   "signer": {
     "type": "aws",
-    "id": "alias/hyperlane-relayer-signer-nova-chain",
+    "id": "alias/hyperlane-relayer-signer-new-chain",
     "region": "us-east-1"
   }
 }
 ```
 
-**Se Cosmos:**
+**If Cosmos:**
 ```json
-"nova_chain": {
+"new_chain": {
   "signer": {
     "type": "cosmosKey",
     "key": "0x...",
-    "prefix": "prefixo"
+    "prefix": "prefix"
   }
 }
 ```
 
-### 5. Financiar Carteira
+### 5. Fund Wallet
 
 ```bash
-# Obter endereço e enviar fundos
+# Get address and send funds
 ```
 
-### 6. Reiniciar Relayer
+### 6. Restart Relayer
 
 ```bash
 docker-compose restart relayer
@@ -499,93 +513,94 @@ docker logs -f hpl-relayer
 
 ---
 
-## 🛠️ **Testar Configuração**
+## 🛠️ **Test Configuration**
 
-### Validar JSON
+### Validate JSON
 
 ```bash
-# Testar sintaxe JSON
+# Test JSON syntax
 cat hyperlane/relayer.json | python3 -m json.tool
 ```
 
-### Ver Logs
+### View Logs
 
 ```bash
-# Ver inicialização
+# View initialization
 docker logs hpl-relayer --tail 100
 
-# Monitorar em tempo real
+# Monitor real-time
 docker logs -f hpl-relayer
 
-# Procurar por erros
+# Search for errors
 docker logs hpl-relayer 2>&1 | grep -i error
 ```
 
-### Verificar Rotas Ativas
+### Verify Active Routes
 
 ```bash
-# O relayer mostra rotas configuradas ao iniciar
+# Relayer shows configured routes on startup
 docker logs hpl-relayer | grep -i "whitelist\|route"
 ```
 
 ---
 
-## 📈 **Custos Estimados**
+## 📈 **Estimated Costs**
 
-### Por Mensagem (Gas):
+### Per Message (Gas):
 
-| Chain | Custo por Mensagem | Moeda |
-|-------|-------------------|-------|
+| Chain | Cost per Message | Currency |
+|-------|------------------|----------|
 | Ethereum | $5-$50 | ETH |
 | BSC | $0.10-$1 | BNB |
 | Polygon | $0.01-$0.10 | MATIC |
 | Avalanche | $0.10-$1 | AVAX |
 | Terra Classic | $0.001-$0.01 | LUNC |
+| Solana | $0.0001-$0.001 | SOL |
 
-### Por Mês (Estimativa):
+### Per Month (Estimate):
 
 ```
-Custo mensal = (Mensagens/dia) × (Custo/mensagem) × 30 dias
+Monthly cost = (Messages/day) × (Cost/message) × 30 days
 
-Exemplo:
-- 100 mensagens/dia
+Example:
+- 100 messages/day
 - Terra → BSC ($0.20/msg)
-- Custo: 100 × $0.20 × 30 = $600/mês
+- Cost: 100 × $0.20 × 30 = $600/month
 ```
 
 ---
 
 ## 🚨 **Troubleshooting**
 
-### Erro: "Chain not configured"
+### Error: "Chain not configured"
 
-**Causa:** Chain em `relayChains` mas sem signer em `chains`
+**Cause:** Chain in `relayChains` but no signer in `chains`
 
-**Solução:** Adicionar configuração do signer
+**Solution:** Add signer configuration
 
-### Erro: "Route not whitelisted"
+### Error: "Route not whitelisted"
 
-**Causa:** Mensagem de rota não incluída no whitelist
+**Cause:** Message route not included in whitelist
 
-**Solução:** Adicionar entrada no whitelist
+**Solution:** Add entry to whitelist
 
-### Relayer não processa mensagens
+### Relayer not processing messages
 
-**Causa:** Carteira sem fundos ou permissões incorretas
+**Cause:** Wallet has no funds or incorrect permissions
 
-**Solução:**
+**Solution:**
 ```bash
-# Verificar saldo
+# Check balance
 # EVM:
-cast balance 0xSEU_ENDERECO --rpc-url RPC_URL
+cast balance 0xYOUR_ADDRESS --rpc-url RPC_URL
 
 # Cosmos:
-curl "LCD_URL/cosmos/bank/v1beta1/balances/ENDERECO"
+curl "LCD_URL/cosmos/bank/v1beta1/balances/ADDRESS"
 ```
 
 ---
 
-## 📚 **Referências**
+## 📚 **References**
 
 - [Hyperlane Domains](https://docs.hyperlane.xyz/docs/reference/domains)
 - [Relayer Configuration](https://docs.hyperlane.xyz/docs/operate/relayer/run-relayer)
@@ -594,22 +609,21 @@ curl "LCD_URL/cosmos/bank/v1beta1/balances/ENDERECO"
 
 ---
 
-## ✅ **Checklist para Nova Chain**
+## ✅ **Checklist for New Chain**
 
-- [ ] Chain suportada pelo Hyperlane
-- [ ] Domain ID obtido
-- [ ] Adicionada a `relayChains`
-- [ ] Rotas adicionadas ao `whitelist` (bidirecional)
-- [ ] Signer configurado (KMS ou hexKey)
-- [ ] Carteira criada e financiada
-- [ ] Relayer reiniciado
-- [ ] Logs verificados
-- [ ] Teste de mensagem realizado
+- [ ] Chain supported by Hyperlane
+- [ ] Domain ID obtained
+- [ ] Added to `relayChains`
+- [ ] Routes added to `whitelist` (bidirectional)
+- [ ] Signer configured (KMS or hexKey)
+- [ ] Wallet created and funded
+- [ ] Relayer restarted
+- [ ] Logs verified
+- [ ] Message test performed
 
 ---
 
-**🎯 Pronto para configurar novas rotas!** 🚀
+**🎯 Ready to configure new routes!** 🚀
 
-Para mais detalhes, consulte a [documentação oficial do Hyperlane](https://docs.hyperlane.xyz).
-
+For more details, see the [official Hyperlane documentation](https://docs.hyperlane.xyz).
 
