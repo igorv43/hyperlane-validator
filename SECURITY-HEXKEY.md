@@ -1,30 +1,30 @@
-# 🔐 Segurança: Chaves Hexadecimais Locais
+# 🔐 Security: Local Hexadecimal Keys
 
-## ⚠️ **IMPORTANTE: Limitação AWS KMS para Cosmos**
+## ⚠️ **IMPORTANT: AWS KMS Limitation for Cosmos**
 
-**AWS KMS NÃO é suportado** para blockchains Cosmos (incluindo Terra Classic) no Hyperlane validator/relayer.
+**AWS KMS is NOT supported** for Cosmos blockchains (including Terra Classic) in Hyperlane validator/relayer.
 
-### Por Quê?
+### Why?
 
-O parser do Hyperlane (`hyperlane-base`) **não aceita** a configuração AWS KMS para signers do tipo `cosmosKey`:
+Hyperlane parser (`hyperlane-base`) **does not accept** AWS KMS configuration for `cosmosKey` type signers:
 
 ```json
-// ❌ NÃO FUNCIONA para Cosmos
+// ❌ DOESN'T WORK for Cosmos
 "chains": {
   "terraclassic": {
     "signer": {
       "type": "cosmosKey",
-      "aws": { ... }  // ❌ Parser exige campo "key"
+      "aws": { ... }  // ❌ Parser requires "key" field
     }
   }
 }
 ```
 
-**Solução:** Usar chaves hexadecimais locais (`hexKey`)
+**Solution:** Use local hexadecimal keys (`hexKey`)
 
 ---
 
-## 📋 **Configuração Atual**
+## 📋 **Current Configuration**
 
 ### Validator (`validator.terraclassic.json`)
 
@@ -33,13 +33,13 @@ O parser do Hyperlane (`hyperlane-base`) **não aceita** a configuração AWS KM
   "originChainName": "terraclassic",
   "validator": {
     "type": "hexKey",
-    "key": "0x..."  // ← Chave privada local
+    "key": "0x..."  // ← Local private key
   },
   "chains": {
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "key": "0x...",  // ← Mesma chave
+        "key": "0x...",  // ← Same key
         "prefix": "terra"
       }
     }
@@ -54,14 +54,14 @@ O parser do Hyperlane (`hyperlane-base`) **não aceita** a configuração AWS KM
   "chains": {
     "bsc": {
       "signer": {
-        "type": "aws",  // ✅ AWS KMS funciona para EVM chains
+        "type": "aws",  // ✅ AWS KMS works for EVM chains
         "id": "alias/hyperlane-relayer-signer-bsc"
       }
     },
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "key": "0x...",  // ← Chave privada local
+        "key": "0x...",  // ← Local private key
         "prefix": "terra"
       }
     }
@@ -71,17 +71,17 @@ O parser do Hyperlane (`hyperlane-base`) **não aceita** a configuração AWS KM
 
 ---
 
-## 🔒 **Medidas de Segurança Implementadas**
+## 🔒 **Implemented Security Measures**
 
-### 1. Permissões de Arquivo
+### 1. File Permissions
 
 ```bash
-# Permissões restritas (apenas owner pode ler/escrever)
+# Restricted permissions (owner read/write only)
 -rw------- (600) validator.terraclassic.json
 -rw------- (600) relayer.json
 ```
 
-**Comando:**
+**Command:**
 ```bash
 chmod 600 hyperlane/validator.terraclassic.json
 chmod 600 hyperlane/relayer.json
@@ -89,67 +89,67 @@ chmod 600 hyperlane/relayer.json
 
 ### 2. Git Ignore
 
-Os arquivos com chaves estão **excluídos do Git**:
+Files with keys are **excluded from Git**:
 
 ```gitignore
-# Arquivos de configuração com chaves privadas
+# Configuration files with private keys
 hyperlane/validator.*.json
 hyperlane/relayer.json
 ```
 
-**Verificar:**
+**Verify:**
 ```bash
 git check-ignore hyperlane/validator.terraclassic.json
-# Deve retornar: hyperlane/validator.terraclassic.json
+# Should return: hyperlane/validator.terraclassic.json
 ```
 
-### 3. Arquivos de Exemplo
+### 3. Example Files
 
-Criados arquivos `.example` (sem chaves reais) para documentação:
+Created `.example` files (without real keys) for documentation:
 - `validator.terraclassic.json.example`
 - `relayer.json.example`
 
 ---
 
-## 📝 **Como Obter o Endereço da Carteira**
+## 📝 **How to Get Wallet Address**
 
-### Método 1: Via `cast` (Foundry)
+### Method 1: Via `cast` (Foundry)
 
 ```bash
-# Instalar Foundry (se não tiver)
+# Install Foundry (if not installed)
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
 
-# Obter endereço Ethereum
-cast wallet address --private-key "0xSUA_CHAVE_PRIVADA"
+# Get Ethereum address
+cast wallet address --private-key "0xYOUR_PRIVATE_KEY"
 
-# Converter para Terra
-./eth-to-terra.py "0xENDERECO_ETH"
+# Convert to Terra
+./eth-to-terra.py "0xETH_ADDRESS"
 ```
 
-### Método 2: Via Python
+### Method 2: Via Python
 
 ```python
 #!/usr/bin/env python3
 from eth_account import Account
 import bech32
 
-# Sua chave privada
+# Your private key
 private_key = "0xe45624f7aca7eb9e...."
 
-# Obter endereço ETH
+# Get ETH address
 account = Account.from_key(private_key)
 eth_address = account.address
 print(f"Ethereum: {eth_address}")
 
-# Converter para Terra
+# Convert to Terra
 addr_bytes = bytes.fromhex(eth_address[2:])
 five_bit = bech32.convertbits(addr_bytes, 8, 5)
 terra_address = bech32.bech32_encode('terra', five_bit)
 print(f"Terra:    {terra_address}")
 ```
 
-**Resultado:**
+**Output:**
 ```
 Ethereum: 0x6109b140b7165a4584e4ab09a93ccfb2d7be6b0f
 Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
@@ -157,60 +157,60 @@ Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
 
 ---
 
-## 💰 **Enviar Fundos para a Carteira**
+## 💰 **Send Funds to Wallet**
 
-### Para Validator (Announcement)
+### For Validator (Announcement)
 
 ```bash
-# Endereço Terra
+# Terra address
 terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
 
-# Quantidade recomendada
+# Recommended amount
 50-100 LUNC (50,000,000 - 100,000,000 uluna)
 
-# Propósito
-Gas para announcement + validação
+# Purpose
+Gas for announcement + validation
 ```
 
-### Para Relayer (Transações)
+### For Relayer (Transactions)
 
 ```bash
-# Mesma carteira (Terra)
+# Same wallet (Terra)
 terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
 
-# Quantidade recomendada
-1000-5000 LUNC (dependendo do volume de mensagens)
+# Recommended amount
+1000-5000 LUNC (depending on message volume)
 
-# Propósito
-Gas para relaying de mensagens
+# Purpose
+Gas for message relaying
 ```
 
 ---
 
-## 🔄 **Backup das Chaves**
+## 🔄 **Key Backup**
 
-### ⚠️ **CRÍTICO: Faça Backup Seguro**
+### ⚠️ **CRITICAL: Make Secure Backup**
 
 ```bash
-# 1. Criar diretório seguro de backup
-mkdir -p ~/hyperlane-backup-CONFIDENCIAL
-chmod 700 ~/hyperlane-backup-CONFIDENCIAL
+# 1. Create secure backup directory
+mkdir -p ~/hyperlane-backup-CONFIDENTIAL
+chmod 700 ~/hyperlane-backup-CONFIDENTIAL
 
-# 2. Copiar arquivos de configuração
-cp hyperlane/validator.terraclassic.json ~/hyperlane-backup-CONFIDENCIAL/
-cp hyperlane/relayer.json ~/hyperlane-backup-CONFIDENCIAL/
-cp .env ~/hyperlane-backup-CONFIDENCIAL/
+# 2. Copy configuration files
+cp hyperlane/validator.terraclassic.json ~/hyperlane-backup-CONFIDENTIAL/
+cp hyperlane/relayer.json ~/hyperlane-backup-CONFIDENTIAL/
+cp .env ~/hyperlane-backup-CONFIDENTIAL/
 
-# 3. Criar arquivo com chaves privadas
-cat > ~/hyperlane-backup-CONFIDENCIAL/KEYS.txt << 'EOF'
+# 3. Create file with private keys
+cat > ~/hyperlane-backup-CONFIDENTIAL/KEYS.txt << 'EOF'
 TERRA CLASSIC PRIVATE KEY:
-0xSUA_CHAVE_PRIVADA_AQUI
+0xYOUR_PRIVATE_KEY_HERE
 
-ETHEREUM ADDRESS (derivado):
-0xSEU_ENDERECO_ETH_AQUI
+ETHEREUM ADDRESS (derived):
+0xYOUR_ETH_ADDRESS_HERE
 
-TERRA ADDRESS (derivado):
-terra1SEU_ENDERECO_TERRA_AQUI
+TERRA ADDRESS (derived):
+terra1YOUR_TERRA_ADDRESS_HERE
 
 AWS ACCESS KEY ID:
 AKIAXXXXXXXXXXXXXXXXXXXX
@@ -219,66 +219,66 @@ AWS SECRET ACCESS KEY:
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 S3 BUCKET:
-hyperlane-validator-signatures-NOME-DO-SEU-BUCKET
+hyperlane-validator-signatures-YOUR-BUCKET-NAME
 EOF
 
-# 4. Proteger arquivo
-chmod 400 ~/hyperlane-backup-CONFIDENCIAL/KEYS.txt
+# 4. Protect file
+chmod 400 ~/hyperlane-backup-CONFIDENTIAL/KEYS.txt
 
-# 5. Criar backup criptografado (opcional mas recomendado)
-tar czf - ~/hyperlane-backup-CONFIDENCIAL | \
+# 5. Create encrypted backup (optional but recommended)
+tar czf - ~/hyperlane-backup-CONFIDENTIAL | \
   gpg --symmetric --cipher-algo AES256 -o ~/hyperlane-backup-$(date +%Y%m%d).tar.gz.gpg
 
-# 6. Guardar em local seguro
-# - USB criptografado
+# 6. Store in secure location
+# - Encrypted USB drive
 # - Password manager (1Password, Bitwarden)
-# - Cloud storage criptografado (Cryptomator + Dropbox)
+# - Encrypted cloud storage (Cryptomator + Dropbox)
 ```
 
 ---
 
-## 🚨 **Em Caso de Comprometimento**
+## 🚨 **In Case of Compromise**
 
-### Se a Chave For Exposta:
+### If Key is Exposed:
 
-1. **Parar Imediatamente:**
+1. **Stop Immediately:**
    ```bash
    docker-compose down
    ```
 
-2. **Transferir Fundos:**
+2. **Transfer Funds:**
    ```bash
-   # Usar script de transferência para mover fundos para nova carteira
-   ./transfer-lunc-kms.py terra1NOVA_CARTEIRA 99900000
+   # Use transfer script to move funds to new wallet
+   # (Create appropriate transfer script for your chain)
    ```
 
-3. **Gerar Nova Chave:**
+3. **Generate New Key:**
    ```bash
    cast wallet new
-   # Salvar nova chave com segurança
+   # Save new key securely
    ```
 
-4. **Atualizar Configurações:**
+4. **Update Configurations:**
    ```bash
-   # Editar validator.terraclassic.json
-   # Editar relayer.json
-   # Atualizar com nova chave
+   # Edit validator.terraclassic.json
+   # Edit relayer.json
+   # Update with new key
    ```
 
-5. **Reconfigurar AWS S3:**
-   - Se necessário, criar novo bucket
-   - Atualizar políticas de acesso
+5. **Reconfigure AWS S3:**
+   - If needed, create new bucket
+   - Update access policies
 
-6. **Reiniciar Serviços:**
+6. **Restart Services:**
    ```bash
    docker-compose up -d
    ```
 
 ---
 
-## 📊 **Monitoramento**
+## 📊 **Monitoring**
 
-### Verificar Saldo
+### Check Balance
 
 ```bash
 # Via curl
@@ -288,10 +288,10 @@ curl -s "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/terra1j
 https://finder.terraclassic.community/mainnet/address/terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
 ```
 
-### Alertas de Saldo Baixo
+### Low Balance Alerts
 
 ```bash
-# Script de monitoramento (executar via cron)
+# Monitoring script (run via cron)
 #!/bin/bash
 TERRA_ADDR="terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7"
 MIN_BALANCE=10000000  # 10 LUNC
@@ -299,43 +299,43 @@ MIN_BALANCE=10000000  # 10 LUNC
 BALANCE=$(curl -s "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/$TERRA_ADDR" | jq -r '.balances[] | select(.denom=="uluna") | .amount')
 
 if [ "$BALANCE" -lt "$MIN_BALANCE" ]; then
-  echo "⚠️ ALERTA: Saldo baixo! $((BALANCE/1000000)) LUNC"
-  # Enviar notificação (email, telegram, etc)
+  echo "⚠️ ALERT: Low balance! $((BALANCE/1000000)) LUNC"
+  # Send notification (email, telegram, etc)
 fi
 ```
 
 ---
 
-## 🔐 **Melhores Práticas**
+## 🔐 **Best Practices**
 
-1. **Nunca Compartilhe:**
-   - ❌ Não envie chaves por email
-   - ❌ Não poste em chat/slack
-   - ❌ Não commit no Git
+1. **Never Share:**
+   - ❌ Don't send keys via email
+   - ❌ Don't post in chat/slack
+   - ❌ Don't commit to Git
 
-2. **Rotação de Chaves:**
-   - 🔄 Considere trocar chaves a cada 3-6 meses
-   - 🔄 Após qualquer suspeita de comprometimento
+2. **Key Rotation:**
+   - 🔄 Consider changing keys every 3-6 months
+   - 🔄 After any suspected compromise
 
-3. **Ambiente de Produção:**
-   - 🔒 Use servidor dedicado (não compartilhado)
-   - 🔒 Firewall configurado
-   - 🔒 Acesso SSH apenas por chave
-   - 🔒 Atualizações de segurança automáticas
+3. **Production Environment:**
+   - 🔒 Use dedicated server (not shared)
+   - 🔒 Configured firewall
+   - 🔒 SSH access by key only
+   - 🔒 Automatic security updates
 
-4. **Backup Redundante:**
-   - 💾 Mínimo 3 cópias
-   - 💾 Em locais diferentes
-   - 💾 Pelo menos 1 offline
+4. **Redundant Backup:**
+   - 💾 Minimum 3 copies
+   - 💾 In different locations
+   - 💾 At least 1 offline
 
-5. **Teste de Recuperação:**
-   - ✅ Teste restaurar backup a cada 3 meses
-   - ✅ Documente o processo
-   - ✅ Treine equipe
+5. **Recovery Testing:**
+   - ✅ Test restore backup every 3 months
+   - ✅ Document the process
+   - ✅ Train team
 
 ---
 
-## 📚 **Referências**
+## 📚 **References**
 
 - [Hyperlane Agent Keys](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys)
 - [Terra Classic Security](https://docs.terra.money/docs/learn/security/)
@@ -344,18 +344,18 @@ fi
 
 ---
 
-## ✅ **Checklist de Segurança**
+## ✅ **Security Checklist**
 
-- [x] Permissões de arquivo (600)
-- [x] Arquivos no `.gitignore`
-- [x] Backup criado
-- [x] Backup testado
-- [x] Endereços documentados
-- [ ] Monitoramento de saldo configurado
-- [ ] Plano de recuperação documentado
-- [ ] Equipe treinada
+- [x] File permissions (600)
+- [x] Files in `.gitignore`
+- [x] Backup created
+- [x] Backup tested
+- [x] Addresses documented
+- [ ] Balance monitoring configured
+- [ ] Recovery plan documented
+- [ ] Team trained
 
 ---
 
-**⚠️ LEMBRE-SE:** A segurança das suas chaves é sua responsabilidade!
+**⚠️ REMEMBER:** The security of your keys is your responsibility!
 
