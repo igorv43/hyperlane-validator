@@ -70,42 +70,34 @@
         {
           "apiUrl": "https://api.terra-classic.hexxagon.io",
           "family": "other",
-          "name": "Terra Finder",
-          "url": "https://finder.terraclassic.community"
+          "name": "Terra Finder Testnet",
+          "url": "https://finder.terraclassic.community/testnet"
         }
       ],
       "slip44": 330,
       "name": "terraclassic",
       "domainId": 1325,
-      "chainId": "columbus-5",
+      "chainId": "rebel-2",
       "protocol": "cosmos",
       "rpcUrls": [
-        {"http": "https://api-lunc-rpc.binodes.com"},
-        {"http": "https://rpc.terra-classic.hexxagon.io"},
-        {"http": "https://terra-classic-rpc.publicnode.com"}
+        {"http": "https://rpc.luncblaze.com"}
       ],
       "grpcUrls": [
-        {"http": "https://terra-classic-grpc.publicnode.com:443"}
+        {"http": "https://grpc.terra-classic.hexxagon.dev"}
       ],
       "restUrls": [
         {
-          "http": "https://terra-classic-lcd.publicnode.com"
-        },
-        {
-          "http": "https://lcd.terraclassic.community"
-        },
-        {
-          "http": "https://terra-classic-lcd.polkachu.com"
+          "http": "https://lcd.luncblaze.com"
         }
       ],
       "canonicalAsset": "uluna",
       "bech32Prefix": "terra",
       "gasPrice": {
-        "amount": "28325",
+        "amount": "28.325",
         "denom": "uluna"
       },
       "index": {
-        "from": 25497000,
+        "from": 1,
         "chunk": 20
       },
       "blocks": {
@@ -114,12 +106,10 @@
         "reorgPeriod": 1
       },
       "contractAddressBytes": 32,
-      "mailbox": "0x6d5e7cec674a0b5a2d5cca0e50959e271fb0e00104823945675cb5bb681e5733",
-      "validatorAnnounce": "0xce977f68d8ffa86c6dbd96034e70e115e7dd0500069fd788a8e50c9e05f079b6",
-      "interchainGasPaymaster": "0x31f2006370244839909e115991ad18bfed7d64f9caf0de106b5907f2c9ef4722",
-      "merkleTreeHook": "0xc2946d710de2d01d2eff931113dafa7083a252aeaa90004307262ea4693fe23e",
-      "interchainSecurityModule": "0x1961966591bb37e7638812c2dc7d546cbb032e816bfa1d685041492f2d003dbc",
-      "messageIdMultisigIsm": "0x4698f572762d605d83d6f533905b4e8d96459cee1437dcb5aeb062b71616494c",
+      "mailbox": "0x18111026c945381eb4a6e6852a4affd2b4023e918787379cea28d001314ee44b",
+      "validatorAnnounce": "0x7c044284320a16735a2bb11dc8b6f081e1486208e9e89ae117ad141d6dcd7954",
+      "interchainGasPaymaster": "0x9f9e88b11e3233a01f75a8f8ddd49a4ef59f860174109da43784579c883db6b1",
+      "merkleTreeHook": "0x3152bdec927acb3783fe38d4c6a6c582cc8a0b4c9ba6e91365df824d7d8611ff",
       "gas": {
         "adjustment": 1.5,
         "min_gas_amount": 2000000 
