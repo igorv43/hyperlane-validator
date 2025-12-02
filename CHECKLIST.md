@@ -1,271 +1,293 @@
-# ✅ Checklist de Configuração Hyperlane
+# ✅ Hyperlane Configuration Checklist
 
-Use este checklist para garantir que tudo está configurado corretamente.
+Use this checklist to ensure everything is configured correctly.
 
-## 🎯 Fase 1: Configuração AWS (Obrigatório)
+## 🎯 Phase 1: AWS Configuration (Required)
 
 ### AWS IAM User
-- [x] ✅ Usuário IAM criado: `hyperlane-validator-terraclassic`
-- [x] ✅ Access Key ID obtido: `AKIAWK73T2L43T4Y46WJ`
-- [x] ✅ Secret Access Key obtido (guardado com segurança)
+- [ ] ✅ IAM user created: `hyperlane-validator`
+- [ ] ✅ Access Key ID obtained
+- [ ] ✅ Secret Access Key obtained (securely stored)
 
 ### AWS S3 Bucket
-- [x] ✅ Bucket criado: `hyperlane-validator-signatures-igorverasvalidador-terraclassic`
-- [x] ✅ Bucket policy configurada (público para leitura, IAM user para escrita)
-- [x] ✅ Região: `us-east-1`
+- [ ] ✅ Bucket created: `hyperlane-validator-signatures-YOUR-NAME`
+- [ ] ✅ Bucket policy configured (public read, IAM user write)
+- [ ] ✅ Region: `us-east-1`
 
 ### AWS KMS Keys
-- [x] ✅ Chave 1 criada: `hyperlane-validator-signer-terraclassic`
-  - ID: `e04c688d-f13a-4031-99ad-8c7095f8c461`
-  - Tipo: Asymmetric, ECC_SECG_P256K1
-  - Uso: Validador + Relayer Terra Classic
-- [ ] ⏳ Chave 2 pendente: `hyperlane-relayer-signer-bsc`
-  - Tipo: Asymmetric, ECC_SECG_P256K1
-  - Uso: Relayer BSC
+- [ ] ⏳ Key 1 (BSC): `hyperlane-relayer-signer-bsc`
+  - Type: Asymmetric, ECC_SECG_P256K1
+  - Usage: BSC Relayer
+- [ ] ⏳ Key 2 (Solana - optional): `hyperlane-relayer-signer-solana`
+  - Type: Asymmetric, ECC_SECG_P256K1
+  - Usage: Solana Relayer
 
 ---
 
-## 🔧 Fase 2: Configuração Local (Obrigatório)
+## 🔧 Phase 2: Local Configuration (Required)
 
-### Arquivos de Configuração
-- [x] ✅ `.env` criado com credenciais AWS
-- [x] ✅ `.gitignore` protegendo arquivos sensíveis
-- [x] ✅ `docker-compose.yml` atualizado com variáveis de ambiente
-- [x] ✅ `validator.terraclassic.json` configurado com KMS e S3
-- [x] ✅ `relayer.json` configurado com KMS
+### Configuration Files
+- [ ] ✅ `.env` created with AWS credentials
+- [ ] ✅ `.gitignore` protecting sensitive files
+- [ ] ✅ `docker-compose.yml` updated with environment variables
+- [ ] ✅ `validator.terraclassic.json` configured with hexKey and S3
+- [ ] ✅ `relayer.json` configured (hexKey for Terra, KMS for EVM)
 
-### Dependências Instaladas
-- [ ] 📦 Docker e Docker Compose
+### Installed Dependencies
+- [ ] 📦 Docker and Docker Compose
   ```bash
   docker --version
   docker-compose --version
   ```
-- [ ] 📦 Foundry (cast)
+- [ ] 📦 Foundry (cast) - optional
   ```bash
   cast --version
   ```
-- [ ] 📦 Python 3 e pip
+- [ ] 📦 Python 3 and pip
   ```bash
   python3 --version
   pip3 --version
   ```
-- [ ] 📦 Biblioteca bech32
+- [ ] 📦 Python libraries (eth-account, bech32)
   ```bash
-  pip3 install bech32
+  pip3 install eth-account bech32
   ```
 
 ---
 
-## 🔍 Fase 3: Descobrir Endereços (Obrigatório)
+## 🔍 Phase 3: Discover Addresses (Required)
 
-### Endereços das Carteiras KMS
-- [ ] 🔑 Endereço Validador/Relayer Terra Classic descoberto
+### Wallet Addresses (hexKey for Terra)
+- [ ] 🔑 Validator/Relayer Terra Classic address discovered
   ```bash
-  ./get-kms-addresses.sh
+  ./get-address-from-hexkey.py 0xYOUR_PRIVATE_KEY
   ```
-  - Formato Ethereum: `0x...`
-  - Formato Terra: `terra1...`
+  - Ethereum format: `0x...`
+  - Terra format: `terra1...`
   
-- [ ] 🔑 Endereço Relayer BSC descoberto (após criar chave KMS)
+### Wallet Addresses (KMS for EVM)
+- [ ] 🔑 BSC Relayer address discovered (after creating KMS key)
   ```bash
   ./get-kms-addresses.sh
   ```
-  - Formato: `0x...`
+  - Format: `0x...`
 
-### Conversão de Endereços
-- [ ] 🔄 Endereço Ethereum convertido para Terra
+- [ ] 🔑 Solana Relayer address discovered (optional, after creating KMS key)
   ```bash
-  ./eth-to-terra.py 0xSEU_ENDERECO
+  ./get-kms-addresses.sh
   ```
+  - Format: Solana public key
 
 ---
 
-## 💰 Fase 4: Financiar Carteiras (Obrigatório)
+## 💰 Phase 4: Fund Wallets (Required)
 
-### Validador/Relayer Terra Classic
-- [ ] 💸 LUNC enviado para: `terra1...`
-  - Quantidade recomendada: 100-500 LUNC
-  - Status: _____ LUNC enviados
+### Validator/Relayer Terra Classic
+- [ ] 💸 LUNC sent to: `terra1...`
+  - Recommended amount: 100-500 LUNC
+  - Status: _____ LUNC sent
   - TX Hash: _________________
 
-### Relayer BSC
-- [ ] 💸 BNB enviado para: `0x...`
-  - Quantidade recomendada: 0.1-0.5 BNB
-  - Status: _____ BNB enviados
+### BSC Relayer (optional)
+- [ ] 💸 BNB sent to: `0x...`
+  - Recommended amount: 0.1-0.5 BNB
+  - Status: _____ BNB sent
   - TX Hash: _________________
 
-### Verificação de Saldos
-- [ ] ✅ Saldo Terra verificado
+### Solana Relayer (optional)
+- [ ] 💸 SOL sent to: (Solana address)
+  - Recommended amount: 1-5 SOL
+  - Status: _____ SOL sent
+  - TX Hash: _________________
+
+### Balance Verification
+- [ ] ✅ Terra balance verified
   ```bash
-  terrad query bank balances terra1... \
-    --node https://rpc.terra-classic.hexxagon.io:443
+  curl "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/terra1..."
   ```
-- [ ] ✅ Saldo BSC verificado
+- [ ] ✅ BSC balance verified (if using)
   ```bash
   cast balance 0x... --rpc-url https://bsc.drpc.org
   ```
 
 ---
 
-## 🚀 Fase 5: Iniciar Serviços (Obrigatório)
+## 🚀 Phase 5: Start Services (Required)
 
-### Validador Terra Classic
-- [ ] ▶️ Container iniciado
+### Terra Classic Validator
+- [ ] ▶️ Container started
   ```bash
   docker-compose up -d validator-terraclassic
   ```
-- [ ] 📋 Logs verificados (sem erros)
+- [ ] 📋 Logs verified (no errors)
   ```bash
   docker logs -f hpl-validator-terraclassic
   ```
-- [ ] ✅ Checkpoints sendo assinados
+- [ ] ✅ Checkpoints being signed
   ```bash
   docker logs hpl-validator-terraclassic | grep "signed checkpoint"
   ```
-- [ ] 📊 Métricas acessíveis: http://localhost:9121
+- [ ] ✅ Successfully announced validator
+  ```bash
+  docker logs hpl-validator-terraclassic | grep "Successfully announced"
+  ```
+- [ ] 📊 Metrics accessible: http://localhost:9121
 
-### Relayer (Após criar chave BSC)
-- [ ] ▶️ Container iniciado
+### Relayer (After funding wallets)
+- [ ] ▶️ Container started
   ```bash
   docker-compose up -d relayer
   ```
-- [ ] 📋 Logs verificados (sem erros)
+- [ ] 📋 Logs verified (no errors)
   ```bash
   docker logs -f hpl-relayer
   ```
-- [ ] ✅ Mensagens sendo processadas
+- [ ] ✅ Messages being processed
   ```bash
   docker logs hpl-relayer | grep "delivered message"
   ```
-- [ ] 📊 Métricas acessíveis: http://localhost:9110
+- [ ] 📊 Metrics accessible: http://localhost:9110
 
 ---
 
-## 🔍 Fase 6: Verificação de Funcionamento (Recomendado)
+## 🔍 Phase 6: Verify Operation (Recommended)
 
-### Validador
-- [ ] 🔐 Assinaturas aparecendo no S3
+### Validator
+- [ ] 🔐 Signatures appearing in S3
   ```bash
-  aws s3 ls s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/
+  aws s3 ls s3://YOUR-BUCKET-NAME/
   ```
-- [ ] 📡 Conectado ao RPC Terra Classic
-- [ ] ⚡ Consumo de gas razoável
-- [ ] 📈 Métricas Prometheus funcionando
+- [ ] 📡 Connected to Terra Classic RPC
+- [ ] ⚡ Reasonable gas consumption
+- [ ] 📈 Prometheus metrics working
 
 ### Relayer
-- [ ] 🔗 Conectado a ambas as chains (Terra + BSC)
-- [ ] 📨 Processando mensagens cross-chain
-- [ ] ⚡ Gas suficiente em ambas as chains
-- [ ] 📈 Métricas Prometheus funcionando
+- [ ] 🔗 Connected to all chains (Terra + BSC/Solana)
+- [ ] 📨 Processing cross-chain messages
+- [ ] ⚡ Sufficient gas on all chains
+- [ ] 📈 Prometheus metrics working
 
 ---
 
-## 📚 Fase 7: Documentação e Backup (Recomendado)
+## 📚 Phase 7: Documentation and Backup (Recommended)
 
-### Documentação Lida
-- [ ] 📖 `README.md` - Visão geral do projeto
-- [ ] 📖 `SETUP-AWS-KMS.md` - Guia de configuração completo
-- [ ] 📖 `TRANSFER-GUIDE.md` - Como transferir fundos
+### Documentation Read
+- [ ] 📖 `README.md` - Project overview
+- [ ] 📖 `QUICKSTART.md` - Quick start guide
+- [ ] 📖 `SETUP-AWS-KMS.md` - Complete setup guide
+- [ ] 📖 `SECURITY-HEXKEY.md` - Key security guide
+- [ ] 📖 `RELAYER-CONFIG-GUIDE.md` - Relayer configuration
 
-### Informações Salvas
-- [ ] 💾 Credenciais AWS salvas com segurança
-- [ ] 💾 ARNs das chaves KMS anotados
-- [ ] 💾 Endereços das carteiras salvos
-- [ ] 💾 Nome do bucket S3 anotado
+### Information Saved
+- [ ] 💾 AWS credentials securely saved
+- [ ] 💾 KMS key ARNs noted (if using)
+- [ ] 💾 Wallet addresses saved
+- [ ] 💾 S3 bucket name noted
+- [ ] 💾 Private keys backed up securely (for Terra)
 
-### Scripts Testados
-- [ ] 🧪 `get-kms-addresses.sh` testado e funcionando
-- [ ] 🧪 `eth-to-terra.py` testado e funcionando
-- [ ] 🧪 `transfer-lunc-kms.py` testado (opcional)
-
----
-
-## 🔐 Fase 8: Segurança (Crítico)
-
-### Proteção de Credenciais
-- [x] ✅ Arquivo `.env` não commitado no git
-- [x] ✅ `.gitignore` protegendo arquivos sensíveis
-- [ ] 🔒 Credenciais AWS armazenadas com segurança
-- [ ] 🔒 Backup das credenciais em local seguro
-
-### Permissões AWS
-- [x] ✅ IAM user tem apenas permissões necessárias
-- [x] ✅ KMS keys acessíveis apenas pelo IAM user
-- [x] ✅ S3 bucket com política de acesso adequada
-
-### Monitoramento
-- [ ] 📊 CloudWatch configurado (opcional)
-- [ ] 🚨 Alertas de saldo baixo configurados (opcional)
-- [ ] 📧 Notificações de erro configuradas (opcional)
+### Scripts Tested
+- [ ] 🧪 `get-address-from-hexkey.py` tested and working
+- [ ] 🧪 `eth-to-terra.py` tested and working
+- [ ] 🧪 `get-kms-addresses.sh` tested (if using KMS)
 
 ---
 
-## 🎓 Fase 9: Operação Diária (Opcional)
+## 🔐 Phase 8: Security (Critical)
 
-### Rotina de Verificação
-- [ ] 🔄 Verificar saldos das carteiras (diário)
-- [ ] 🔄 Verificar logs dos containers (diário)
-- [ ] 🔄 Verificar métricas Prometheus (diário)
-- [ ] 🔄 Verificar assinaturas no S3 (semanal)
+### Credential Protection
+- [ ] ✅ `.env` file not committed to git
+- [ ] ✅ `.gitignore` protecting sensitive files
+- [ ] ✅ Private key files (600 permissions)
+  ```bash
+  chmod 600 hyperlane/validator.terraclassic.json
+  chmod 600 hyperlane/relayer.json
+  ```
+- [ ] 🔒 AWS credentials securely stored
+- [ ] 🔒 Backup of credentials in secure location
+- [ ] 🔒 Private keys backed up (encrypted)
 
-### Manutenção
-- [ ] 🔧 Atualizar imagens Docker (mensal)
-- [ ] 🔧 Revisar logs antigos (mensal)
-- [ ] 🔧 Testar procedure de transferência (mensal)
-- [ ] 🔧 Backup das configurações (mensal)
+### AWS Permissions
+- [ ] ✅ IAM user has only necessary permissions
+- [ ] ✅ KMS keys accessible only by IAM user (if using)
+- [ ] ✅ S3 bucket with appropriate access policy
 
----
-
-## 📊 Status Geral do Projeto
-
-### Resumo
-- **AWS IAM**: ✅ Configurado
-- **AWS S3**: ✅ Configurado
-- **AWS KMS**: 🟡 Parcial (1 de 2 chaves)
-- **Configuração Local**: ✅ Completo
-- **Validador**: ⏳ Pendente inicialização
-- **Relayer**: ⏳ Pendente chave BSC
-
-### Próximos Passos
-1. ⏳ Criar chave KMS para BSC
-2. ⏳ Descobrir endereços das carteiras
-3. ⏳ Financiar carteiras com LUNC e BNB
-4. ⏳ Iniciar validador
-5. ⏳ Iniciar relayer
+### Monitoring
+- [ ] 📊 CloudWatch configured (optional)
+- [ ] 🚨 Low balance alerts configured (optional)
+- [ ] 📧 Error notifications configured (optional)
 
 ---
 
-## 🆘 Precisa de Ajuda?
+## 🎓 Phase 9: Daily Operations (Optional)
 
-### Recursos
-- 📖 Documentação completa em `SETUP-AWS-KMS.md`
-- 💸 Guia de transferências em `TRANSFER-GUIDE.md`
-- 🐛 Solução de problemas em ambos os guias
+### Verification Routine
+- [ ] 🔄 Check wallet balances (daily)
+- [ ] 🔄 Check container logs (daily)
+- [ ] 🔄 Check Prometheus metrics (daily)
+- [ ] 🔄 Check S3 signatures (weekly)
 
-### Comandos de Diagnóstico
+### Maintenance
+- [ ] 🔧 Update Docker images (monthly)
+- [ ] 🔧 Review old logs (monthly)
+- [ ] 🔧 Test recovery procedure (monthly)
+- [ ] 🔧 Backup configurations (monthly)
+
+---
+
+## 📊 Overall Project Status
+
+### Summary
+- **AWS IAM**: Status: ___________
+- **AWS S3**: Status: ___________
+- **AWS KMS**: Status: ___________ (optional for EVM)
+- **Local Config**: Status: ___________
+- **Validator**: Status: ___________
+- **Relayer**: Status: ___________
+
+### Next Steps
+1. ⏳ Create KMS keys (optional, for BSC/Solana)
+2. ⏳ Discover wallet addresses
+3. ⏳ Fund wallets with LUNC (and BNB/SOL if using relayer)
+4. ⏳ Start validator
+5. ⏳ Start relayer
+
+---
+
+## 🆘 Need Help?
+
+### Resources
+- 📖 Complete documentation in `SETUP-AWS-KMS.md`
+- 📖 Quick start in `QUICKSTART.md`
+- 🔐 Security guide in `SECURITY-HEXKEY.md`
+- 🔄 Relayer configuration in `RELAYER-CONFIG-GUIDE.md`
+- 🐛 Troubleshooting in `README.md`
+
+### Diagnostic Commands
 ```bash
-# Verificar status dos containers
+# Check container status
 docker-compose ps
 
-# Ver logs
+# View logs
 docker logs hpl-validator-terraclassic --tail 50
 docker logs hpl-relayer --tail 50
 
-# Verificar configuração
+# Check configuration
 cat .env
 cat hyperlane/validator.terraclassic.json
 cat hyperlane/relayer.json
 
-# Testar conexão AWS
+# Test AWS connection
 aws sts get-caller-identity
-aws kms describe-key --key-id alias/hyperlane-validator-signer-terraclassic --region us-east-1
+aws s3 ls s3://YOUR-BUCKET-NAME/
+
+# Check balances
+curl "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/terra1..."
 ```
 
 ---
 
-**📅 Última atualização:** 26 Nov 2025  
-**✅ Checklist completo!**
+**📅 Last updated:** Dec 2, 2025  
+**✅ Complete checklist!**
 
-Marque cada item conforme você completar. Boa sorte! 🚀
-
+Check off each item as you complete it. Good luck! 🚀
 
