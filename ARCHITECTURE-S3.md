@@ -421,3 +421,4 @@ docker exec hpl-relayer ls /etc/validator 2>&1
 
 🚀 **Arquitetura limpa, eficiente e escalável!**
 
+

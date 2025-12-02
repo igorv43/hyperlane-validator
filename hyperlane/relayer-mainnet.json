@@ -1,0 +1,34 @@
+{
+  "db": "/etc/data/db",
+  "relayChains": "terraclassic,bsc",
+  "allowLocalCheckpointSyncers": "false",
+  "gasPaymentEnforcement": [{ "type": "none" }],
+  
+  "whitelist": [
+    {
+      "originDomain": [13251],
+      "destinationDomain": [56]
+    },
+    {
+      "originDomain": [56],
+      "destinationDomain": [13251]
+    }
+  ],
+  "chains": {
+    "bsc": {
+      "signer": {
+        "type": "aws",
+        "id": "alias/hyperlane-relayer-signer-bsc",
+        "region": "us-east-1"
+      }
+    },
+    
+    "terraclassic": {
+      "signer": {
+        "type": "cosmosKey",
+        "key": "0xe45624f7aca7eb9e....",
+        "prefix": "terra"
+      }
+    }
+  }
+}

@@ -135,7 +135,7 @@ from eth_account import Account
 import bech32
 
 # Sua chave privada
-private_key = "0xe45624f7aca7eb9e964eddbfbdb230a369a6dcc26d508778ae8dfc928bafe6c9"
+private_key = "0xe45624f7aca7eb9e...."
 
 # Obter endereço ETH
 account = Account.from_key(private_key)

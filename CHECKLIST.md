@@ -268,3 +268,4 @@ aws kms describe-key --key-id alias/hyperlane-validator-signer-terraclassic --re
 
 Marque cada item conforme você completar. Boa sorte! 🚀
 
+

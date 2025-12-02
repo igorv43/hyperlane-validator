@@ -357,7 +357,7 @@ Uma origem pode enviar para múltiplos destinos:
 "terraclassic": {
   "signer": {
     "type": "cosmosKey",
-    "key": "0xe45624f7aca7eb9e964eddbfbdb230a369a6dcc26d508778ae8dfc928bafe6c9",
+    "key": "0xe45624f7aca7eb9e....",
     "prefix": "terra"
   }
 }
@@ -611,4 +611,5 @@ curl "LCD_URL/cosmos/bank/v1beta1/balances/ENDERECO"
 **🎯 Pronto para configurar novas rotas!** 🚀
 
 Para mais detalhes, consulte a [documentação oficial do Hyperlane](https://docs.hyperlane.xyz).
+
 
