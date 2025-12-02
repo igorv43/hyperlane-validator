@@ -100,13 +100,13 @@ nano hyperlane/validator.terraclassic.json
   "originChainName": "terraclassic",
   "validator": {
     "type": "hexKey",
-    "key": "0xe45624f7aca7eb9e964eddbfbdb230a369a6dcc26d508778ae8dfc928bafe6c9"
+    "key": "0xe45624f7aca7eb9e...."
   },
   "chains": {
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "key": "0xe45624f7aca7eb9e964eddbfbdb230a369a6dcc26d508778ae8dfc928bafe6c9",
+        "key": "0xe45624f7aca7eb9e....",
         "prefix": "terra"
       }
     }
