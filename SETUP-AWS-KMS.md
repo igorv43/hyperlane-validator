@@ -1,36 +1,48 @@
 # 🔑 Setup AWS: KMS + S3
 
-## ⚠️ **IMPORTANTE: AWS KMS e Cosmos**
+## ⚠️ **IMPORTANTE: AWS KMS Support by Protocol**
 
-**AWS KMS funciona APENAS para blockchains EVM (BSC).**
+| Protocol | Chains | AWS KMS Support |
+|----------|--------|-----------------|
+| **EVM** | BSC, Ethereum, Polygon, etc. | ✅ Supported |
+| **Sealevel** | Solana | ✅ Supported |
+| **Cosmos** | Terra Classic, Osmosis, etc. | ❌ NOT Supported |
 
-**Terra Classic (Cosmos) usa hexKey (chaves privadas locais).**
+**AWS KMS works for EVM and Solana chains.**
 
----
-
-## 📋 **O Que Você Precisa Configurar**
-
-| Recurso | Uso | Chain |
-|---------|-----|-------|
-| **IAM User** | Credenciais AWS | Todas |
-| **S3 Bucket** | Armazenar assinaturas validator | Terra Classic |
-| **KMS Key (BSC)** | Assinar transações relayer | BSC (opcional) |
-| ~~KMS Key (Terra)~~ | ~~Não funciona~~ | ❌ Não usar |
+**Terra Classic (Cosmos) must use hexKey (local private keys).**
 
 ---
 
-## 🚀 **Configuração Rápida**
+## 📋 **What You Need to Configure**
 
-### Para Validator Terra Classic:
+| Resource | Usage | Chain |
+|---------|-------|-------|
+| **IAM User** | AWS Credentials | All |
+| **S3 Bucket** | Store validator signatures | Terra Classic |
+| **KMS Key (BSC)** | Sign relayer transactions | BSC (optional) |
+| **KMS Key (Solana)** | Sign relayer transactions | Solana (optional) |
+| ~~KMS Key (Terra)~~ | ~~Doesn't work~~ | ❌ Don't use |
 
-- ✅ **S3 Bucket** (assinaturas públicas)
-- ✅ **hexKey** (chave privada local)
-- ❌ **NÃO usar KMS**
+---
 
-### Para Relayer BSC (Opcional):
+## 🚀 **Quick Configuration**
 
-- ✅ **KMS Key** (assinar transações BSC)
-- ✅ **hexKey** para Terra Classic
+### For Terra Classic Validator:
+
+- ✅ **S3 Bucket** (public signatures)
+- ✅ **hexKey** (local private key)
+- ❌ **DO NOT use KMS**
+
+### For BSC Relayer (Optional):
+
+- ✅ **KMS Key** (sign BSC transactions)
+- ✅ **hexKey** for Terra Classic
+
+### For Solana Relayer (Optional):
+
+- ✅ **KMS Key** (sign Solana transactions)
+- ✅ **hexKey** for Terra Classic
 
 ---
 

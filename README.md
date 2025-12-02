@@ -4,16 +4,22 @@ Hyperlane validator and relayer configured for Terra Classic ↔ BSC.
 
 ---
 
-## ⚠️ **IMPORTANT: AWS KMS**
+## ⚠️ **IMPORTANT: AWS KMS Support**
 
-| Blockchain | Type | Key Management | Status |
-|------------|------|----------------|--------|
-| **Terra Classic** | Cosmos | **hexKey** (local keys) | ✅ Working |
+| Blockchain | Type | Key Management | AWS KMS Support |
+|------------|------|----------------|-----------------|
 | **BSC** | EVM | **AWS KMS** | ✅ Supported |
+| **Solana** | Sealevel | **AWS KMS** | ✅ Supported |
+| **Terra Classic** | Cosmos | **hexKey** (local keys) | ❌ NOT Supported |
 
-### ⚠️ **Terra Classic does NOT support AWS KMS**
+### ⚠️ **Cosmos chains do NOT support AWS KMS**
 
-Hyperlane **does not support AWS KMS** for Cosmos blockchains. You **must use local private keys** (hexKey) for Terra Classic.
+Hyperlane **does not support AWS KMS** for Cosmos blockchains (like Terra Classic). You **must use local private keys** (hexKey) for Cosmos chains.
+
+**Supported protocols for AWS KMS:**
+- ✅ **EVM chains** (Ethereum, BSC, Polygon, etc.)
+- ✅ **Sealevel chains** (Solana)
+- ❌ **Cosmos chains** (Terra Classic, Osmosis, etc.)
 
 📖 **Read**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md) for key security
 

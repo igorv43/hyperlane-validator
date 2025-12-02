@@ -1,6 +1,6 @@
 {
   "db": "/etc/data/db",
-  "relayChains": "terraclassic,bsc",
+  "relayChains": "terraclassic,bsc,solanatestnet",
   "allowLocalCheckpointSyncers": "false",
   "gasPaymentEnforcement": [{ "type": "none" }],
   
@@ -31,7 +31,13 @@
         "region": "us-east-1"
       }
     },
-    
+    "solanatestnet": {
+      "signer": {
+        "type": "aws",
+        "id": "alias/hyperlane-relayer-signer-solana",
+        "region": "us-east-1"
+      }
+    },
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",

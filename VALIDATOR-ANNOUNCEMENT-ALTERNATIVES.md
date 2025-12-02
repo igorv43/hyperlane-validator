@@ -76,14 +76,14 @@ Use local private keys:
 
 ---
 
-## 🔐 **Comparison: EVM vs Cosmos**
+## 🔐 **Comparison: Protocol Support for AWS KMS**
 
-| Aspect | EVM (BSC) | Cosmos (Terra Classic) |
-|---------|-----------|------------------------|
-| **AWS KMS** | ✅ Supported | ❌ NOT supported |
-| **Signer Type** | `"type": "aws"` | `"type": "cosmosKey"` + `"key"` |
-| **Example** | `{"type": "aws", "id": "alias/..."}` | `{"type": "cosmosKey", "key": "0x..."}` |
-| **Security** | KMS (CloudHSM) | Local key (file 600) |
+| Aspect | EVM (BSC, Ethereum) | Sealevel (Solana) | Cosmos (Terra Classic) |
+|---------|---------------------|-------------------|------------------------|
+| **AWS KMS** | ✅ Supported | ✅ Supported | ❌ NOT supported |
+| **Signer Type** | `"type": "aws"` | `"type": "aws"` | `"type": "cosmosKey"` + `"key"` |
+| **Example** | `{"type": "aws", "id": "alias/..."}` | `{"type": "aws", "id": "alias/..."}` | `{"type": "cosmosKey", "key": "0x..."}` |
+| **Security** | KMS (CloudHSM) | KMS (CloudHSM) | Local key (file 600) |
 
 ---
 
