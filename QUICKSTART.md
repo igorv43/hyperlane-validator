@@ -13,24 +13,45 @@
 
 #### Install AWS CLI (if not installed)
 
-**Option 1: Using apt (Ubuntu/Debian)**
+**⚠️ IMPORTANT:** Install AWS CLI using **ONLY ONE method** to avoid version conflicts!
+
+**Option 1: AWS CLI v2 (Recommended - Latest version)**
+```bash
+# Download and install AWS CLI v2
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+# Verify installation
+aws --version
+```
+
+**Option 2: Using pip (Alternative)**
+```bash
+pip3 install awscli --user
+
+# Add to PATH if needed
+echo 'export PATH=$PATH:~/.local/bin' >> ~/.bashrc
+source ~/.bashrc
+
+# Verify installation
+aws --version
+```
+
+**Option 3: Using apt (Ubuntu/Debian - Older version)**
 ```bash
 sudo apt update
 sudo apt install awscli
+
+# Verify installation
+aws --version
 ```
 
-**Option 2: Using snap**
+**Option 4: Using snap**
 ```bash
 sudo snap install aws-cli
-```
 
-**Option 3: Using pip (recommended for latest version)**
-```bash
-pip3 install awscli
-```
-
-**Verify installation:**
-```bash
+# Verify installation
 aws --version
 ```
 
@@ -42,6 +63,8 @@ aws configure
 # Enter default region: us-east-1
 # Enter default output format: json
 ```
+
+**If you get errors:** See Troubleshooting section for "KeyError: 'opsworkscm'" solution.
 
 ---
 
@@ -758,6 +781,51 @@ aws configure
 ```
 
 **See Prerequisites section for detailed installation instructions.**
+
+### Error: "KeyError: 'opsworkscm'" or AWS CLI version conflict
+
+**Cause:** Multiple AWS CLI installations conflicting (apt and pip versions installed together).
+
+**Solution:**
+```bash
+# 1. Remove all AWS CLI installations
+sudo apt remove awscli
+pip3 uninstall awscli
+pip3 uninstall awscli-bundle
+
+# 2. Clean up any remaining files
+rm -rf ~/.local/lib/python3.*/site-packages/awscli*
+rm -rf ~/.local/bin/aws*
+
+# 3. Reinstall using ONE method only (recommended: pip for latest version)
+pip3 install awscli --user
+
+# 4. Add to PATH if needed
+echo 'export PATH=$PATH:~/.local/bin' >> ~/.bashrc
+source ~/.bashrc
+
+# 5. Verify installation
+aws --version
+
+# 6. Configure AWS CLI
+aws configure
+```
+
+**Alternative: Use AWS CLI v2 (recommended)**
+```bash
+# Download and install AWS CLI v2
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip awscliv2.zip
+sudo ./aws/install
+
+# Verify installation
+aws --version
+
+# Configure
+aws configure
+```
+
+**⚠️ Important:** Only install AWS CLI using ONE method to avoid conflicts!
 
 ### Error: "Permission denied" when reading files
 
