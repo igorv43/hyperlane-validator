@@ -1,6 +1,6 @@
 # 🔑 Setup AWS: KMS + S3
 
-## ⚠️ **IMPORTANTE: AWS KMS Support by Protocol**
+## ⚠️ **IMPORTANT: AWS KMS Support by Protocol**
 
 | Protocol | Chains | AWS KMS Support |
 |----------|--------|-----------------|
@@ -21,6 +21,7 @@
 | **IAM User** | AWS Credentials | All |
 | **S3 Bucket** | Store validator signatures | Terra Classic |
 | **KMS Key (BSC)** | Sign relayer transactions | BSC (optional) |
+| **KMS Key (Ethereum)** | Sign relayer transactions | Ethereum (optional) |
 | **KMS Key (Solana)** | Sign relayer transactions | Solana (optional) |
 | ~~KMS Key (Terra)~~ | ~~Doesn't work~~ | ❌ Don't use |
 
@@ -39,6 +40,11 @@
 - ✅ **KMS Key** (sign BSC transactions)
 - ✅ **hexKey** for Terra Classic
 
+### For Ethereum Relayer (Optional):
+
+- ✅ **KMS Key** (sign Ethereum transactions)
+- ✅ **hexKey** for Terra Classic
+
 ### For Solana Relayer (Optional):
 
 - ✅ **KMS Key** (sign Solana transactions)
@@ -46,44 +52,44 @@
 
 ---
 
-## 📚 **Passos de Configuração**
+## 📚 **Configuration Steps**
 
-### PASSO 1: Criar Usuário IAM
+### STEP 1: Create IAM User
 
-**Referência:** [Create an IAM user](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#create-an-iam-user)
+**Reference:** [Create an IAM user](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#create-an-iam-user)
 
-#### 1.1 Acessar AWS IAM Console
+#### 1.1 Access AWS IAM Console
 
-1. Acesse: https://us-east-1.console.aws.amazon.com/iamv2/home
-2. No menu lateral esquerdo, clique em **"Users"** (Usuários)
-3. Clique no botão laranja **"Add users"** (Adicionar usuários)
+1. Go to: https://us-east-1.console.aws.amazon.com/iamv2/home
+2. In the left sidebar, click **"Users"**
+3. Click the orange **"Add users"** button
 
-#### 1.2 Configurar Usuário
+#### 1.2 Configure User
 
-1. **Username** (Nome de usuário):
+1. **Username**:
    ```
    hyperlane-validator
    ```
 
-2. Clique em **"Next"** (Próximo)
-3. **NÃO** selecione nenhuma permissão por enquanto
-4. Clique em **"Next"** novamente
-5. Clique em **"Create user"** (Criar usuário)
+2. Click **"Next"**
+3. **DO NOT** select any permissions yet
+4. Click **"Next"** again
+5. Click **"Create user"**
 
-#### 1.3 Criar Access Keys
+#### 1.3 Create Access Keys
 
-1. Clique no usuário recém-criado para abrir seus detalhes
-2. Clique na aba **"Security credentials"** (Credenciais de segurança)
-3. Role para baixo até **"Access keys"** (Chaves de acesso)
-4. Clique em **"Create access key"** (Criar chave de acesso)
-5. Selecione **"Application running outside AWS"** (Aplicação executando fora da AWS)
-6. Clique em **"Next"**
-7. (Opcional) Adicione uma descrição, exemplo: "Hyperlane Validator Keys"
-8. Clique em **"Create access key"**
-9. **⚠️ IMPORTANTE**: Copie e guarde com segurança: `Access key ID` e `Secret access key`.
-10. Clique em **"Done"**
+1. Click on the newly created user to open their details
+2. Click on the **"Security credentials"** tab
+3. Scroll down to **"Access keys"**
+4. Click **"Create access key"**
+5. Select **"Application running outside AWS"**
+6. Click **"Next"**
+7. (Optional) Add a description, example: "Hyperlane Validator Keys"
+8. Click **"Create access key"**
+9. **⚠️ IMPORTANT**: Copy and securely save: `Access key ID` and `Secret access key`.
+10. Click **"Done"**
 
-#### 1.4 Salvar no .env
+#### 1.4 Save to .env
 
 ```bash
 cd /home/lunc/hyperlane-validator
@@ -91,37 +97,37 @@ cp .env.example .env
 nano .env
 ```
 
-**Conteúdo:**
+**Content:**
 ```bash
 AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXXXXXXXXXX
 AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 AWS_REGION=us-east-1
 ```
 
-**Proteger arquivo:**
+**Protect file:**
 ```bash
 chmod 600 .env
 ```
 
 ---
 
-### PASSO 2: Criar Bucket S3
+### STEP 2: Create S3 Bucket
 
-**Referência:** [AWS Signatures Bucket Setup](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
+**Reference:** [AWS Signatures Bucket Setup](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
 
-#### 2.1 Acessar S3 Console
+#### 2.1 Access S3 Console
 
-1. Acesse: https://s3.console.aws.amazon.com/s3/home?region=us-east-1
-2. Clique em **"Create bucket"** (Criar bucket)
+1. Go to: https://s3.console.aws.amazon.com/s3/home?region=us-east-1
+2. Click **"Create bucket"**
 
-#### 2.2 Configurar Bucket
+#### 2.2 Configure Bucket
 
-1. **Bucket name** (Nome do bucket):
+1. **Bucket name**:
    ```
-   hyperlane-validator-signatures-SEU-NOME
+   hyperlane-validator-signatures-YOUR-NAME
    ```
    
-   **Exemplo:**
+   **Example:**
    ```
    hyperlane-validator-signatures-igorverasvalidador-terraclassic
    ```
@@ -131,23 +137,23 @@ chmod 600 .env
 3. **Object Ownership**: `ACLs disabled (recommended)`
 
 4. **Block Public Access settings**:
-   - ⚠️ **DESMARQUE** "Block all public access"
-   - ✅ **Marque** o checkbox "I acknowledge..."
+   - ⚠️ **UNCHECK** "Block all public access"
+   - ✅ **CHECK** the checkbox "I acknowledge..."
 
 5. **Bucket Versioning**: `Disable`
 
 6. **Default encryption**: `Server-side encryption with Amazon S3 managed keys (SSE-S3)`
 
-7. Clique em **"Create bucket"**
+7. Click **"Create bucket"**
 
-#### 2.3 Configurar Bucket Policy
+#### 2.3 Configure Bucket Policy
 
-1. Clique no bucket criado
-2. Vá para a aba **"Permissions"**
-3. Role até **"Bucket policy"**
-4. Clique em **"Edit"**
+1. Click on the created bucket
+2. Go to the **"Permissions"** tab
+3. Scroll to **"Bucket policy"**
+4. Click **"Edit"**
 
-**Cole esta policy** (substitua os valores):
+**Paste this policy** (replace the values):
 
 ```json
 {
@@ -161,30 +167,30 @@ chmod 600 .env
         "s3:ListBucket"
       ],
       "Resource": [
-        "arn:aws:s3:::SEU-BUCKET-NAME",
-        "arn:aws:s3:::SEU-BUCKET-NAME/*"
+        "arn:aws:s3:::YOUR-BUCKET-NAME",
+        "arn:aws:s3:::YOUR-BUCKET-NAME/*"
       ]
     },
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::SEU-ACCOUNT-ID:user/hyperlane-validator"
+        "AWS": "arn:aws:iam::YOUR-ACCOUNT-ID:user/hyperlane-validator"
       },
       "Action": [
         "s3:PutObject",
         "s3:DeleteObject"
       ],
-      "Resource": "arn:aws:s3:::SEU-BUCKET-NAME/*"
+      "Resource": "arn:aws:s3:::YOUR-BUCKET-NAME/*"
     }
   ]
 }
 ```
 
-**⚠️ Substitua:**
-- `SEU-BUCKET-NAME` → Nome do seu bucket
-- `SEU-ACCOUNT-ID` → ID da sua conta AWS (12 dígitos)
+**⚠️ Replace:**
+- `YOUR-BUCKET-NAME` → Your bucket name
+- `YOUR-ACCOUNT-ID` → Your AWS account ID (12 digits)
 
-**Exemplo:**
+**Example:**
 ```json
 {
   "Version": "2012-10-17",
@@ -216,73 +222,73 @@ chmod 600 .env
 }
 ```
 
-5. Clique em **"Save changes"**
+5. Click **"Save changes"**
 
-#### 2.4 Testar Acesso
+#### 2.4 Test Access
 
 ```bash
-# Testar listagem
-aws s3 ls s3://SEU-BUCKET-NAME/
+# Test listing
+aws s3 ls s3://YOUR-BUCKET-NAME/
 
-# Testar escrita
+# Test writing
 echo "test" > test.txt
-aws s3 cp test.txt s3://SEU-BUCKET-NAME/
+aws s3 cp test.txt s3://YOUR-BUCKET-NAME/
 rm test.txt
 
-# Testar leitura pública (sem credenciais)
-curl https://SEU-BUCKET-NAME.s3.us-east-1.amazonaws.com/test.txt
+# Test public read (without credentials)
+curl https://YOUR-BUCKET-NAME.s3.us-east-1.amazonaws.com/test.txt
 
-# Limpar
-aws s3 rm s3://SEU-BUCKET-NAME/test.txt
+# Clean up
+aws s3 rm s3://YOUR-BUCKET-NAME/test.txt
 ```
 
 ---
 
-### PASSO 3: Criar Chave KMS para BSC (Opcional)
+### STEP 3: Create KMS Key for BSC (Optional)
 
-**⚠️ APENAS se for rodar o relayer com BSC!**
+**⚠️ ONLY if running relayer with BSC!**
 
-**Referência:** [AWS KMS Keys](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#cast-cli)
+**Reference:** [AWS KMS Keys](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys#cast-cli)
 
-#### 3.1 Acessar KMS Console
+#### 3.1 Access KMS Console
 
-1. Acesse: https://console.aws.amazon.com/kms
-2. Certifique-se que está na região **US East (N. Virginia) us-east-1**
-3. Clique em **"Create key"**
+1. Go to: https://console.aws.amazon.com/kms
+2. Make sure you're in region **US East (N. Virginia) us-east-1**
+3. Click **"Create key"**
 
-#### 3.2 Configurar Chave
+#### 3.2 Configure Key
 
 **Step 1: Configure key**
 
 1. **Key type**: `Asymmetric`
 2. **Key usage**: `Sign and verify`
 3. **Key spec**: `ECC_SECG_P256K1`
-4. Clique em **"Next"**
+4. Click **"Next"**
 
 **Step 2: Add labels**
 
 1. **Alias**: `hyperlane-relayer-signer-bsc`
-2. **Description** (opcional): `Hyperlane Relayer signer key for BSC`
-3. Clique em **"Next"**
+2. **Description** (optional): `Hyperlane Relayer signer key for BSC`
+3. Click **"Next"**
 
 **Step 3: Define key administrative permissions**
 
-1. Selecione seu usuário (opcional)
-2. Clique em **"Next"**
+1. Select your user (optional)
+2. Click **"Next"**
 
 **Step 4: Define key usage permissions**
 
-1. **This account**: Procure e selecione ☑️ `hyperlane-validator`
-2. Clique em **"Next"**
+1. **This account**: Search and select ☑️ `hyperlane-validator`
+2. Click **"Next"**
 
 **Step 5: Review**
 
-1. Revisar configurações
-2. Clique em **"Finish"**
+1. Review settings
+2. Click **"Finish"**
 
-#### 3.3 Anotar Informações
+#### 3.3 Note Information
 
-Após criação, anote:
+After creation, note:
 
 ```
 Alias: hyperlane-relayer-signer-bsc
@@ -291,39 +297,85 @@ ARN: arn:aws:kms:us-east-1:ACCOUNT-ID:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 Region: us-east-1
 ```
 
-#### 3.4 Verificar Endereço
+#### 3.4 Verify Address
 
 ```bash
-# Obter endereço BSC
+# Get BSC address
 cast wallet address --aws alias/hyperlane-relayer-signer-bsc
 
-# Ou usar script
+# Or use script
 ./get-kms-addresses.sh
 ```
 
 ---
 
-## ✅ **Checklist de Recursos AWS**
+### STEP 4: Create KMS Key for Ethereum (Optional)
 
-### Obrigatório (Validator):
+**⚠️ ONLY if running relayer with Ethereum!**
 
-- [ ] ✅ Usuário IAM criado: `hyperlane-validator`
-- [ ] ✅ Access Key ID e Secret obtidos e guardados no `.env`
-- [ ] ✅ Bucket S3 criado e configurado
-- [ ] ✅ Bucket Policy configurada (leitura pública + escrita IAM)
+Same process as BSC, but with different alias:
 
-### Opcional (Relayer BSC):
+1. **Alias**: `hyperlane-relayer-signer-ethereum`
+2. **Description**: `Hyperlane Relayer signer key for Ethereum`
 
-- [ ] ⏳ Chave KMS para BSC: `hyperlane-relayer-signer-bsc`
-- [ ] ⏳ Endereço BSC obtido e financiado
-
-### ❌ NÃO Criar:
-
-- [ ] ~~Chave KMS para Terra Classic~~ (Cosmos não suporta KMS)
+**Get address:**
+```bash
+cast wallet address --aws alias/hyperlane-relayer-signer-ethereum
+```
 
 ---
 
-## 🔧 **Configurar Validator (Terra Classic)**
+### STEP 5: Create KMS Key for Solana (Optional)
+
+**⚠️ ONLY if running relayer with Solana!**
+
+Same process as BSC, but with different alias:
+
+1. **Alias**: `hyperlane-relayer-signer-solana`
+2. **Description**: `Hyperlane Relayer signer key for Solana`
+
+**Get address:**
+```bash
+# Address will be shown in relayer logs after startup
+# Or get from KMS public key
+aws kms get-public-key \
+  --key-id alias/hyperlane-relayer-signer-solana \
+  --region us-east-1
+```
+
+---
+
+## ✅ **AWS Resources Checklist**
+
+### Required (Validator):
+
+- [ ] ✅ IAM user created: `hyperlane-validator`
+- [ ] ✅ Access Key ID and Secret obtained and saved in `.env`
+- [ ] ✅ S3 bucket created and configured
+- [ ] ✅ Bucket policy configured (public read + IAM write)
+
+### Optional (Relayer BSC):
+
+- [ ] ⏳ KMS key for BSC: `hyperlane-relayer-signer-bsc`
+- [ ] ⏳ BSC address obtained and funded
+
+### Optional (Relayer Ethereum):
+
+- [ ] ⏳ KMS key for Ethereum: `hyperlane-relayer-signer-ethereum`
+- [ ] ⏳ Ethereum address obtained and funded
+
+### Optional (Relayer Solana):
+
+- [ ] ⏳ KMS key for Solana: `hyperlane-relayer-signer-solana`
+- [ ] ⏳ Solana address obtained and funded
+
+### ❌ DO NOT Create:
+
+- [ ] ~~KMS key for Terra Classic~~ (Cosmos does not support KMS)
+
+---
+
+## 🔧 **Configure Validator (Terra Classic)**
 
 ### validator.terraclassic.json
 
@@ -332,26 +384,26 @@ cp hyperlane/validator.terraclassic.json.example hyperlane/validator.terraclassi
 nano hyperlane/validator.terraclassic.json
 ```
 
-**Configuração:**
+**Configuration:**
 
 ```json
 {
   "db": "/etc/data/db",
   "checkpointSyncer": {
     "type": "s3",
-    "bucket": "SEU-BUCKET-NAME",  // ← Substituir
+    "bucket": "YOUR-BUCKET-NAME",  // ← Replace
     "region": "us-east-1"
   },
   "originChainName": "terraclassic",
   "validator": {
-    "type": "hexKey",  // ← hexKey, NÃO aws
-    "key": "0xSUA_CHAVE_PRIVADA"  // ← Sua chave privada
+    "type": "hexKey",  // ← hexKey, NOT aws
+    "key": "0xYOUR_PRIVATE_KEY"  // ← Your private key
   },
   "chains": {
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "key": "0xSUA_CHAVE_PRIVADA",  // ← Mesma chave
+        "key": "0xYOUR_PRIVATE_KEY",  // ← Same key
         "prefix": "terra"
       }
     }
@@ -359,14 +411,14 @@ nano hyperlane/validator.terraclassic.json
 }
 ```
 
-**Proteger arquivo:**
+**Protect file:**
 ```bash
 chmod 600 hyperlane/validator.terraclassic.json
 ```
 
 ---
 
-## 🔧 **Configurar Relayer (Opcional)**
+## 🔧 **Configure Relayer (Optional)**
 
 ### relayer.json
 
@@ -375,7 +427,7 @@ cp hyperlane/relayer.json.example hyperlane/relayer.json
 nano hyperlane/relayer.json
 ```
 
-**Configuração:**
+**Configuration Example (Terra + BSC):**
 
 ```json
 {
@@ -392,7 +444,7 @@ nano hyperlane/relayer.json
   "chains": {
     "bsc": {
       "signer": {
-        "type": "aws",  // ← AWS KMS para BSC (EVM)
+        "type": "aws",  // ← AWS KMS for BSC (EVM)
         "id": "alias/hyperlane-relayer-signer-bsc",
         "region": "us-east-1"
       }
@@ -400,8 +452,8 @@ nano hyperlane/relayer.json
     
     "terraclassic": {
       "signer": {
-        "type": "cosmosKey",  // ← hexKey para Terra (Cosmos)
-        "key": "0xSUA_CHAVE_PRIVADA",
+        "type": "cosmosKey",  // ← hexKey for Terra (Cosmos)
+        "key": "0xYOUR_PRIVATE_KEY",
         "prefix": "terra"
       }
     }
@@ -409,114 +461,167 @@ nano hyperlane/relayer.json
 }
 ```
 
-**Proteger arquivo:**
+**Configuration Example (Terra + Ethereum):**
+
+```json
+{
+  "relayChains": "terraclassic,ethereum",
+  "chains": {
+    "ethereum": {
+      "signer": {
+        "type": "aws",
+        "id": "alias/hyperlane-relayer-signer-ethereum",
+        "region": "us-east-1"
+      }
+    },
+    "terraclassic": {
+      "signer": {
+        "type": "cosmosKey",
+        "key": "0xYOUR_PRIVATE_KEY",
+        "prefix": "terra"
+      }
+    }
+  }
+}
+```
+
+**Configuration Example (Terra + Solana):**
+
+```json
+{
+  "relayChains": "terraclassic,solanatestnet",
+  "chains": {
+    "solanatestnet": {
+      "signer": {
+        "type": "aws",
+        "id": "alias/hyperlane-relayer-signer-solana",
+        "region": "us-east-1"
+      }
+    },
+    "terraclassic": {
+      "signer": {
+        "type": "cosmosKey",
+        "key": "0xYOUR_PRIVATE_KEY",
+        "prefix": "terra"
+      }
+    }
+  }
+}
+```
+
+**Protect file:**
 ```bash
 chmod 600 hyperlane/relayer.json
 ```
 
 ---
 
-## 🐳 **Executar Docker**
+## 🐳 **Run Docker**
 
-### Iniciar Validator
+### Start Validator
 
 ```bash
-# Iniciar validator
+# Start validator
 docker-compose up -d validator-terraclassic
 
-# Ver logs
+# View logs
 docker logs -f hpl-validator-terraclassic
 
-# Aguardar: "Successfully announced validator"
+# Wait for: "Successfully announced validator"
 ```
 
-### Iniciar Relayer (Opcional)
+### Start Relayer (Optional)
 
 ```bash
-# Iniciar relayer
+# Start relayer
 docker-compose up -d relayer
 
-# Ver logs
+# View logs
 docker logs -f hpl-relayer
 ```
 
 ---
 
-## 📊 **Monitoramento**
+## 📊 **Monitoring**
 
-### Verificar Logs
+### View Logs
 
 ```bash
-# Logs do validator
+# Validator logs
 docker logs hpl-validator-terraclassic --tail 100
 
-# Logs do relayer
+# Relayer logs
 docker logs hpl-relayer --tail 100
 ```
 
-### Verificar Checkpoints no S3
+### Check Checkpoints in S3
 
 ```bash
-# Listar checkpoints
-aws s3 ls s3://SEU-BUCKET-NAME/ --recursive
+# List checkpoints
+aws s3 ls s3://YOUR-BUCKET-NAME/ --recursive
 
-# Verificar último checkpoint
-aws s3 ls s3://SEU-BUCKET-NAME/ --recursive | tail -1
+# Check last checkpoint
+aws s3 ls s3://YOUR-BUCKET-NAME/ --recursive | tail -1
 ```
 
-### Verificar Saldos
+### Check Balances
 
 ```bash
 # Terra Classic (hexKey)
-curl "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/SEU_ENDERECO_TERRA"
+curl "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/YOUR_TERRA_ADDRESS"
 
 # BSC (KMS)
-cast balance SEU_ENDERECO_BSC --rpc-url https://bsc.drpc.org
+cast balance YOUR_BSC_ADDRESS --rpc-url https://bsc.drpc.org
+
+# Ethereum (KMS)
+cast balance YOUR_ETH_ADDRESS --rpc-url https://eth.llamarpc.com
+
+# Solana (KMS) - check in explorer or relayer logs
 ```
 
 ---
 
 ## 🚨 **Troubleshooting**
 
-### Erro: "AccessDenied" no S3
+### Error: "AccessDenied" on S3
 
-**Causa:** Bucket policy incorreta ou credenciais AWS inválidas
+**Cause:** Incorrect bucket policy or invalid AWS credentials
 
-**Solução:**
-1. Verificar bucket policy no AWS Console
-2. Verificar `.env` com credenciais corretas
-3. Verificar ARN do usuário IAM na policy
+**Solution:**
+1. Check bucket policy in AWS Console
+2. Check `.env` with correct credentials
+3. Check IAM user ARN in policy
 
-### Erro: "InvalidSignatureException" no KMS
+### Error: "InvalidSignatureException" on KMS
 
-**Causa:** Chave KMS não existe ou sem permissões
+**Cause:** KMS key doesn't exist or no permissions
 
-**Solução:**
+**Solution:**
 ```bash
-# Verificar se a chave existe
+# Check if key exists
 aws kms describe-key --key-id alias/hyperlane-relayer-signer-bsc --region us-east-1
 
-# Verificar permissões
+# Check permissions
 aws kms get-key-policy \
   --key-id alias/hyperlane-relayer-signer-bsc \
   --policy-name default \
   --region us-east-1
 ```
 
-### Container não inicia
+### Container won't start
 
 ```bash
-# Ver logs completos
+# View complete logs
 docker logs hpl-validator-terraclassic
 
-# Reiniciar
+# Restart
 docker-compose down
 docker-compose up -d validator-terraclassic
 ```
 
 ---
 
-## 📚 **Referências**
+## 📚 **References**
 
 - [Hyperlane Validator Setup](https://docs.hyperlane.xyz/docs/operate/validators/run-validators)
 - [AWS KMS Keys](https://docs.hyperlane.xyz/docs/operate/set-up-agent-keys)
@@ -525,21 +630,21 @@ docker-compose up -d validator-terraclassic
 
 ---
 
-## 📝 **Resumo**
+## 📝 **Summary**
 
-### ✅ Para Validator (Terra Classic):
+### ✅ For Validator (Terra Classic):
 
-1. Criar IAM User
-2. Criar S3 Bucket
-3. Usar **hexKey** (chave privada local)
-4. ❌ **NÃO usar AWS KMS**
+1. Create IAM User
+2. Create S3 Bucket
+3. Use **hexKey** (local private key)
+4. ❌ **DO NOT use AWS KMS**
 
-### ✅ Para Relayer (Opcional):
+### ✅ For Relayer (Optional):
 
-1. Criar chave KMS para **BSC** (EVM)
-2. Usar **hexKey** para **Terra Classic** (Cosmos)
-3. Configurar ambas chains no `relayer.json`
+1. Create KMS key for **BSC/Ethereum/Solana** (EVM/Sealevel)
+2. Use **hexKey** for **Terra Classic** (Cosmos)
+3. Configure all chains in `relayer.json`
 
 ---
 
-**🎯 Próximo passo:** Seguir [`QUICKSTART.md`](QUICKSTART.md) para executar!
+**🎯 Next step:** Follow [`QUICKSTART.md`](QUICKSTART.md) to run!

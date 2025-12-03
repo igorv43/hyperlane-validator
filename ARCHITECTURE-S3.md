@@ -1,8 +1,8 @@
-# 🏗️ Arquitetura Hyperlane com AWS S3 - Análise Completa
+# 🏗️ Hyperlane Architecture with AWS S3 - Complete Analysis
 
-Este documento explica a arquitetura completa do projeto usando AWS S3, mostrando o fluxo de dados e por que cada componente é necessário.
+This document explains the complete architecture of the project using AWS S3, showing the data flow and why each component is necessary.
 
-## 🎯 Visão Geral da Arquitetura
+## 🎯 Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -53,199 +53,199 @@ Este documento explica a arquitetura completa do projeto usando AWS S3, mostrand
                              └──────────────────────────────────────────┘
 ```
 
-## 📊 Separação de Responsabilidades
+## 📊 Separation of Responsibilities
 
 ### 🔐 Validator (terraclassic)
 
-**Função:** Assinar checkpoints de mensagens da chain Terra Classic
+**Function:** Sign checkpoints of messages from Terra Classic chain
 
-**Armazena:**
-- ✅ **Configurações** → Volume local: `./hyperlane:/etc/hyperlane`
-- ✅ **Database** → Volume local: `./validator:/etc/data`
-- ✅ **Checkpoints** → AWS S3 (bucket público para leitura)
+**Stores:**
+- ✅ **Configurations** → Local volume: `./hyperlane:/etc/hyperlane`
+- ✅ **Database** → Local volume: `./validator:/etc/data`
+- ✅ **Checkpoints** → AWS S3 (public bucket for reading)
 
-**NÃO precisa:**
-- ❌ Acesso ao database do relayer
-- ❌ Volume local para checkpoints (vai para S3)
+**Does NOT need:**
+- ❌ Access to relayer database
+- ❌ Local volume for checkpoints (goes to S3)
 
-**Configuração:**
+**Configuration:**
 ```json
 {
   "db": "/etc/data/db",                    // ← Volume: ./validator
   "checkpointSyncer": {
-    "type": "s3",                          // ← Vai para S3
+    "type": "s3",                          // ← Goes to S3
     "bucket": "hyperlane-validator-...",
     "region": "us-east-1"
   }
 }
 ```
 
-**Volumes necessários:**
+**Required volumes:**
 ```yaml
 volumes:
   - ./hyperlane:/etc/hyperlane   # Config
   - ./validator:/etc/data        # Database
-  # SEM volume para checkpoints!
+  # NO volume for checkpoints!
 ```
 
 ---
 
 ### 🔄 Relayer (terra ↔ bsc)
 
-**Função:** Transmitir mensagens entre Terra Classic e BSC
+**Function:** Relay messages between Terra Classic and BSC
 
-**Armazena:**
-- ✅ **Configurações** → Volume local: `./hyperlane:/etc/hyperlane`
-- ✅ **Database** → Volume local: `./relayer:/etc/data`
-- ✅ **Lê checkpoints** → AWS S3 (do validator)
+**Stores:**
+- ✅ **Configurations** → Local volume: `./hyperlane:/etc/hyperlane`
+- ✅ **Database** → Local volume: `./relayer:/etc/data`
+- ✅ **Reads checkpoints** → AWS S3 (from validator)
 
-**NÃO precisa:**
-- ❌ Acesso ao database do validator
-- ❌ Volume para checkpoints (lê do S3)
-- ❌ Volume `./validator` (não faz sentido!)
+**Does NOT need:**
+- ❌ Access to validator database
+- ❌ Volume for checkpoints (reads from S3)
+- ❌ Volume `./validator` (doesn't make sense!)
 
-**Configuração:**
+**Configuration:**
 ```json
 {
   "db": "/etc/data/db",                    // ← Volume: ./relayer
-  "allowLocalCheckpointSyncers": "false",  // ← Lê do S3, não local
+  "allowLocalCheckpointSyncers": "false",  // ← Reads from S3, not local
   "relayChains": "terraclassic,bsc"
 }
 ```
 
-**Volumes necessários:**
+**Required volumes:**
 ```yaml
 volumes:
   - ./hyperlane:/etc/hyperlane   # Config
   - ./relayer:/etc/data          # Database
-  # SEM ./validator! Não precisa!
+  # NO ./validator! Not needed!
 ```
 
 ---
 
-## 🔄 Fluxo de Dados Completo
+## 🔄 Complete Data Flow
 
-### Passo 1: Mensagem Enviada em Terra Classic
+### Step 1: Message Sent on Terra Classic
 
 ```
 Terra Classic
      ↓
 Hyperlane Mailbox Contract
      ↓
-Event emitido
+Event emitted
      ↓
-VALIDATOR detecta evento
+VALIDATOR detects event
      ↓
-VALIDATOR cria checkpoint
+VALIDATOR creates checkpoint
      ↓
-AWS KMS assina checkpoint
+AWS KMS signs checkpoint
      ↓
-✅ VALIDATOR escreve no S3
+✅ VALIDATOR writes to S3
 ```
 
-### Passo 2: Relayer Processa Mensagem
+### Step 2: Relayer Processes Message
 
 ```
-✅ S3 Bucket (checkpoint disponível)
+✅ S3 Bucket (checkpoint available)
      ↓
-RELAYER lê checkpoint do S3
+RELAYER reads checkpoint from S3
      ↓
-RELAYER verifica assinatura
+RELAYER verifies signature
      ↓
-AWS KMS assina transação de entrega
+AWS KMS signs delivery transaction
      ↓
-RELAYER envia para BSC
+RELAYER sends to BSC
      ↓
-Mensagem entregue em BSC
+Message delivered on BSC
 ```
 
-## 📁 Estrutura de Diretórios Correta
+## 📁 Correct Directory Structure
 
 ```
 hyperlane-validator/
 ├── docker-compose.yml
-├── .env                              # Credenciais AWS
+├── .env                              # AWS Credentials
 │
-├── hyperlane/                        # Volume compartilhado (read-only)
-│   ├── agent-config.docker.json     # Configuração das chains
-│   ├── validator.terraclassic.json  # Config do validator
-│   └── relayer.json                 # Config do relayer
+├── hyperlane/                        # Shared volume (read-only)
+│   ├── agent-config.docker.json     # Chain configuration
+│   ├── validator.terraclassic.json  # Validator config
+│   └── relayer.json                 # Relayer config
 │
-├── validator/                        # Volume EXCLUSIVO do validator
-│   └── db/                           # Database do validator
+├── validator/                        # EXCLUSIVE validator volume
+│   └── db/                           # Validator database
 │       ├── CURRENT
 │       ├── LOCK
 │       └── *.sst
 │
-└── relayer/                          # Volume EXCLUSIVO do relayer
-    └── db/                           # Database do relayer
+└── relayer/                          # EXCLUSIVE relayer volume
+    └── db/                           # Relayer database
         ├── CURRENT
         ├── LOCK
         └── *.sst
 
-AWS S3 (remoto):
+AWS S3 (remote):
 └── hyperlane-validator-signatures-igorverasvalidador-terraclassic/
-    ├── checkpoint_0x1234...json      # Escrito pelo validator
-    ├── checkpoint_0x5678...json      # Lido pelo relayer
+    ├── checkpoint_0x1234...json      # Written by validator
+    ├── checkpoint_0x5678...json      # Read by relayer
     └── checkpoint_0xabcd...json
 ```
 
-## ⚠️ Configurações INCORRETAS (Evitar)
+## ⚠️ INCORRECT Configurations (Avoid)
 
-### ❌ Relayer com Volume do Validator
+### ❌ Relayer with Validator Volume
 
 ```yaml
-# ERRADO!
+# WRONG!
 relayer:
   volumes:
     - ./hyperlane:/etc/hyperlane
     - ./relayer:/etc/data
-    - ./validator:/etc/validator    # ❌ POR QUÊ?!
+    - ./validator:/etc/validator    # ❌ WHY?!
 ```
 
-**Problemas:**
-1. Relayer não usa dados do validator
-2. Cria acoplamento desnecessário
-3. Pode causar conflitos de acesso
-4. Desperdiça recursos
+**Problems:**
+1. Relayer doesn't use validator data
+2. Creates unnecessary coupling
+3. Can cause access conflicts
+4. Wastes resources
 
-### ❌ Checkpoints em Volume Local
+### ❌ Checkpoints in Local Volume
 
 ```yaml
-# ERRADO!
+# WRONG!
 validator:
   volumes:
     - ./hyperlane:/etc/hyperlane
     - ./validator:/etc/data
-    - ./validator/checkpoint:/etc/checkpoint  # ❌ Não precisa!
+    - ./validator/checkpoint:/etc/checkpoint  # ❌ Not needed!
 ```
 
-**Problemas:**
-1. Checkpoints vão para S3
-2. Volume local desperdiçado
-3. Não está disponível para outros agentes
-4. Sem redundância
+**Problems:**
+1. Checkpoints go to S3
+2. Local volume wasted
+3. Not available to other agents
+4. No redundancy
 
-### ❌ Databases Compartilhados
+### ❌ Shared Databases
 
 ```yaml
-# ERRADO!
+# WRONG!
 validator:
   volumes:
-    - ./data:/etc/data    # ❌ Compartilhado
+    - ./data:/etc/data    # ❌ Shared
 
 relayer:
   volumes:
-    - ./data:/etc/data    # ❌ Mesmo volume!
+    - ./data:/etc/data    # ❌ Same volume!
 ```
 
-**Problemas:**
-1. Conflitos de escrita
-2. Corrupção de dados
-3. Problemas de lock
-4. Impossível debugar
+**Problems:**
+1. Write conflicts
+2. Data corruption
+3. Lock issues
+4. Impossible to debug
 
-## ✅ Configuração CORRETA Final
+## ✅ CORRECT Final Configuration
 
 ### docker-compose.yml
 
@@ -260,10 +260,10 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_REGION=${AWS_REGION:-us-east-1}
     volumes:
-      - ./hyperlane:/etc/hyperlane    # ✅ Config (compartilhado read-only)
-      - ./relayer:/etc/data           # ✅ Database próprio
-      # ✅ SEM ./validator! Não precisa!
-      # ✅ Checkpoints lidos do S3
+      - ./hyperlane:/etc/hyperlane    # ✅ Config (shared read-only)
+      - ./relayer:/etc/data           # ✅ Own database
+      # ✅ NO ./validator! Not needed!
+      # ✅ Checkpoints read from S3
 
   validator-terraclassic:
     container_name: hpl-validator-terraclassic
@@ -273,12 +273,12 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_REGION=${AWS_REGION:-us-east-1}
     volumes:
-      - ./hyperlane:/etc/hyperlane    # ✅ Config (compartilhado read-only)
-      - ./validator:/etc/data         # ✅ Database próprio
-      # ✅ Checkpoints escritos no S3
+      - ./hyperlane:/etc/hyperlane    # ✅ Config (shared read-only)
+      - ./validator:/etc/data         # ✅ Own database
+      # ✅ Checkpoints written to S3
 ```
 
-## 🔐 Fluxo de Autenticação AWS
+## 🔐 AWS Authentication Flow
 
 ### Validator
 
@@ -287,15 +287,15 @@ Container validator-terraclassic
          ↓
 AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY
          ↓
-AWS STS (verifica identidade)
+AWS STS (verifies identity)
          ↓
-IAM Policy (verifica permissões)
+IAM Policy (verifies permissions)
          ↓
 ├─→ AWS KMS (sign checkpoints)
 │   └─→ hyperlane-validator-signer-terraclassic
 │
 └─→ AWS S3 (write checkpoints)
-    └─→ PutObject em hyperlane-validator-signatures-...
+    └─→ PutObject in hyperlane-validator-signatures-...
 ```
 
 ### Relayer
@@ -305,105 +305,105 @@ Container hpl-relayer
          ↓
 AWS_ACCESS_KEY_ID + AWS_SECRET_ACCESS_KEY
          ↓
-AWS STS (verifica identidade)
+AWS STS (verifies identity)
          ↓
-IAM Policy (verifica permissões)
+IAM Policy (verifies permissions)
          ↓
 ├─→ AWS KMS (sign transactions)
 │   ├─→ hyperlane-relayer-signer-bsc
 │   └─→ hyperlane-validator-signer-terraclassic
 │
 └─→ AWS S3 (read checkpoints)
-    └─→ GetObject em hyperlane-validator-signatures-...
+    └─→ GetObject in hyperlane-validator-signatures-...
 ```
 
-## 📊 Comparação de Uso de Recursos
+## 📊 Resource Usage Comparison
 
-### Com S3 (Atual - Correto)
+### With S3 (Current - Correct)
 
-| Serviço | Volumes | Disk Usage | S3 Access |
+| Service | Volumes | Disk Usage | S3 Access |
 |---------|---------|------------|-----------|
 | Validator | 2 (config + db) | ~100 MB | Write |
 | Relayer | 2 (config + db) | ~100 MB | Read |
 | **Total** | **4 volumes** | **~200 MB** | ✅ |
 
-### Com localStorage (Antigo - Incorreto)
+### With localStorage (Old - Incorrect)
 
-| Serviço | Volumes | Disk Usage | S3 Access |
+| Service | Volumes | Disk Usage | S3 Access |
 |---------|---------|------------|-----------|
 | Validator | 3 (config + db + checkpoint) | ~500 MB+ | None |
 | Relayer | 3 (config + db + validator?!) | ~500 MB+ | None |
 | **Total** | **6 volumes** | **~1 GB+** | ❌ |
 
-**Economia com S3:**
-- 🟢 33% menos volumes
-- 🟢 80% menos disk usage
-- 🟢 Checkpoints disponíveis globalmente
-- 🟢 Backup automático
+**Savings with S3:**
+- 🟢 33% fewer volumes
+- 🟢 80% less disk usage
+- 🟢 Checkpoints available globally
+- 🟢 Automatic backup
 
-## 🎯 Checklist de Verificação
+## 🎯 Verification Checklist
 
-Use este checklist para verificar se sua configuração está correta:
+Use this checklist to verify your configuration is correct:
 
 ### Validator
 
-- [ ] Volume `./hyperlane:/etc/hyperlane` existe
-- [ ] Volume `./validator:/etc/data` existe
-- [ ] **NÃO** tem volume para `/etc/validator/checkpoint`
-- [ ] Config tem `"checkpointSyncer": { "type": "s3" }`
-- [ ] Config tem `"db": "/etc/data/db"`
-- [ ] Variáveis AWS configuradas
-- [ ] Bucket S3 existe e é acessível
+- [ ] Volume `./hyperlane:/etc/hyperlane` exists
+- [ ] Volume `./validator:/etc/data` exists
+- [ ] **NO** volume for `/etc/validator/checkpoint`
+- [ ] Config has `"checkpointSyncer": { "type": "s3" }`
+- [ ] Config has `"db": "/etc/data/db"`
+- [ ] AWS variables configured
+- [ ] S3 bucket exists and is accessible
 
 ### Relayer
 
-- [ ] Volume `./hyperlane:/etc/hyperlane` existe
-- [ ] Volume `./relayer:/etc/data` existe
-- [ ] **NÃO** tem volume `./validator`
-- [ ] Config tem `"allowLocalCheckpointSyncers": "false"`
-- [ ] Config tem `"db": "/etc/data/db"`
-- [ ] Variáveis AWS configuradas
-- [ ] Pode ler do bucket S3 do validator
+- [ ] Volume `./hyperlane:/etc/hyperlane` exists
+- [ ] Volume `./relayer:/etc/data` exists
+- [ ] **NO** volume `./validator`
+- [ ] Config has `"allowLocalCheckpointSyncers": "false"`
+- [ ] Config has `"db": "/etc/data/db"`
+- [ ] AWS variables configured
+- [ ] Can read from validator's S3 bucket
 
 ### S3 Bucket
 
-- [ ] Bucket criado na região correta
-- [ ] Política permite leitura pública
-- [ ] Política permite escrita apenas do IAM user
-- [ ] Checkpoints aparecem após mensagens
+- [ ] Bucket created in correct region
+- [ ] Policy allows public read
+- [ ] Policy allows write only from IAM user
+- [ ] Checkpoints appear after messages
 
-## 🔧 Comandos de Verificação
+## 🔧 Verification Commands
 
 ```bash
-# 1. Verificar estrutura de volumes
+# 1. Check volume structure
 docker inspect hpl-validator-terraclassic | jq '.[0].Mounts'
 docker inspect hpl-relayer | jq '.[0].Mounts'
 
-# Deve mostrar apenas 2 volumes cada:
+# Should show only 2 volumes each:
 # - ./hyperlane:/etc/hyperlane
-# - ./validator ou ./relayer:/etc/data
+# - ./validator or ./relayer:/etc/data
 
-# 2. Verificar configurações
+# 2. Check configurations
 cat hyperlane/validator.terraclassic.json | jq '.checkpointSyncer'
-# Deve mostrar: {"type": "s3", "bucket": "...", "region": "..."}
+# Should show: {"type": "s3", "bucket": "...", "region": "..."}
 
 cat hyperlane/relayer.json | jq '.allowLocalCheckpointSyncers'
-# Deve mostrar: "false"
+# Should show: "false"
 
-# 3. Verificar checkpoints no S3
+# 3. Check checkpoints in S3
 aws s3 ls s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/ \
   --region us-east-1
 
-# 4. Verificar logs
+# 4. Check logs
 docker logs hpl-validator-terraclassic | grep -i "checkpoint"
 docker logs hpl-relayer | grep -i "checkpoint"
 
-# 5. Verificar que relayer NÃO tem acesso a ./validator
+# 5. Verify relayer does NOT have access to ./validator
 docker exec hpl-relayer ls /etc/validator 2>&1
-# Deve dar erro: "No such file or directory" ✅
+# Should give error: "No such file or directory" ✅
 ```
 
-## 📚 Recursos Adicionais
+## 📚 Additional Resources
 
 - [AWS S3 Best Practices](https://docs.aws.amazon.com/AmazonS3/latest/userguide/best-practices.html)
 - [Docker Volumes Guide](https://docs.docker.com/storage/volumes/)
@@ -411,14 +411,13 @@ docker exec hpl-relayer ls /etc/validator 2>&1
 
 ---
 
-**✅ Resumo da Arquitetura Correta:**
+**✅ Correct Architecture Summary:**
 
 1. **Validator** = 2 volumes (config + database) + S3 write
 2. **Relayer** = 2 volumes (config + database) + S3 read
-3. **NÃO** compartilhar volumes entre serviços
-4. **NÃO** ter volumes para checkpoints (estão no S3)
-5. **SIM** usar AWS credentials para ambos os serviços
+3. **DO NOT** share volumes between services
+4. **DO NOT** have volumes for checkpoints (they're in S3)
+5. **YES** use AWS credentials for both services
 
-🚀 **Arquitetura limpa, eficiente e escalável!**
-
+🚀 **Clean, efficient, and scalable architecture!**
 

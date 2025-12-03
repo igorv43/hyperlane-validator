@@ -1,12 +1,12 @@
-# 📦 Explicação dos Volumes Docker - Hyperlane com S3
+# 📦 Docker Volumes Explanation - Hyperlane with S3
 
-Este documento explica a configuração correta de volumes quando usando AWS S3 para checkpoints.
+This document explains the correct volume configuration when using AWS S3 for checkpoints.
 
-## 🎯 Entendendo a Diferença
+## 🎯 Understanding the Difference
 
-### ❌ Configuração Antiga (localStorage)
+### ❌ Old Configuration (localStorage)
 
-Quando usávamos `localStorage` para checkpoints:
+When we used `localStorage` for checkpoints:
 
 ```json
 "checkpointSyncer": {
@@ -15,16 +15,16 @@ Quando usávamos `localStorage` para checkpoints:
 }
 ```
 
-**Volumes necessários:**
+**Required volumes:**
 ```yaml
 volumes:
-  - ./hyperlane:/etc/hyperlane          # Arquivos de configuração
-  - ./validator:/etc/validator          # Checkpoints locais + database
+  - ./hyperlane:/etc/hyperlane          # Configuration files
+  - ./validator:/etc/validator          # Local checkpoints + database
 ```
 
-### ✅ Configuração Nova (S3)
+### ✅ New Configuration (S3)
 
-Com AWS S3 para checkpoints:
+With AWS S3 for checkpoints:
 
 ```json
 "checkpointSyncer": {
@@ -34,35 +34,35 @@ Com AWS S3 para checkpoints:
 }
 ```
 
-**Volumes necessários:**
+**Required volumes:**
 ```yaml
 volumes:
-  - ./hyperlane:/etc/hyperlane          # Arquivos de configuração
-  - ./validator:/etc/data               # Apenas database local
+  - ./hyperlane:/etc/hyperlane          # Configuration files
+  - ./validator:/etc/data               # Only local database
 ```
 
-## 📊 Comparação Detalhada
+## 📊 Detailed Comparison
 
-| Componente | Armazenamento | Volume Necessário | Motivo |
-|------------|---------------|-------------------|--------|
-| **Configurações** | Local | `./hyperlane:/etc/hyperlane` | ✅ Arquivos JSON de config |
-| **Database** | Local | `./validator:/etc/data` | ✅ Estado interno do agente |
-| **Checkpoints** | S3 Bucket | ❌ Nenhum | Armazenado na AWS |
+| Component | Storage | Required Volume | Reason |
+|-----------|---------|-----------------|--------|
+| **Configurations** | Local | `./hyperlane:/etc/hyperlane` | ✅ JSON config files |
+| **Database** | Local | `./validator:/etc/data` | ✅ Agent internal state |
+| **Checkpoints** | S3 Bucket | ❌ None | Stored in AWS |
 
-## 🔍 O que Cada Componente Faz
+## 🔍 What Each Component Does
 
-### 1. Configurações (`./hyperlane:/etc/hyperlane`)
+### 1. Configurations (`./hyperlane:/etc/hyperlane`)
 
-**O que contém:**
-- `agent-config.docker.json` - Configuração das chains
-- `validator.terraclassic.json` - Configuração do validador
-- `relayer.json` - Configuração do relayer
+**What it contains:**
+- `agent-config.docker.json` - Chain configuration
+- `validator.terraclassic.json` - Validator configuration
+- `relayer.json` - Relayer configuration
 
-**Por que precisa de volume:**
-- Arquivos são lidos na inicialização
-- Permitem atualizar configurações sem rebuild da imagem
+**Why it needs a volume:**
+- Files are read on initialization
+- Allows updating configurations without rebuilding the image
 
-**Exemplo de conteúdo:**
+**Example content:**
 ```bash
 ./hyperlane/
 ├── agent-config.docker.json
@@ -72,23 +72,23 @@ volumes:
 
 ### 2. Database (`./validator:/etc/data`)
 
-**O que contém:**
-- Estado interno do validador
-- Últimas mensagens processadas
-- Índices de sincronização
-- Metadados operacionais
+**What it contains:**
+- Validator internal state
+- Last processed messages
+- Sync indices
+- Operational metadata
 
-**Por que precisa de volume:**
-- Persistência entre reinicializações
-- Performance (não precisa resincronizar)
-- Histórico de operações
+**Why it needs a volume:**
+- Persistence between restarts
+- Performance (doesn't need to resync)
+- Operation history
 
-**Caminho no código:**
+**Path in code:**
 ```json
 "db": "/etc/data/db"
 ```
 
-**Exemplo de estrutura:**
+**Example structure:**
 ```bash
 ./validator/
 └── db/
@@ -101,18 +101,18 @@ volumes:
 
 ### 3. Checkpoints (AWS S3)
 
-**O que contém:**
-- Assinaturas dos checkpoints de mensagens
-- Merkle roots assinados
-- Metadados de validação
+**What it contains:**
+- Signed checkpoints of messages
+- Signed Merkle roots
+- Validation metadata
 
-**Por que NÃO precisa de volume:**
-- ✅ Armazenado diretamente no S3
-- ✅ Acessível publicamente para outros agentes
-- ✅ Redundância e durabilidade da AWS
-- ✅ Não ocupa espaço local
+**Why it does NOT need a volume:**
+- ✅ Stored directly in S3
+- ✅ Publicly accessible to other agents
+- ✅ AWS redundancy and durability
+- ✅ Doesn't take up local space
 
-**Exemplo no S3:**
+**Example in S3:**
 ```
 s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/
 ├── checkpoint_0x1234...json
@@ -120,7 +120,7 @@ s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/
 └── checkpoint_0xabcd...json
 ```
 
-## 🛠️ Configuração Correta
+## 🛠️ Correct Configuration
 
 ### docker-compose.yml
 
@@ -134,9 +134,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_REGION=${AWS_REGION:-us-east-1}
     volumes:
-      - ./hyperlane:/etc/hyperlane    # Configurações
-      - ./relayer:/etc/data           # Database do relayer
-    # Relayer lê checkpoints do S3 (allowLocalCheckpointSyncers: false)
+      - ./hyperlane:/etc/hyperlane    # Configurations
+      - ./relayer:/etc/data           # Relayer database
+    # Relayer reads checkpoints from S3 (allowLocalCheckpointSyncers: false)
 
   validator-terraclassic:
     container_name: hpl-validator-terraclassic
@@ -146,9 +146,9 @@ services:
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_REGION=${AWS_REGION:-us-east-1}
     volumes:
-      - ./hyperlane:/etc/hyperlane    # Configurações
-      - ./validator:/etc/data         # Database do validator
-    # Checkpoints vão direto para S3, não precisam de volume!
+      - ./hyperlane:/etc/hyperlane    # Configurations
+      - ./validator:/etc/data         # Validator database
+    # Checkpoints go directly to S3, no volume needed!
 ```
 
 ### validator.terraclassic.json
@@ -157,173 +157,173 @@ services:
 {
   "db": "/etc/data/db",              // Volume: ./validator
   "checkpointSyncer": {
-    "type": "s3",                    // Vai para S3, não precisa volume
+    "type": "s3",                    // Goes to S3, no volume needed
     "bucket": "...",
     "region": "us-east-1"
   }
 }
 ```
 
-## 🔄 Migração de localStorage para S3
+## 🔄 Migration from localStorage to S3
 
-Se você já estava usando localStorage e quer migrar para S3:
+If you were already using localStorage and want to migrate to S3:
 
-### Passo 1: Backup dos Checkpoints Locais (Opcional)
+### Step 1: Backup Local Checkpoints (Optional)
 
 ```bash
-# Fazer backup dos checkpoints antigos
+# Backup old checkpoints
 tar -czf validator-checkpoints-backup.tar.gz ./validator/terraclassic/checkpoint/
 ```
 
-### Passo 2: Atualizar Configurações
+### Step 2: Update Configurations
 
 ```bash
-# Editar validator.terraclassic.json
+# Edit validator.terraclassic.json
 nano hyperlane/validator.terraclassic.json
 
-# Mudar de:
+# Change from:
 "checkpointSyncer": {
   "type": "localStorage",
   "path": "/etc/validator/terraclassic/checkpoint"
 }
 
-# Para:
+# To:
 "checkpointSyncer": {
   "type": "s3",
-  "bucket": "seu-bucket-s3",
+  "bucket": "your-s3-bucket",
   "region": "us-east-1"
 }
 ```
 
-### Passo 3: Atualizar docker-compose.yml
+### Step 3: Update docker-compose.yml
 
 ```bash
-# Editar volumes
+# Edit volumes
 nano docker-compose.yml
 
-# Mudar de:
+# Change from:
 volumes:
   - ./validator:/etc/validator
 
-# Para:
+# To:
 volumes:
   - ./validator:/etc/data
 ```
 
-### Passo 4: Reiniciar Validador
+### Step 4: Restart Validator
 
 ```bash
-# Parar container
+# Stop container
 docker-compose stop validator-terraclassic
 
-# Remover container antigo
+# Remove old container
 docker-compose rm -f validator-terraclassic
 
-# Iniciar com nova configuração
+# Start with new configuration
 docker-compose up -d validator-terraclassic
 
-# Verificar logs
+# Check logs
 docker logs -f hpl-validator-terraclassic
 ```
 
-### Passo 5: Verificar S3
+### Step 5: Verify S3
 
 ```bash
-# Verificar se checkpoints estão sendo enviados para S3
-aws s3 ls s3://seu-bucket-s3/ --region us-east-1
+# Check if checkpoints are being sent to S3
+aws s3 ls s3://your-s3-bucket/ --region us-east-1
 
-# Ou via browser
-# https://s3.console.aws.amazon.com/s3/buckets/seu-bucket-s3
+# Or via browser
+# https://s3.console.aws.amazon.com/s3/buckets/your-s3-bucket
 ```
 
-## 📈 Benefícios do S3 vs localStorage
+## 📈 Benefits of S3 vs localStorage
 
-| Aspecto | localStorage | S3 |
-|---------|--------------|-----|
-| **Disponibilidade** | Local apenas | Global (qualquer agente) |
-| **Durabilidade** | Depende do disco | 99.999999999% (11 noves) |
-| **Redundância** | Nenhuma | Multi-AZ automática |
-| **Backup** | Manual | Automático |
-| **Espaço em disco** | Consome local | Não consome |
-| **Performance** | Rápido (local) | Rápido (rede AWS) |
-| **Custo** | Gratuito | ~$0.023/GB/mês |
-| **Escalabilidade** | Limitada | Ilimitada |
+| Aspect | localStorage | S3 |
+|--------|--------------|-----|
+| **Availability** | Local only | Global (any agent) |
+| **Durability** | Depends on disk | 99.999999999% (11 nines) |
+| **Redundancy** | None | Automatic Multi-AZ |
+| **Backup** | Manual | Automatic |
+| **Disk space** | Consumes local | Doesn't consume |
+| **Performance** | Fast (local) | Fast (AWS network) |
+| **Cost** | Free | ~$0.023/GB/month |
+| **Scalability** | Limited | Unlimited |
 
 ## 🔧 Troubleshooting
 
-### Erro: "Failed to write checkpoint to S3"
+### Error: "Failed to write checkpoint to S3"
 
-**Causa:** Credenciais AWS incorretas ou sem permissões.
+**Cause:** Incorrect AWS credentials or no permissions.
 
-**Solução:**
+**Solution:**
 ```bash
-# Verificar credenciais
+# Check credentials
 aws sts get-caller-identity
 
-# Verificar permissões do bucket
-aws s3api get-bucket-policy --bucket seu-bucket --region us-east-1
+# Check bucket permissions
+aws s3api get-bucket-policy --bucket your-bucket --region us-east-1
 ```
 
-### Erro: "Database already in use"
+### Error: "Database already in use"
 
-**Causa:** Volume montado incorretamente ou container duplicado.
+**Cause:** Volume mounted incorrectly or duplicate container.
 
-**Solução:**
+**Solution:**
 ```bash
-# Parar todos os containers
+# Stop all containers
 docker-compose down
 
-# Verificar se não há containers órfãos
+# Check for orphaned containers
 docker ps -a | grep validator
 
-# Reiniciar
+# Restart
 docker-compose up -d validator-terraclassic
 ```
 
-### Checkpoints não aparecem no S3
+### Checkpoints don't appear in S3
 
-**Causa:** Validador ainda não processou mensagens ou bucket incorreto.
+**Cause:** Validator hasn't processed messages yet or incorrect bucket.
 
-**Solução:**
+**Solution:**
 ```bash
-# Verificar logs do validador
+# Check validator logs
 docker logs hpl-validator-terraclassic | grep -i checkpoint
 
-# Verificar configuração do bucket
+# Check bucket configuration
 cat hyperlane/validator.terraclassic.json | grep -A 3 checkpointSyncer
 
-# Testar acesso ao S3
-aws s3 ls s3://seu-bucket/ --region us-east-1
+# Test S3 access
+aws s3 ls s3://your-bucket/ --region us-east-1
 ```
 
-## 📁 Estrutura de Diretórios Recomendada
+## 📁 Recommended Directory Structure
 
 ```
 hyperlane-validator/
 ├── docker-compose.yml
-├── .env                           # Credenciais AWS
+├── .env                           # AWS Credentials
 ├── hyperlane/                     # Volume: /etc/hyperlane
 │   ├── agent-config.docker.json
 │   ├── validator.terraclassic.json
 │   └── relayer.json
 ├── validator/                     # Volume: /etc/data
-│   └── db/                        # Database do validador
+│   └── db/                        # Validator database
 │       ├── CURRENT
 │       └── *.sst
 └── relayer/                       # Volume: /etc/data (relayer)
-    └── db/                        # Database do relayer
+    └── db/                        # Relayer database
 ```
 
-**Nota:** Não há mais pasta `validator/terraclassic/checkpoint/` porque os checkpoints estão no S3!
+**Note:** There's no longer a `validator/terraclassic/checkpoint/` folder because checkpoints are in S3!
 
-## 🔐 Segurança
+## 🔐 Security
 
-### Checkpoints no S3
+### Checkpoints in S3
 
-✅ **Público para leitura** - Outros agentes precisam ler
-❌ **Público para escrita** - Apenas seu validador deve escrever
+✅ **Public for reading** - Other agents need to read
+❌ **Public for writing** - Only your validator should write
 
-**Política de Bucket Recomendada:**
+**Recommended Bucket Policy:**
 ```json
 {
   "Version": "2012-10-17",
@@ -333,38 +333,38 @@ hyperlane-validator/
       "Principal": "*",
       "Action": ["s3:GetObject", "s3:ListBucket"],
       "Resource": [
-        "arn:aws:s3:::seu-bucket",
-        "arn:aws:s3:::seu-bucket/*"
+        "arn:aws:s3:::your-bucket",
+        "arn:aws:s3:::your-bucket/*"
       ]
     },
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::123456789:user/seu-usuario-iam"
+        "AWS": "arn:aws:iam::123456789:user/your-iam-user"
       },
       "Action": ["s3:PutObject", "s3:DeleteObject"],
-      "Resource": "arn:aws:s3:::seu-bucket/*"
+      "Resource": "arn:aws:s3:::your-bucket/*"
     }
   ]
 }
 ```
 
-### Database Local
+### Local Database
 
-✅ **Privado** - Apenas no servidor
-🔒 **Backup recomendado** - Copiar periodicamente
+✅ **Private** - Only on server
+🔒 **Backup recommended** - Copy periodically
 
-**Script de Backup:**
+**Backup Script:**
 ```bash
 #!/bin/bash
 # backup-validator-db.sh
 
 DATE=$(date +%Y%m%d_%H%M%S)
 tar -czf validator-db-backup-${DATE}.tar.gz ./validator/db/
-echo "Backup criado: validator-db-backup-${DATE}.tar.gz"
+echo "Backup created: validator-db-backup-${DATE}.tar.gz"
 ```
 
-## 📚 Referências
+## 📚 References
 
 - [Hyperlane Validator Docs](https://docs.hyperlane.xyz/docs/operate/validators/validator-signatures-aws)
 - [AWS S3 Documentation](https://docs.aws.amazon.com/s3/)
@@ -372,11 +372,11 @@ echo "Backup criado: validator-db-backup-${DATE}.tar.gz"
 
 ---
 
-**✅ Resumo:**
+**✅ Summary:**
 
-Com S3, você precisa de **2 volumes** apenas:
-1. `./hyperlane:/etc/hyperlane` - Configurações ✅
+With S3, you only need **2 volumes**:
+1. `./hyperlane:/etc/hyperlane` - Configurations ✅
 2. `./validator:/etc/data` - Database ✅
 
-Checkpoints vão para S3, não precisam de volume local! 🚀
+Checkpoints go to S3, no local volume needed! 🚀
 
