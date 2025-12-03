@@ -1,6 +1,6 @@
 {
   "chains": {
-    "bsc": {
+    "bsctestnet": {
       "blockExplorers": [
         {
           "apiKey": "GP69JEAP2W7YFJT9ZJTEPGQT6Y6KMW44ZN",
@@ -21,7 +21,7 @@
       "domainId": 97,
       "gasCurrencyCoinGeckoId": "binancecoin",
       "gnosisSafeTransactionServiceUrl": "https://safe-transaction-bsc.safe.global/",
-      "name": "bsc",
+      "name": "bsctestnet",
       "nativeToken": {
         "decimals": 18,
         "name": "BNB",
