@@ -150,37 +150,161 @@ chmod 600 .env
 
 ### For Terra Classic: Generate/Use hexKey
 
-#### Option A: Generate New Key
+Terra Classic requires a local hexadecimal private key. You can either generate a new one or use an existing key.
+
+#### Option A: Generate New Private Key (New Wallet)
+
+**Step 1: Install Foundry (if not installed)**
 
 ```bash
-# Install Foundry (if not installed)
+# Install Foundry
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
 
-# Generate new wallet
-cast wallet new
-
-# Save the displayed private key securely
+# Verify installation
+cast --version
 ```
 
-#### Option B: Use Existing Key
-
-If you already have a private key, skip to address discovery.
-
-#### Discover Terra Classic Addresses
+**Step 2: Generate New Wallet**
 
 ```bash
-# Install dependencies
-pip3 install eth-account bech32
-
-# Get addresses from hexKey
-./get-address-from-hexkey.py 0xYOUR_PRIVATE_KEY
+cast wallet new
 ```
 
 **Example output:**
 ```
-Ethereum: 0x6109b140b7165a4584e4ab09a93ccfb2d7be6b0f
+Successfully created new keypair.
+
+Address: 0x1234567890123456789012345678901234567890
+Private Key: 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+**⚠️ IMPORTANT:** 
+- **Save the private key immediately** - you won't be able to see it again!
+- Store it securely (password manager, encrypted file, etc.)
+- Never share or commit this key to Git
+
+**Step 3: Save the Private Key Securely**
+
+```bash
+# Option 1: Save to a secure file (with restricted permissions)
+echo "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" > ~/.terra-private-key
+chmod 600 ~/.terra-private-key
+
+# Option 2: Copy to clipboard (Linux)
+echo "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" | xclip -selection clipboard
+
+# Option 3: Use a password manager to store it
+```
+
+**Step 4: Discover Your Terra Classic Address**
+
+```bash
+# Install dependencies (if not already installed)
+pip3 install eth-account bech32
+
+# Get addresses from your private key
+./get-address-from-hexkey.py 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+**Example output:**
+```
+Ethereum: 0x1234567890123456789012345678901234567890
 Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
+```
+
+**Step 5: Fund Your Wallet**
+
+Send LUNC to the Terra address shown above (e.g., `terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7`).
+
+---
+
+#### Option B: Use Existing Private Key (Existing Wallet)
+
+If you already have a Terra Classic private key (from Terra Station, CLI, or another source), you can use it directly.
+
+**Step 1: Verify Your Private Key Format**
+
+Your private key should be:
+- Hexadecimal format (starts with `0x`)
+- 66 characters total (64 hex characters + `0x` prefix)
+- Example: `0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890`
+
+**Step 2: Get Your Terra Classic Address**
+
+```bash
+# Install dependencies (if not already installed)
+pip3 install eth-account bech32
+
+# Get addresses from your existing private key
+./get-address-from-hexkey.py 0xYOUR_EXISTING_PRIVATE_KEY
+```
+
+**Example:**
+```bash
+# If your private key is stored in a file
+PRIVATE_KEY=$(cat ~/.terra-private-key)
+./get-address-from-hexkey.py $PRIVATE_KEY
+
+# Or directly
+./get-address-from-hexkey.py 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+```
+
+**Example output:**
+```
+Ethereum: 0x1234567890123456789012345678901234567890
+Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
+```
+
+**Step 3: Verify Your Wallet Balance**
+
+```bash
+# Check balance on Terra Classic
+curl "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7"
+```
+
+**Step 4: Use the Private Key in Configuration**
+
+You'll use this private key in:
+- `validator.terraclassic.json` (validator configuration)
+- `relayer.json` (relayer configuration for Terra Classic)
+
+**⚠️ Security Reminder:**
+- Never share your private key
+- Never commit it to Git
+- Store it securely
+- Use file permissions `600` for config files
+
+---
+
+#### Alternative: Generate Key Using Python (Without Foundry)
+
+If you don't want to install Foundry, you can generate a key using Python:
+
+```bash
+# Install dependencies
+pip3 install eth-account
+
+# Generate new private key
+python3 << 'EOF'
+from eth_account import Account
+import secrets
+
+# Generate random private key
+private_key = "0x" + secrets.token_hex(32)
+account = Account.from_key(private_key)
+
+print(f"Private Key: {private_key}")
+print(f"Address (Ethereum format): {account.address}")
+print(f"\n⚠️ SAVE THIS PRIVATE KEY SECURELY!")
+print(f"You'll need it to get your Terra address.")
+EOF
+```
+
+**Then get Terra address:**
+```bash
+pip3 install bech32
+./get-address-from-hexkey.py YOUR_GENERATED_PRIVATE_KEY
 ```
 
 ### For EVM Chains (BSC, Ethereum): AWS KMS
