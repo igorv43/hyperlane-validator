@@ -859,6 +859,82 @@ curl http://localhost:9110/metrics
 
 ## 🚨 Troubleshooting
 
+### Error: "docker-compose command not found" or "Cannot connect to Docker daemon" (WSL 2)
+
+**Cause:** Docker is not properly configured in WSL 2, or Docker Desktop is not running.
+
+**Solution for WSL 2:**
+
+**Option 1: Enable WSL Integration in Docker Desktop (Recommended)**
+
+1. Open **Docker Desktop** on Windows
+2. Go to **Settings** → **Resources** → **WSL Integration**
+3. Enable **"Enable integration with my default WSL distro"**
+4. Enable integration for your specific WSL distro (e.g., "Ubuntu")
+5. Click **"Apply & Restart"**
+6. Wait for Docker Desktop to restart
+
+**Option 2: Install Docker in WSL 2 (Alternative)**
+
+If you don't have Docker Desktop, install Docker directly in WSL 2:
+
+```bash
+# Update package index
+sudo apt update
+
+# Install Docker
+sudo apt install docker.io docker-compose -y
+
+# Start Docker service
+sudo service docker start
+
+# Add your user to docker group (to run without sudo)
+sudo usermod -aG docker $USER
+
+# Log out and log back in, or run:
+newgrp docker
+
+# Verify Docker is working
+docker --version
+docker-compose --version
+
+# Test Docker
+docker ps
+```
+
+**Verify Docker is working:**
+```bash
+# Check if Docker daemon is running
+docker ps
+
+# If you see an empty list (no errors), Docker is working!
+# If you see an error, try:
+sudo service docker start
+```
+
+**If using Docker Desktop with WSL 2:**
+```bash
+# Make sure Docker Desktop is running on Windows
+# Then verify connection from WSL:
+docker ps
+
+# Should work without sudo if WSL integration is enabled
+```
+
+**Common Issues:**
+
+1. **Docker Desktop not running:** Start Docker Desktop on Windows
+2. **WSL integration disabled:** Enable it in Docker Desktop settings
+3. **Wrong WSL distro:** Make sure your distro is enabled in Docker Desktop WSL settings
+4. **Need to restart WSL:** Close and reopen your WSL terminal
+
+**Test the fix:**
+```bash
+docker --version
+docker-compose --version
+docker ps
+```
+
 ### Error: "Cannot announce validator without a signer"
 
 **Cause:** Wallet has no LUNC funds
