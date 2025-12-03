@@ -121,6 +121,59 @@ AWS_REGION=us-east-1
 chmod 600 .env
 ```
 
+#### 1.5 Add IAM Permissions for KMS and S3
+
+**⚠️ IMPORTANT:** Your IAM user needs permissions to create and use KMS keys, and to access S3.
+
+1. Go to: https://us-east-1.console.aws.amazon.com/iamv2/home
+2. Click **"Users"** in the left sidebar
+3. Click on your user: `hyperlane-validator` (or `hyperlane-validator-terraclassic`)
+4. Click **"Add permissions"** → **"Create inline policy"**
+5. Click **"JSON"** tab
+6. Paste this policy:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:CreateKey",
+        "kms:DescribeKey",
+        "kms:GetPublicKey",
+        "kms:Sign",
+        "kms:CreateAlias",
+        "kms:ListAliases",
+        "kms:ListKeys"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::hyperlane-validator-signatures-*",
+        "arn:aws:s3:::hyperlane-validator-signatures-*/*"
+      ]
+    }
+  ]
+}
+```
+
+7. Click **"Next"**
+8. **Policy name**: `HyperlaneValidatorPolicy`
+9. Click **"Create policy"**
+
+**What this policy allows:**
+- **KMS permissions**: Create keys, describe keys, get public keys, sign transactions
+- **S3 permissions**: Write, read, delete checkpoints in your validator bucket
+
 ---
 
 ### STEP 2: Create S3 Bucket
@@ -609,6 +662,50 @@ cast balance YOUR_ETH_ADDRESS --rpc-url https://eth.llamarpc.com
 1. Check bucket policy in AWS Console
 2. Check `.env` with correct credentials
 3. Check IAM user ARN in policy
+
+### Error: "AccessDeniedException" when creating KMS key
+
+**Cause:** IAM user doesn't have permission to create KMS keys.
+
+**Solution:**
+1. Go to AWS IAM Console: https://us-east-1.console.aws.amazon.com/iamv2/home
+2. Click **"Users"** → Select your user
+3. Click **"Add permissions"** → **"Create inline policy"**
+4. Click **"JSON"** tab and paste:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "kms:CreateKey",
+        "kms:DescribeKey",
+        "kms:GetPublicKey",
+        "kms:Sign",
+        "kms:CreateAlias",
+        "kms:ListAliases",
+        "kms:ListKeys"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+5. Name: `HyperlaneKMSPolicy`
+6. Click **"Create policy"**
+7. Try creating the key again:
+
+```bash
+aws kms create-key \
+  --key-spec ECC_SECG_P256K1 \
+  --key-usage SIGN_VERIFY \
+  --region us-east-1
+```
+
+**See STEP 1.5 in this guide for complete IAM policy setup.**
 
 ### Error: "InvalidSignatureException" on KMS
 
