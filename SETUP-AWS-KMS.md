@@ -369,39 +369,73 @@ aws kms create-key \
   --region us-east-1
 ```
 
-**The response will include a Key ID like this:**
+**Example response (with fictional data):**
 ```json
 {
     "KeyMetadata": {
-        "KeyId": "12345678-1234-1234-1234-123456789012",
-        "Arn": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012",
-        ...
+        "AWSAccountId": "123456789012",
+        "KeyId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "Arn": "arn:aws:kms:us-east-1:123456789012:key/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "CreationDate": "2025-12-03T13:08:15.991000-03:00",
+        "Enabled": true,
+        "Description": "",
+        "KeyUsage": "SIGN_VERIFY",
+        "KeyState": "Enabled",
+        "Origin": "AWS_KMS",
+        "KeyManager": "CUSTOMER",
+        "CustomerMasterKeySpec": "ECC_SECG_P256K1",
+        "KeySpec": "ECC_SECG_P256K1",
+        "SigningAlgorithms": [
+            "ECDSA_SHA_256"
+        ],
+        "MultiRegion": false
     }
 }
 ```
 
-**⚠️ IMPORTANT:** Copy the `KeyId` from the response (it's a UUID, NOT your Access Key ID!)
+**⚠️ IMPORTANT:** 
+- Copy the `KeyId` from the response (it's a UUID like `a1b2c3d4-e5f6-7890-abcd-ef1234567890`)
+- **DO NOT** use your Access Key ID (`AKIA...`) - that's for authentication only!
 
-**Then create the alias using the Key ID:**
+**Then create the alias using the Key ID from the response:**
 ```bash
-# Replace KEY_ID_HERE with the actual KeyId from the response above
+# Use the KeyId from the response above (example: a1b2c3d4-e5f6-7890-abcd-ef1234567890)
 aws kms create-alias \
   --alias-name alias/hyperlane-relayer-signer-bsc \
-  --target-key-id KEY_ID_HERE \
+  --target-key-id a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
   --region us-east-1
 ```
 
-**Example (with actual Key ID):**
+**Complete example workflow:**
 ```bash
+# Step 1: Create key
+aws kms create-key \
+  --key-spec ECC_SECG_P256K1 \
+  --key-usage SIGN_VERIFY \
+  --region us-east-1
+
+# Response shows KeyId: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+
+# Step 2: Create alias using the KeyId from Step 1
 aws kms create-alias \
   --alias-name alias/hyperlane-relayer-signer-bsc \
-  --target-key-id 12345678-1234-1234-1234-123456789012 \
+  --target-key-id a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
   --region us-east-1
+
+# Success! No output means it worked.
 ```
 
 **⚠️ Common Error:** 
 - ❌ **WRONG**: Using Access Key ID (`AKIA...`) as `target-key-id`
-- ✅ **CORRECT**: Using Key ID (UUID format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+  ```bash
+  # ❌ This will fail!
+  aws kms create-alias --target-key-id AKIAWK73T2L43T4Y46WJ
+  ```
+- ✅ **CORRECT**: Using Key ID (UUID format) from the `create-key` response
+  ```bash
+  # ✅ This works!
+  aws kms create-alias --target-key-id a1b2c3d4-e5f6-7890-abcd-ef1234567890
+  ```
 
 #### 3.4 Note Information
 
@@ -434,16 +468,35 @@ Same process as BSC, but with different alias:
 
 **Via CLI:**
 ```bash
-# Create the key
+# Step 1: Create the key
 aws kms create-key \
   --key-spec ECC_SECG_P256K1 \
   --key-usage SIGN_VERIFY \
   --region us-east-1
+```
 
-# Copy the KeyId from the response, then create alias:
+**Example response:**
+```json
+{
+    "KeyMetadata": {
+        "AWSAccountId": "123456789012",
+        "KeyId": "b2c3d4e5-f6a7-8901-bcde-f23456789012",
+        "Arn": "arn:aws:kms:us-east-1:123456789012:key/b2c3d4e5-f6a7-8901-bcde-f23456789012",
+        "CreationDate": "2025-12-03T13:10:20.123000-03:00",
+        "Enabled": true,
+        "KeyUsage": "SIGN_VERIFY",
+        "KeyState": "Enabled",
+        "KeySpec": "ECC_SECG_P256K1",
+        "SigningAlgorithms": ["ECDSA_SHA_256"]
+    }
+}
+```
+
+```bash
+# Step 2: Create alias using KeyId from response above
 aws kms create-alias \
   --alias-name alias/hyperlane-relayer-signer-ethereum \
-  --target-key-id KEY_ID_FROM_RESPONSE \
+  --target-key-id b2c3d4e5-f6a7-8901-bcde-f23456789012 \
   --region us-east-1
 ```
 
@@ -462,16 +515,35 @@ Same process as BSC, but with different alias:
 
 **Via CLI:**
 ```bash
-# Create the key
+# Step 1: Create the key
 aws kms create-key \
   --key-spec ECC_SECG_P256K1 \
   --key-usage SIGN_VERIFY \
   --region us-east-1
+```
 
-# Copy the KeyId from the response, then create alias:
+**Example response:**
+```json
+{
+    "KeyMetadata": {
+        "AWSAccountId": "123456789012",
+        "KeyId": "c3d4e5f6-a7b8-9012-cdef-345678901234",
+        "Arn": "arn:aws:kms:us-east-1:123456789012:key/c3d4e5f6-a7b8-9012-cdef-345678901234",
+        "CreationDate": "2025-12-03T13:12:30.456000-03:00",
+        "Enabled": true,
+        "KeyUsage": "SIGN_VERIFY",
+        "KeyState": "Enabled",
+        "KeySpec": "ECC_SECG_P256K1",
+        "SigningAlgorithms": ["ECDSA_SHA_256"]
+    }
+}
+```
+
+```bash
+# Step 2: Create alias using KeyId from response above
 aws kms create-alias \
   --alias-name alias/hyperlane-relayer-signer-solana \
-  --target-key-id KEY_ID_FROM_RESPONSE \
+  --target-key-id c3d4e5f6-a7b8-9012-cdef-345678901234 \
   --region us-east-1
 ```
 
@@ -782,7 +854,8 @@ aws kms create-key \
 **Cause:** Using Access Key ID (`AKIA...`) instead of KMS Key ID (UUID format).
 
 **Solution:**
-1. First, create the KMS key and get the Key ID:
+
+1. **Create the KMS key:**
 ```bash
 aws kms create-key \
   --key-spec ECC_SECG_P256K1 \
@@ -790,19 +863,55 @@ aws kms create-key \
   --region us-east-1
 ```
 
-2. From the response, copy the `KeyId` (it's a UUID like `12345678-1234-1234-1234-123456789012`)
+2. **Example response (with fictional data):**
+```json
+{
+    "KeyMetadata": {
+        "AWSAccountId": "123456789012",
+        "KeyId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "Arn": "arn:aws:kms:us-east-1:123456789012:key/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "CreationDate": "2025-12-03T13:08:15.991000-03:00",
+        "Enabled": true,
+        "Description": "",
+        "KeyUsage": "SIGN_VERIFY",
+        "KeyState": "Enabled",
+        "Origin": "AWS_KMS",
+        "KeyManager": "CUSTOMER",
+        "CustomerMasterKeySpec": "ECC_SECG_P256K1",
+        "KeySpec": "ECC_SECG_P256K1",
+        "SigningAlgorithms": [
+            "ECDSA_SHA_256"
+        ],
+        "MultiRegion": false
+    }
+}
+```
 
-3. Use that Key ID (NOT your Access Key ID) to create the alias:
+3. **Copy the `KeyId` from the response** (in this example: `a1b2c3d4-e5f6-7890-abcd-ef1234567890`)
+
+4. **Use that Key ID (NOT your Access Key ID) to create the alias:**
 ```bash
+# ✅ CORRECT: Using Key ID from create-key response
 aws kms create-alias \
   --alias-name alias/hyperlane-relayer-signer-solana \
-  --target-key-id 12345678-1234-1234-1234-123456789012 \
+  --target-key-id a1b2c3d4-e5f6-7890-abcd-ef1234567890 \
+  --region us-east-1
+
+# Success! No output means it worked.
+```
+
+**❌ WRONG Example (what NOT to do):**
+```bash
+# ❌ This will fail with "Invalid keyId"
+aws kms create-alias \
+  --alias-name alias/hyperlane-relayer-signer-solana \
+  --target-key-id AKIAWK73T2L43T4Y46WJ \
   --region us-east-1
 ```
 
 **⚠️ Remember:**
 - ❌ **Access Key ID** (`AKIA...`) = For AWS authentication (in `.env` file)
-- ✅ **KMS Key ID** (UUID) = For KMS key operations (create-alias, sign, etc.)
+- ✅ **KMS Key ID** (UUID like `a1b2c3d4-e5f6-7890-abcd-ef1234567890`) = For KMS key operations (create-alias, sign, etc.)
 
 ### Error: "InvalidSignatureException" on KMS
 
