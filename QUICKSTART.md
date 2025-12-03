@@ -928,11 +928,29 @@ docker ps
 3. **Wrong WSL distro:** Make sure your distro is enabled in Docker Desktop WSL settings
 4. **Need to restart WSL:** Close and reopen your WSL terminal
 
+**Note about docker-compose command:**
+
+In newer Docker Desktop versions, you can use either:
+- `docker-compose` (standalone version)
+- `docker compose` (plugin version, note the space instead of hyphen)
+
 **Test the fix:**
 ```bash
 docker --version
 docker-compose --version
+# Or try:
+docker compose version
+
 docker ps
+```
+
+**If `docker-compose` still doesn't work, try using `docker compose` (with space):**
+```bash
+# Instead of: docker-compose up -d
+docker compose up -d validator-terraclassic
+
+# Instead of: docker-compose restart
+docker compose restart validator-terraclassic
 ```
 
 ### Error: "Cannot announce validator without a signer"
