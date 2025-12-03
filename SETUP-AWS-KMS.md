@@ -357,18 +357,64 @@ aws s3 rm s3://YOUR-BUCKET-NAME/test.txt
 1. Review settings
 2. Click **"Finish"**
 
-#### 3.3 Note Information
+#### 3.3 Create Key via CLI (Alternative Method)
+
+**If you prefer using CLI instead of Console:**
+
+```bash
+# Create the KMS key
+aws kms create-key \
+  --key-spec ECC_SECG_P256K1 \
+  --key-usage SIGN_VERIFY \
+  --region us-east-1
+```
+
+**The response will include a Key ID like this:**
+```json
+{
+    "KeyMetadata": {
+        "KeyId": "12345678-1234-1234-1234-123456789012",
+        "Arn": "arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012",
+        ...
+    }
+}
+```
+
+**⚠️ IMPORTANT:** Copy the `KeyId` from the response (it's a UUID, NOT your Access Key ID!)
+
+**Then create the alias using the Key ID:**
+```bash
+# Replace KEY_ID_HERE with the actual KeyId from the response above
+aws kms create-alias \
+  --alias-name alias/hyperlane-relayer-signer-bsc \
+  --target-key-id KEY_ID_HERE \
+  --region us-east-1
+```
+
+**Example (with actual Key ID):**
+```bash
+aws kms create-alias \
+  --alias-name alias/hyperlane-relayer-signer-bsc \
+  --target-key-id 12345678-1234-1234-1234-123456789012 \
+  --region us-east-1
+```
+
+**⚠️ Common Error:** 
+- ❌ **WRONG**: Using Access Key ID (`AKIA...`) as `target-key-id`
+- ✅ **CORRECT**: Using Key ID (UUID format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+
+#### 3.4 Note Information
 
 After creation, note:
 
 ```
 Alias: hyperlane-relayer-signer-bsc
-Key ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+Key ID: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  (UUID format, NOT Access Key ID!)
 ARN: arn:aws:kms:us-east-1:ACCOUNT-ID:key/xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 Region: us-east-1
 ```
 
-#### 3.4 Verify Address
+#### 3.5 Verify Address
 
 ```bash
 # Get BSC address
@@ -386,8 +432,20 @@ cast wallet address --aws alias/hyperlane-relayer-signer-bsc
 
 Same process as BSC, but with different alias:
 
-1. **Alias**: `hyperlane-relayer-signer-ethereum`
-2. **Description**: `Hyperlane Relayer signer key for Ethereum`
+**Via CLI:**
+```bash
+# Create the key
+aws kms create-key \
+  --key-spec ECC_SECG_P256K1 \
+  --key-usage SIGN_VERIFY \
+  --region us-east-1
+
+# Copy the KeyId from the response, then create alias:
+aws kms create-alias \
+  --alias-name alias/hyperlane-relayer-signer-ethereum \
+  --target-key-id KEY_ID_FROM_RESPONSE \
+  --region us-east-1
+```
 
 **Get address:**
 ```bash
@@ -402,8 +460,20 @@ cast wallet address --aws alias/hyperlane-relayer-signer-ethereum
 
 Same process as BSC, but with different alias:
 
-1. **Alias**: `hyperlane-relayer-signer-solana`
-2. **Description**: `Hyperlane Relayer signer key for Solana`
+**Via CLI:**
+```bash
+# Create the key
+aws kms create-key \
+  --key-spec ECC_SECG_P256K1 \
+  --key-usage SIGN_VERIFY \
+  --region us-east-1
+
+# Copy the KeyId from the response, then create alias:
+aws kms create-alias \
+  --alias-name alias/hyperlane-relayer-signer-solana \
+  --target-key-id KEY_ID_FROM_RESPONSE \
+  --region us-east-1
+```
 
 **Get address:**
 ```bash
@@ -706,6 +776,33 @@ aws kms create-key \
 ```
 
 **See STEP 1.5 in this guide for complete IAM policy setup.**
+
+### Error: "NotFoundException: Invalid keyId" when creating alias
+
+**Cause:** Using Access Key ID (`AKIA...`) instead of KMS Key ID (UUID format).
+
+**Solution:**
+1. First, create the KMS key and get the Key ID:
+```bash
+aws kms create-key \
+  --key-spec ECC_SECG_P256K1 \
+  --key-usage SIGN_VERIFY \
+  --region us-east-1
+```
+
+2. From the response, copy the `KeyId` (it's a UUID like `12345678-1234-1234-1234-123456789012`)
+
+3. Use that Key ID (NOT your Access Key ID) to create the alias:
+```bash
+aws kms create-alias \
+  --alias-name alias/hyperlane-relayer-signer-solana \
+  --target-key-id 12345678-1234-1234-1234-123456789012 \
+  --region us-east-1
+```
+
+**⚠️ Remember:**
+- ❌ **Access Key ID** (`AKIA...`) = For AWS authentication (in `.env` file)
+- ✅ **KMS Key ID** (UUID) = For KMS key operations (create-alias, sign, etc.)
 
 ### Error: "InvalidSignatureException" on KMS
 
