@@ -784,48 +784,95 @@ aws configure
 
 ### Error: "KeyError: 'opsworkscm'" or AWS CLI version conflict
 
-**Cause:** Multiple AWS CLI installations conflicting (apt and pip versions installed together).
+**Cause:** Multiple AWS CLI installations conflicting (apt and pip versions installed together). The system is still using the old `/usr/bin/aws` instead of the new installation.
 
-**Solution:**
+**Complete Solution (Step by Step):**
+
 ```bash
-# 1. Remove all AWS CLI installations
+# STEP 1: Remove all AWS CLI installations
 sudo apt remove awscli
-pip3 uninstall awscli
-pip3 uninstall awscli-bundle
+sudo apt purge awscli  # Remove configuration files too
+pip3 uninstall awscli -y
+pip3 uninstall awscli-bundle -y
 
-# 2. Clean up any remaining files
+# STEP 2: Remove old AWS CLI v2 if exists
+sudo rm -rf /usr/local/aws-cli
+sudo rm -f /usr/local/bin/aws
+sudo rm -f /usr/local/bin/aws_completer
+
+# STEP 3: Clean up any remaining files
 rm -rf ~/.local/lib/python3.*/site-packages/awscli*
+rm -rf ~/.local/lib/python3.*/site-packages/botocore*
 rm -rf ~/.local/bin/aws*
+rm -rf ~/.aws-cli
 
-# 3. Reinstall using ONE method only (recommended: pip for latest version)
-pip3 install awscli --user
+# STEP 4: Remove old symlinks and binaries
+sudo rm -f /usr/bin/aws
+sudo rm -f /usr/bin/aws_completer
 
-# 4. Add to PATH if needed
-echo 'export PATH=$PATH:~/.local/bin' >> ~/.bashrc
+# STEP 5: Download and install AWS CLI v2 (fresh install)
+cd /tmp
+curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+unzip -q awscliv2.zip
+sudo ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli
+
+# STEP 6: Verify which AWS is being used
+which aws
+# Should show: /usr/local/bin/aws
+
+# STEP 7: Verify installation
+/usr/local/bin/aws --version
+# Should show: aws-cli/2.x.x
+
+# STEP 8: Create alias to ensure correct version is used
+echo 'alias aws="/usr/local/bin/aws"' >> ~/.bashrc
 source ~/.bashrc
 
-# 5. Verify installation
+# STEP 9: Verify it works
 aws --version
 
-# 6. Configure AWS CLI
+# STEP 10: Configure AWS CLI
 aws configure
 ```
 
-**Alternative: Use AWS CLI v2 (recommended)**
+**If still having issues, check PATH priority:**
 ```bash
-# Download and install AWS CLI v2
-curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-unzip awscliv2.zip
-sudo ./aws/install
+# Check which aws is being used
+which aws
 
-# Verify installation
+# Check all aws locations
+whereis aws
+
+# If /usr/bin/aws still exists, remove it
+sudo rm -f /usr/bin/aws
+
+# Ensure /usr/local/bin is in PATH before /usr/bin
+echo 'export PATH=/usr/local/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+
+# Verify
+which aws
 aws --version
-
-# Configure
-aws configure
 ```
 
-**⚠️ Important:** Only install AWS CLI using ONE method to avoid conflicts!
+**Alternative: Use pip installation (if v2 doesn't work)**
+```bash
+# After complete cleanup (steps 1-4 above)
+pip3 install awscli --user --upgrade
+
+# Ensure ~/.local/bin is in PATH
+echo 'export PATH=$HOME/.local/bin:$PATH' >> ~/.bashrc
+source ~/.bashrc
+
+# Verify
+which aws
+aws --version
+```
+
+**⚠️ Important:** 
+- Only install AWS CLI using ONE method to avoid conflicts
+- Always check `which aws` to see which version is being used
+- `/usr/local/bin/aws` (v2) should take priority over `/usr/bin/aws` (old)
 
 ### Error: "Permission denied" when reading files
 
