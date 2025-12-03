@@ -9,6 +9,39 @@
   - **S3 bucket** (required for validator signatures)
   - **KMS keys** (optional, for EVM/Sealevel chains: BSC, Ethereum, Solana)
 - Private key for Terra Classic (hexadecimal) - **Required for Cosmos chains**
+- **AWS CLI installed** (required for AWS commands)
+
+#### Install AWS CLI (if not installed)
+
+**Option 1: Using apt (Ubuntu/Debian)**
+```bash
+sudo apt update
+sudo apt install awscli
+```
+
+**Option 2: Using snap**
+```bash
+sudo snap install aws-cli
+```
+
+**Option 3: Using pip (recommended for latest version)**
+```bash
+pip3 install awscli
+```
+
+**Verify installation:**
+```bash
+aws --version
+```
+
+**Configure AWS CLI (if not already configured):**
+```bash
+aws configure
+# Enter your AWS Access Key ID
+# Enter your AWS Secret Access Key
+# Enter default region: us-east-1
+# Enter default output format: json
+```
 
 ---
 
@@ -89,6 +122,8 @@ Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
 
 ### For EVM Chains (BSC, Ethereum): AWS KMS
 
+**⚠️ Prerequisite:** Make sure AWS CLI is installed (see Prerequisites section above)
+
 **See `SETUP-AWS-KMS.md` for complete setup guide.**
 
 #### Quick Setup:
@@ -96,6 +131,7 @@ Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
 1. **Create KMS Key** (via AWS Console or CLI):
    ```bash
    # For BSC
+   # Make sure AWS CLI is installed first!
    aws kms create-key \
      --key-spec ECC_SECG_P256K1 \
      --key-usage SIGN_VERIFY \
@@ -143,12 +179,15 @@ cast wallet address --aws alias/hyperlane-relayer-signer-ethereum
 
 ### For Solana: AWS KMS
 
+**⚠️ Prerequisite:** Make sure AWS CLI is installed (see Prerequisites section above)
+
 **Solana supports AWS KMS!** Same process as EVM chains.
 
 #### Quick Setup:
 
 1. **Create KMS Key:**
    ```bash
+   # Make sure AWS CLI is installed first!
    aws kms create-key \
      --key-spec ECC_SECG_P256K1 \
      --key-usage SIGN_VERIFY \
@@ -661,6 +700,33 @@ solana balance ADDRESS --url https://api.testnet.solana.com
 # Send funds and restart
 docker-compose restart relayer
 ```
+
+### Error: "Command 'aws' not found"
+
+**Cause:** AWS CLI is not installed on your system.
+
+**Solution:**
+```bash
+# Install AWS CLI (choose one method):
+
+# Option 1: Using apt (Ubuntu/Debian)
+sudo apt update
+sudo apt install awscli
+
+# Option 2: Using snap
+sudo snap install aws-cli
+
+# Option 3: Using pip (recommended for latest version)
+pip3 install awscli
+
+# Verify installation
+aws --version
+
+# Configure AWS CLI
+aws configure
+```
+
+**See Prerequisites section for detailed installation instructions.**
 
 ### Error: "Permission denied" when reading files
 
