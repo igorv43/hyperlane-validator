@@ -341,14 +341,25 @@ One origin can send to multiple destinations:
 }
 ```
 
-### Sealevel Chains (AWS KMS) ✅
+### Sealevel Chains (hexKey) ❌
+
+**⚠️ AWS KMS is NOT supported for Solana (sealevel).**
 
 ```json
 "solanatestnet": {
   "signer": {
-    "type": "aws",
-    "id": "alias/hyperlane-relayer-signer-solana",
-    "region": "us-east-1"
+    "type": "hexKey",
+    "key": "0xYOUR_SOLANA_PRIVATE_KEY"
+  }
+}
+```
+
+**Solana Example:**
+```json
+"solanatestnet": {
+  "signer": {
+    "type": "hexKey",
+    "key": "0x1234567890abcdef..."
   }
 }
 ```
@@ -393,7 +404,7 @@ One origin can send to multiple destinations:
 
 Each chain needs **gas funds**:
 
-### EVM/Sealevel Chains (AWS KMS):
+### EVM Chains (AWS KMS):
 
 ```bash
 # Discover address
@@ -409,6 +420,15 @@ cast wallet address --aws alias/hyperlane-relayer-signer-CHAINNAME
 - **Polygon**: 100-500 MATIC
 - **Avalanche**: 5-10 AVAX
 - **Arbitrum**: 0.1-0.5 ETH
+
+### Sealevel Chains (hexKey):
+
+```bash
+# Discover Solana address from hex key
+# Use Solana CLI or a script to derive address from private key
+```
+
+**Recommended amounts:**
 - **Solana**: 1-5 SOL
 
 ### Cosmos Chains (hexKey):

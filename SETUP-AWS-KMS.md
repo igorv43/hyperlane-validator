@@ -5,10 +5,12 @@
 | Protocol | Chains | AWS KMS Support |
 |----------|--------|-----------------|
 | **EVM** | BSC, Ethereum, Polygon, etc. | ✅ Supported |
-| **Sealevel** | Solana | ✅ Supported |
+| **Sealevel** | Solana | ❌ NOT Supported |
 | **Cosmos** | Terra Classic, Osmosis, etc. | ❌ NOT Supported |
 
-**AWS KMS works for EVM and Solana chains.**
+**AWS KMS works ONLY for EVM chains (BSC, Ethereum, Polygon, etc.).**
+
+**Solana and Cosmos chains must use hexKey (local private keys).**
 
 **Terra Classic (Cosmos) must use hexKey (local private keys).**
 
@@ -47,7 +49,8 @@
 
 ### For Solana Relayer (Optional):
 
-- ✅ **KMS Key** (sign Solana transactions)
+- ❌ **KMS Key** (NOT supported for Solana)
+- ✅ **hexKey** (local private key for Solana)
 - ✅ **hexKey** for Terra Classic
 
 ---

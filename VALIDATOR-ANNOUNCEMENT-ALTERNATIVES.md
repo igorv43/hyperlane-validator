@@ -80,10 +80,10 @@ Use local private keys:
 
 | Aspect | EVM (BSC, Ethereum) | Sealevel (Solana) | Cosmos (Terra Classic) |
 |---------|---------------------|-------------------|------------------------|
-| **AWS KMS** | ✅ Supported | ✅ Supported | ❌ NOT supported |
-| **Signer Type** | `"type": "aws"` | `"type": "aws"` | `"type": "cosmosKey"` + `"key"` |
-| **Example** | `{"type": "aws", "id": "alias/..."}` | `{"type": "aws", "id": "alias/..."}` | `{"type": "cosmosKey", "key": "0x..."}` |
-| **Security** | KMS (CloudHSM) | KMS (CloudHSM) | Local key (file 600) |
+| **AWS KMS** | ✅ Supported | ❌ NOT supported | ❌ NOT supported |
+| **Signer Type** | `"type": "aws"` | `"type": "hexKey"` | `"type": "cosmosKey"` + `"key"` |
+| **Example** | `{"type": "aws", "id": "alias/..."}` | `{"type": "hexKey", "key": "0x..."}` | `{"type": "cosmosKey", "key": "0x..."}` |
+| **Security** | KMS (CloudHSM) | Local key (file 600) | Local key (file 600) |
 
 ---
 
