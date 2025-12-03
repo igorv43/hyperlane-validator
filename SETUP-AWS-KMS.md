@@ -97,12 +97,24 @@ cp .env.example .env
 nano .env
 ```
 
-**Content:**
+**⚠️ IMPORTANT:** Replace the placeholder values with your **actual AWS credentials** from your IAM user.
+
+**Content (example - replace with your values):**
 ```bash
 AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXXXXXXXXXX
 AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 AWS_REGION=us-east-1
 ```
+
+**What to fill:**
+- `AWS_ACCESS_KEY_ID`: Your IAM user's Access Key ID (starts with `AKIA...`)
+- `AWS_SECRET_ACCESS_KEY`: Your IAM user's Secret Access Key (long random string)
+- `AWS_REGION`: AWS region (usually `us-east-1`)
+
+**⚠️ SECURITY WARNING:**
+- Never commit `.env` file to Git (already in `.gitignore`)
+- Never share your AWS credentials
+- These are **sensitive credentials** - keep them secure!
 
 **Protect file:**
 ```bash
@@ -129,8 +141,10 @@ chmod 600 .env
    
    **Example:**
    ```
-   hyperlane-validator-signatures-igorverasvalidador-terraclassic
+   hyperlane-validator-signatures-YOUR-NAME-terraclassic
    ```
+   
+   **⚠️ Replace `YOUR-NAME` with your unique identifier (e.g., your username or validator name)**
 
 2. **AWS Region**: `US East (N. Virginia) us-east-1`
 
@@ -190,7 +204,7 @@ chmod 600 .env
 - `YOUR-BUCKET-NAME` → Your bucket name
 - `YOUR-ACCOUNT-ID` → Your AWS account ID (12 digits)
 
-**Example:**
+**Example (replace with your values):**
 ```json
 {
   "Version": "2012-10-17",
@@ -203,24 +217,28 @@ chmod 600 .env
         "s3:ListBucket"
       ],
       "Resource": [
-        "arn:aws:s3:::hyperlane-validator-signatures-igorverasvalidador-terraclassic",
-        "arn:aws:s3:::hyperlane-validator-signatures-igorverasvalidador-terraclassic/*"
+        "arn:aws:s3:::hyperlane-validator-signatures-YOUR-NAME-terraclassic",
+        "arn:aws:s3:::hyperlane-validator-signatures-YOUR-NAME-terraclassic/*"
       ]
     },
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws:iam::435929993977:user/hyperlane-validator"
+        "AWS": "arn:aws:iam::123456789012:user/hyperlane-validator"
       },
       "Action": [
         "s3:PutObject",
         "s3:DeleteObject"
       ],
-      "Resource": "arn:aws:s3:::hyperlane-validator-signatures-igorverasvalidador-terraclassic/*"
+      "Resource": "arn:aws:s3:::hyperlane-validator-signatures-YOUR-NAME-terraclassic/*"
     }
   ]
 }
 ```
+
+**⚠️ Replace:**
+- `YOUR-NAME` → Your unique identifier (e.g., your username or validator name)
+- `123456789012` → Your AWS account ID (12 digits)
 
 5. Click **"Save changes"**
 

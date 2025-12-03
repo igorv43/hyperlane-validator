@@ -184,7 +184,7 @@ hyperlane-validator/
         └── *.sst
 
 AWS S3 (remote):
-└── hyperlane-validator-signatures-igorverasvalidador-terraclassic/
+└── hyperlane-validator-signatures-YOUR-NAME-terraclassic/
     ├── checkpoint_0x1234...json      # Written by validator
     ├── checkpoint_0x5678...json      # Read by relayer
     └── checkpoint_0xabcd...json
@@ -391,7 +391,7 @@ cat hyperlane/relayer.json | jq '.allowLocalCheckpointSyncers'
 # Should show: "false"
 
 # 3. Check checkpoints in S3
-aws s3 ls s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/ \
+aws s3 ls s3://hyperlane-validator-signatures-YOUR-NAME-terraclassic/ \
   --region us-east-1
 
 # 4. Check logs

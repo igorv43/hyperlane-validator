@@ -29,7 +29,7 @@ With AWS S3 for checkpoints:
 ```json
 "checkpointSyncer": {
   "type": "s3",
-  "bucket": "hyperlane-validator-signatures-igorverasvalidador-terraclassic",
+  "bucket": "hyperlane-validator-signatures-YOUR-NAME-terraclassic",
   "region": "us-east-1"
 }
 ```
@@ -114,7 +114,7 @@ volumes:
 
 **Example in S3:**
 ```
-s3://hyperlane-validator-signatures-igorverasvalidador-terraclassic/
+s3://hyperlane-validator-signatures-YOUR-NAME-terraclassic/
 ├── checkpoint_0x1234...json
 ├── checkpoint_0x5678...json
 └── checkpoint_0xabcd...json

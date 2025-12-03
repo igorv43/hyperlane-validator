@@ -51,19 +51,50 @@ aws configure
 - ✅ S3 bucket (validator signatures) - **Always required**
 - ✅ KMS keys (EVM/Sealevel chains) - **If using BSC, Ethereum, or Solana**
 
+### 1.1 Create .env File
+
 ```bash
 # 1. Copy template
 cp .env.example .env
 
-# 2. Edit with your credentials
+# 2. Edit with your AWS credentials
 nano .env
 ```
 
-**`.env` content:**
+### 1.2 Fill in Your AWS Credentials
+
+**⚠️ IMPORTANT:** Replace the placeholder values with your **actual AWS credentials** from your IAM user.
+
+**`.env` file structure (example - replace with your values):**
 ```bash
-AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXX
+AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXXXXXXXXXX
 AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 AWS_REGION=us-east-1
+```
+
+**What to fill:**
+- `AWS_ACCESS_KEY_ID`: Your IAM user's Access Key ID (starts with `AKIA...`)
+- `AWS_SECRET_ACCESS_KEY`: Your IAM user's Secret Access Key (long random string)
+- `AWS_REGION`: AWS region (usually `us-east-1`)
+
+**⚠️ SECURITY WARNING:**
+- Never commit `.env` file to Git (already in `.gitignore`)
+- Never share your AWS credentials
+- These are **sensitive credentials** - keep them secure!
+
+**Example of what your `.env` should look like (with your real values):**
+```bash
+# Replace these with YOUR actual AWS credentials from your IAM user
+AWS_ACCESS_KEY_ID=AKIAXXXXXXXXXXXXXXXXXXXX
+AWS_SECRET_ACCESS_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+AWS_REGION=us-east-1
+```
+
+**⚠️ Remember:** Use your **own** AWS credentials, not the examples above!
+
+**Protect the file:**
+```bash
+chmod 600 .env
 ```
 
 **See `SETUP-AWS-KMS.md` for complete AWS setup guide:**
