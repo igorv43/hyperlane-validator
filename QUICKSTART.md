@@ -148,163 +148,200 @@ chmod 600 .env
 
 **Terra Classic does NOT support AWS KMS** - You must use **local private keys (hexKey)**.
 
-### For Terra Classic: Generate/Use hexKey
+### For Terra Classic: Generate/Use hexKey via terrad CLI
 
-Terra Classic requires a local hexadecimal private key. You can either generate a new one or use an existing key.
+Terra Classic requires a local hexadecimal private key. Use the `terrad` CLI (Terra daemon) to generate or import keys.
+
+#### Install terrad CLI
+
+**Option 1: Download Binary (Recommended)**
+
+```bash
+# Download latest terrad binary
+TERRA_VERSION="v3.0.1"  # Check latest version at: https://github.com/classic-terra/core/releases
+wget https://github.com/classic-terra/core/releases/download/${TERRA_VERSION}/terrad-${TERRA_VERSION}-linux-amd64
+chmod +x terrad-${TERRA_VERSION}-linux-amd64
+sudo mv terrad-${TERRA_VERSION}-linux-amd64 /usr/local/bin/terrad
+
+# Verify installation
+terrad version
+```
+
+**Option 2: Build from Source**
+
+```bash
+# Clone repository
+git clone https://github.com/classic-terra/core.git
+cd core
+git checkout v3.0.1
+make install
+
+# Verify installation
+terrad version
+```
+
+---
 
 #### Option A: Generate New Private Key (New Wallet)
 
-**Step 1: Install Foundry (if not installed)**
+**Step 1: Generate New Key with terrad**
 
 ```bash
-# Install Foundry
-curl -L https://foundry.paradigm.xyz | bash
-foundryup
+# Generate new key (you'll be prompted for a password)
+terrad keys add validator-key --keyring-backend file
 
-# Verify installation
-cast --version
-```
-
-**Step 2: Generate New Wallet**
-
-```bash
-cast wallet new
+# Or without password prompt (less secure, for testing only)
+terrad keys add validator-key --keyring-backend file --no-backup
 ```
 
 **Example output:**
 ```
-Successfully created new keypair.
+- name: validator-key
+  type: local
+  address: terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AqBcDeFgHiJkLmNoPqRsTuVwXyZaBcDeFgHiJkLmNoPqRsTuVwXyZa"}'
+  mnemonic: ""
 
-Address: 0x1234567890123456789012345678901234567890
-Private Key: 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+**Important write this mnemonic phrase in a safe place.**
+It is the only way to recover your account if you ever forget your password.
+
+word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12
+word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24
 ```
 
 **⚠️ IMPORTANT:** 
-- **Save the private key immediately** - you won't be able to see it again!
+- **Save the mnemonic phrase immediately** - you'll need it to recover your key!
 - Store it securely (password manager, encrypted file, etc.)
-- Never share or commit this key to Git
+- Never share or commit this mnemonic to Git
 
-**Step 3: Save the Private Key Securely**
-
-```bash
-# Option 1: Save to a secure file (with restricted permissions)
-echo "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" > ~/.terra-private-key
-chmod 600 ~/.terra-private-key
-
-# Option 2: Copy to clipboard (Linux)
-echo "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" | xclip -selection clipboard
-
-# Option 3: Use a password manager to store it
-```
-
-**Step 4: Discover Your Terra Classic Address**
+**Step 2: Export Private Key in Hexadecimal Format**
 
 ```bash
-# Install dependencies (if not already installed)
-pip3 install eth-account bech32
+# Export private key as hex (you'll need the keyring password)
+terrad keys export validator-key --keyring-backend file --unarmored-hex --unsafe
 
-# Get addresses from your private key
-./get-address-from-hexkey.py 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+# Or save to file
+terrad keys export validator-key --keyring-backend file --unarmored-hex --unsafe > ~/.terra-private-key-hex
+chmod 600 ~/.terra-private-key-hex
 ```
 
 **Example output:**
 ```
-Ethereum: 0x1234567890123456789012345678901234567890
-Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
+abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
 ```
 
-**Step 5: Fund Your Wallet**
+**Note:** Add `0x` prefix when using in configuration files:
+```bash
+# Add 0x prefix
+echo "0x$(cat ~/.terra-private-key-hex)" > ~/.terra-private-key
+```
+
+**Step 3: Get Your Terra Classic Address**
+
+```bash
+# Show address
+terrad keys show validator-key --keyring-backend file --address
+```
+
+**Example output:**
+```
+terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
+```
+
+**Or get full key information:**
+```bash
+terrad keys show validator-key --keyring-backend file
+```
+
+**Step 4: Fund Your Wallet**
 
 Send LUNC to the Terra address shown above (e.g., `terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7`).
 
 ---
 
-#### Option B: Use Existing Private Key (Existing Wallet)
+#### Option B: Import Existing Private Key (Existing Wallet)
 
-If you already have a Terra Classic private key (from Terra Station, CLI, or another source), you can use it directly.
+If you already have a Terra Classic private key (hexadecimal format) or mnemonic phrase, you can import it.
 
-**Step 1: Verify Your Private Key Format**
-
-Your private key should be:
-- Hexadecimal format (starts with `0x`)
-- 66 characters total (64 hex characters + `0x` prefix)
-- Example: `0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890`
-
-**Step 2: Get Your Terra Classic Address**
+**Method 1: Import from Hexadecimal Private Key**
 
 ```bash
-# Install dependencies (if not already installed)
-pip3 install eth-account bech32
+# Import from hex key (you'll be prompted for a password)
+echo "0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890" | terrad keys import validator-key --keyring-backend file
 
-# Get addresses from your existing private key
-./get-address-from-hexkey.py 0xYOUR_EXISTING_PRIVATE_KEY
+# Or from file
+cat ~/.terra-private-key | terrad keys import validator-key --keyring-backend file
+```
+
+**Method 2: Import from Mnemonic Phrase**
+
+```bash
+# Import from mnemonic (you'll be prompted for the phrase)
+terrad keys add validator-key --recover --keyring-backend file
 ```
 
 **Example:**
-```bash
-# If your private key is stored in a file
-PRIVATE_KEY=$(cat ~/.terra-private-key)
-./get-address-from-hexkey.py $PRIVATE_KEY
+```
+> Enter your bip39 mnemonic
+word1 word2 word3 word4 word5 word6 word7 word8 word9 word10 word11 word12 word13 word14 word15 word16 word17 word18 word19 word20 word21 word22 word23 word24
 
-# Or directly
-./get-address-from-hexkey.py 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
+- name: validator-key
+  type: local
+  address: terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
+  pubkey: '{"@type":"/cosmos.crypto.secp256k1.PubKey","key":"AqBcDeFgHiJkLmNoPqRsTuVwXyZaBcDeFgHiJkLmNoPqRsTuVwXyZa"}'
 ```
 
-**Example output:**
-```
-Ethereum: 0x1234567890123456789012345678901234567890
-Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
-```
-
-**Step 3: Verify Your Wallet Balance**
+**Step 2: Export Private Key in Hex Format (if needed for config)**
 
 ```bash
-# Check balance on Terra Classic
+# Export as hex for use in configuration files
+terrad keys export validator-key --keyring-backend file --unarmored-hex --unsafe
+
+# Save to file with 0x prefix
+echo "0x$(terrad keys export validator-key --keyring-backend file --unarmored-hex --unsafe)" > ~/.terra-private-key
+chmod 600 ~/.terra-private-key
+```
+
+**Step 3: Verify Your Wallet**
+
+```bash
+# Show address
+terrad keys show validator-key --keyring-backend file --address
+
+# Check balance
 curl "https://lcd.terraclassic.community/cosmos/bank/v1beta1/balances/terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7"
 ```
 
 **Step 4: Use the Private Key in Configuration**
 
-You'll use this private key in:
+You'll use the hexadecimal private key (with `0x` prefix) in:
 - `validator.terraclassic.json` (validator configuration)
 - `relayer.json` (relayer configuration for Terra Classic)
 
 **⚠️ Security Reminder:**
-- Never share your private key
+- Never share your private key or mnemonic
 - Never commit it to Git
 - Store it securely
 - Use file permissions `600` for config files
 
 ---
 
-#### Alternative: Generate Key Using Python (Without Foundry)
+#### Alternative: Get Address from Hex Key (Without terrad)
 
-If you don't want to install Foundry, you can generate a key using Python:
+If you only have the hexadecimal private key and want to get the Terra address without using terrad:
 
 ```bash
 # Install dependencies
-pip3 install eth-account
+pip3 install eth-account bech32
 
-# Generate new private key
-python3 << 'EOF'
-from eth_account import Account
-import secrets
-
-# Generate random private key
-private_key = "0x" + secrets.token_hex(32)
-account = Account.from_key(private_key)
-
-print(f"Private Key: {private_key}")
-print(f"Address (Ethereum format): {account.address}")
-print(f"\n⚠️ SAVE THIS PRIVATE KEY SECURELY!")
-print(f"You'll need it to get your Terra address.")
-EOF
+# Get addresses from hex key
+./get-address-from-hexkey.py 0xabcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890
 ```
 
-**Then get Terra address:**
-```bash
-pip3 install bech32
-./get-address-from-hexkey.py YOUR_GENERATED_PRIVATE_KEY
+**Example output:**
+```
+Ethereum: 0x1234567890123456789012345678901234567890
+Terra:    terra1j0paqg235l7fhjkez8z55kg83snant95jqq0z7
 ```
 
 ### For EVM Chains (BSC, Ethereum): AWS KMS
