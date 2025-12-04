@@ -33,9 +33,8 @@
     },
     "solanatestnet": {
       "signer": {
-        "type": "aws",
-        "id": "alias/hyperlane-relayer-signer-solana",
-        "region": "us-east-1"
+        "type": "hexKey",
+        "key": "0xYOUR_SOLANA_PRIVATE_KEY_HERE"
       }
     },
     "terraclassic": {
