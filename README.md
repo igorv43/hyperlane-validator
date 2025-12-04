@@ -9,16 +9,17 @@ Hyperlane validator and relayer configured for Terra Classic ↔ BSC.
 | Blockchain | Type | Key Management | AWS KMS Support |
 |------------|------|----------------|-----------------|
 | **BSC** | EVM | **AWS KMS** | ✅ Supported |
-| **Solana** | Sealevel | **AWS KMS** | ✅ Supported |
+| **Ethereum** | EVM | **AWS KMS** | ✅ Supported |
+| **Solana** | Sealevel | **hexKey** (local keys) | ❌ NOT Supported |
 | **Terra Classic** | Cosmos | **hexKey** (local keys) | ❌ NOT Supported |
 
-### ⚠️ **Cosmos chains do NOT support AWS KMS**
-
-Hyperlane **does not support AWS KMS** for Cosmos blockchains (like Terra Classic). You **must use local private keys** (hexKey) for Cosmos chains.
+### ⚠️ **AWS KMS Support Limitations**
 
 **Supported protocols for AWS KMS:**
 - ✅ **EVM chains** (Ethereum, BSC, Polygon, etc.)
-- ✅ **Sealevel chains** (Solana)
+
+**NOT supported (must use hexKey):**
+- ❌ **Sealevel chains** (Solana)
 - ❌ **Cosmos chains** (Terra Classic, Osmosis, etc.)
 
 📖 **Read**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md) for key security
@@ -64,9 +65,10 @@ docker logs -f hpl-validator-terraclassic
 | File | Description |
 |------|-------------|
 | **[QUICKSTART.md](QUICKSTART.md)** ⭐ | **Complete step-by-step guide** |
+| **[GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md)** 🔑 | **Generate keys for Solana, BSC, Ethereum** |
 | [RELAYER-CONFIG-GUIDE.md](RELAYER-CONFIG-GUIDE.md) 🔄 | **Configure relayer for other blockchains** |
 | [SECURITY-HEXKEY.md](SECURITY-HEXKEY.md) | Local key security |
-| [SETUP-AWS-KMS.md](SETUP-AWS-KMS.md) | Configure AWS KMS for BSC |
+| [SETUP-AWS-KMS.md](SETUP-AWS-KMS.md) | Configure AWS KMS for BSC/Ethereum |
 | [DOCKER-VOLUMES-EXPLAINED.md](DOCKER-VOLUMES-EXPLAINED.md) | Docker volumes explanation |
 | [CHECKLIST.md](CHECKLIST.md) | Configuration checklist |
 
@@ -75,6 +77,7 @@ docker logs -f hpl-validator-terraclassic
 | Script | Usage |
 |--------|-------|
 | `get-address-from-hexkey.py` | Get ETH/Terra addresses from private key |
+| `get-solana-hexkey.py` | Convert Solana keypair to hex format |
 | `get-kms-addresses.sh` | Get AWS KMS key addresses |
 | `eth-to-terra.py` | Convert ETH address → Terra |
 
