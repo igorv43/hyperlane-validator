@@ -404,36 +404,33 @@ aws kms create-alias \
 cast wallet address --aws alias/hyperlane-relayer-signer-ethereum
 ```
 
-### For Solana: AWS KMS
+### For Solana: hexKey (Local Private Key)
 
-**⚠️ Prerequisite:** Make sure AWS CLI is installed (see Prerequisites section above)
+**⚠️ IMPORTANT:** Solana does NOT support AWS KMS. You must use `hexKey` (local private key).
 
-**Solana supports AWS KMS!** Same process as EVM chains.
+**See [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md) for complete Solana key generation guide.**
 
-#### Quick Setup:
+#### Quick Summary:
 
-1. **Create KMS Key:**
+1. **Generate Solana Keypair:**
    ```bash
-   # Make sure AWS CLI is installed first!
-   aws kms create-key \
-     --key-spec ECC_SECG_P256K1 \
-     --key-usage SIGN_VERIFY \
-     --region us-east-1
+   # Install Solana CLI (if not installed)
+   sh -c "$(curl -sSfL https://release.solana.com/stable/install)"
    
-   # Create alias
-   aws kms create-alias \
-     --alias-name alias/hyperlane-relayer-signer-solana \
-     --target-key-id <KEY-ID> \
-     --region us-east-1
+   # Generate keypair
+   solana-keygen new --outfile ./solana-keypair.json
    ```
 
-2. **Discover Address:**
+2. **Extract Private Key in Hex Format:**
    ```bash
-   # Solana address will be shown in relayer logs after startup
-   # Or use AWS KMS API to get public key
-   aws kms get-public-key \
-     --key-id alias/hyperlane-relayer-signer-solana \
-     --region us-east-1
+   # Use the provided script
+   python3 get-solana-hexkey.py ./solana-keypair.json
+   # Output: 0x1234567890abcdef...
+   ```
+
+3. **Get Solana Address:**
+   ```bash
+   solana-keygen pubkey ./solana-keypair.json
    ```
 
 ---
