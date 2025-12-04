@@ -20,14 +20,15 @@ def solana_keypair_to_hex(keypair_file):
             keypair = json.load(f)
         
         # Solana keypair is a JSON array of 64 integers (bytes)
+        # For ED25519: first 32 bytes are the private key, last 32 bytes are public key
         if isinstance(keypair, list) and len(keypair) == 64:
-            # Convert bytes to hex
-            private_key_bytes = bytes(keypair)
+            # Extract only first 32 bytes (private key) for ED25519
+            private_key_bytes = bytes(keypair[:32])
             private_key_hex = private_key_bytes.hex()
             return f"0x{private_key_hex}"
         else:
             print(f"Error: Invalid keypair format in {keypair_file}", file=sys.stderr)
-            print(f"Expected: JSON array with 64 integers", file=sys.stderr)
+            print(f"Expected: JSON array with 64 integers (will extract first 32 bytes as private key)", file=sys.stderr)
             print(f"Got: {type(keypair)} with length {len(keypair) if isinstance(keypair, list) else 'N/A'}", file=sys.stderr)
             return None
     except FileNotFoundError:

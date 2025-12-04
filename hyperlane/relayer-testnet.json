@@ -1,6 +1,6 @@
 {
   "db": "/etc/data/db",
-  "relayChains": "terraclassic,bsc,solanatestnet",
+  "relayChains": "terraclassic,bsctestnet,solanatestnet",
   "allowLocalCheckpointSyncers": "false",
   "gasPaymentEnforcement": [{ "type": "none" }],
   
@@ -24,7 +24,7 @@
     
   ],
   "chains": {
-    "bsc": {
+    "bsctestnet": {
       "signer": {
         "type": "aws",
         "id": "alias/hyperlane-relayer-signer-bsc",
@@ -34,7 +34,7 @@
     "solanatestnet": {
       "signer": {
         "type": "hexKey",
-        "key": "0xYOUR_SOLANA_PRIVATE_KEY_HERE"
+        "key": "0x7c2d098a2870db43d142c87586c62d1252c97aff002176a15d87940d41c79e27"
       }
     },
     "terraclassic": {

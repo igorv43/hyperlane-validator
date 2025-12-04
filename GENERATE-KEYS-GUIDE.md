@@ -113,9 +113,10 @@ def solana_keypair_to_hex(keypair_file):
             keypair = json.load(f)
         
         # Solana keypair is a JSON array of 64 integers (bytes)
+        # For ED25519: first 32 bytes are the private key, last 32 bytes are public key
         if isinstance(keypair, list) and len(keypair) == 64:
-            # Convert bytes to hex
-            private_key_bytes = bytes(keypair)
+            # Extract only first 32 bytes (private key) for ED25519
+            private_key_bytes = bytes(keypair[:32])
             private_key_hex = private_key_bytes.hex()
             return f"0x{private_key_hex}"
         else:
