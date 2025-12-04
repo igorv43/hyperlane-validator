@@ -4,23 +4,27 @@ Hyperlane validator and relayer configured for Terra Classic ↔ BSC.
 
 ---
 
-## ⚠️ **IMPORTANT: AWS KMS Support**
+## ⚠️ **IMPORTANT: AWS KMS Support by Protocol**
 
-| Blockchain | Type | Key Management | AWS KMS Support |
-|------------|------|----------------|-----------------|
-| **BSC** | EVM | **AWS KMS** | ✅ Supported |
-| **Ethereum** | EVM | **AWS KMS** | ✅ Supported |
-| **Solana** | Sealevel | **hexKey** (local keys) | ❌ NOT Supported |
-| **Terra Classic** | Cosmos | **hexKey** (local keys) | ❌ NOT Supported |
+According to [Hyperlane Official Documentation](https://docs.hyperlane.xyz/docs/operate/config/config-reference#chains-%3Cchain-name%3E-signer-region), signer types are:
+
+| Blockchain | VM Type | Signer Types Supported | AWS KMS Support |
+|------------|---------|------------------------|-----------------|
+| **BSC** | EVM | `hexKey` (ECDSA) or `aws` (ECDSA) | ✅ Supported |
+| **Ethereum** | EVM | `hexKey` (ECDSA) or `aws` (ECDSA) | ✅ Supported |
+| **Solana** | Sealevel | `hexKey` (ED25519) only | ❌ NOT Supported |
+| **Terra Classic** | Cosmos | `cosmosKey` only | ❌ NOT Supported |
 
 ### ⚠️ **AWS KMS Support Limitations**
 
 **Supported protocols for AWS KMS:**
-- ✅ **EVM chains** (Ethereum, BSC, Polygon, etc.)
+- ✅ **EVM chains** (Ethereum, BSC, Polygon, etc.) - Can use `aws` or `hexKey`
 
-**NOT supported (must use hexKey):**
-- ❌ **Sealevel chains** (Solana)
-- ❌ **Cosmos chains** (Terra Classic, Osmosis, etc.)
+**NOT supported (must use local keys):**
+- ❌ **Sealevel chains** (Solana) - Must use `hexKey` (ED25519)
+- ❌ **Cosmos chains** (Terra Classic, Osmosis, etc.) - Must use `cosmosKey`
+
+**Reference:** [Hyperlane Configuration Reference](https://docs.hyperlane.xyz/docs/operate/config/config-reference#chains-%3Cchain-name%3E-signer-type)
 
 📖 **Read**: [`SECURITY-HEXKEY.md`](SECURITY-HEXKEY.md) for key security
 

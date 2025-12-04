@@ -2,17 +2,21 @@
 
 ## ⚠️ **IMPORTANT: AWS KMS Support by Protocol**
 
-| Protocol | Chains | AWS KMS Support |
-|----------|--------|-----------------|
-| **EVM** | BSC, Ethereum, Polygon, etc. | ✅ Supported |
-| **Sealevel** | Solana | ❌ NOT Supported |
-| **Cosmos** | Terra Classic, Osmosis, etc. | ❌ NOT Supported |
+According to [Hyperlane Official Documentation](https://docs.hyperlane.xyz/docs/operate/config/config-reference#chains-%3Cchain-name%3E-signer-region):
+
+| Protocol | Chains | Signer Types | AWS KMS Support |
+|----------|--------|--------------|-----------------|
+| **EVM** | BSC, Ethereum, Polygon, etc. | `hexKey` (ECDSA) or `aws` (ECDSA) | ✅ Supported |
+| **Sealevel** | Solana | `hexKey` (ED25519) only | ❌ NOT Supported |
+| **Cosmos** | Terra Classic, Osmosis, etc. | `cosmosKey` only | ❌ NOT Supported |
 
 **AWS KMS works ONLY for EVM chains (BSC, Ethereum, Polygon, etc.).**
 
-**Solana and Cosmos chains must use hexKey (local private keys).**
+**Solana (Sealevel) must use `hexKey` (local private key, ED25519).**
 
-**Terra Classic (Cosmos) must use hexKey (local private keys).**
+**Terra Classic (Cosmos) must use `cosmosKey` (local private key).**
+
+**Reference:** [Hyperlane Configuration Reference - Signer Types](https://docs.hyperlane.xyz/docs/operate/config/config-reference#chains-%3Cchain-name%3E-signer-type)
 
 ---
 

@@ -6,12 +6,16 @@ This guide explains how to generate and configure private keys for **Solana**, *
 
 ## 📋 **Quick Reference: Key Types by Chain**
 
-| Chain | Signer Type | Format | Method |
-|-------|-------------|--------|--------|
-| **Solana** | `hexKey` | Hexadecimal (64 chars) | Local key generation |
-| **BSC** | `aws` (KMS) | AWS KMS Key | AWS KMS |
-| **Ethereum** | `aws` (KMS) | AWS KMS Key | AWS KMS |
-| **Terra Classic** | `cosmosKey` | Hexadecimal (64 chars) | See [QUICKSTART.md](QUICKSTART.md) |
+According to [Hyperlane Official Documentation](https://docs.hyperlane.xyz/docs/operate/config/config-reference#chains-%3Cchain-name%3E-signer-region):
+
+| Chain | VM Type | Signer Type | Format | Method |
+|-------|---------|-------------|--------|--------|
+| **Solana** | Sealevel | `hexKey` (ED25519) | Hexadecimal (64 bytes) | Local key generation |
+| **BSC** | EVM | `aws` (ECDSA) or `hexKey` (ECDSA) | AWS KMS Key or Hex | AWS KMS or Local |
+| **Ethereum** | EVM | `aws` (ECDSA) or `hexKey` (ECDSA) | AWS KMS Key or Hex | AWS KMS or Local |
+| **Terra Classic** | Cosmos | `cosmosKey` | Hexadecimal (64 bytes) | See [QUICKSTART.md](QUICKSTART.md) |
+
+**Reference:** [Hyperlane Configuration Reference - Signer Types](https://docs.hyperlane.xyz/docs/operate/config/config-reference#chains-%3Cchain-name%3E-signer-type)
 
 ---
 

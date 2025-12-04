@@ -78,12 +78,19 @@ Use local private keys:
 
 ## 🔐 **Comparison: Protocol Support for AWS KMS**
 
+According to [Hyperlane Official Documentation](https://docs.hyperlane.xyz/docs/operate/config/config-reference#chains-%3Cchain-name%3E-signer-region):
+
 | Aspect | EVM (BSC, Ethereum) | Sealevel (Solana) | Cosmos (Terra Classic) |
 |---------|---------------------|-------------------|------------------------|
+| **Signer Types** | `hexKey` (ECDSA) or `aws` (ECDSA) | `hexKey` (ED25519) only | `cosmosKey` only |
 | **AWS KMS** | ✅ Supported | ❌ NOT supported | ❌ NOT supported |
-| **Signer Type** | `"type": "aws"` | `"type": "hexKey"` | `"type": "cosmosKey"` + `"key"` |
-| **Example** | `{"type": "aws", "id": "alias/..."}` | `{"type": "hexKey", "key": "0x..."}` | `{"type": "cosmosKey", "key": "0x..."}` |
-| **Security** | KMS (CloudHSM) | Local key (file 600) | Local key (file 600) |
+| **Signer Type (KMS)** | `"type": "aws"` | N/A | N/A |
+| **Signer Type (Local)** | `"type": "hexKey"` | `"type": "hexKey"` | `"type": "cosmosKey"` + `"key"` |
+| **Example (KMS)** | `{"type": "aws", "id": "alias/..."}` | N/A | N/A |
+| **Example (Local)** | `{"type": "hexKey", "key": "0x..."}` | `{"type": "hexKey", "key": "0x..."}` | `{"type": "cosmosKey", "key": "0x..."}` |
+| **Security** | KMS (CloudHSM) or Local | Local key (file 600) | Local key (file 600) |
+
+**Reference:** [Hyperlane Configuration Reference - Signer Types](https://docs.hyperlane.xyz/docs/operate/config/config-reference#chains-%3Cchain-name%3E-signer-type)
 
 ---
 
