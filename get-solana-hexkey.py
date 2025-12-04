@@ -2,12 +2,20 @@
 """
 Convert Solana keypair JSON file to hexadecimal private key format for Hyperlane.
 
+Solana uses ED25519 which requires a 32-byte private key (64 hex characters).
+The Solana keypair JSON contains 64 bytes total:
+- First 32 bytes: Private key (seed)
+- Last 32 bytes: Public key
+
+This script extracts only the first 32 bytes as required by Hyperlane.
+
 Usage:
     python3 get-solana-hexkey.py <keypair.json>
 
 Example:
     python3 get-solana-hexkey.py ./solana-keypair.json
-    Output: 0x1234567890abcdef...
+    Output: 0x7c2d098a2870db43d142c87586c62d1252c97aff002176a15d87940d41c79e27
+    (32 bytes = 64 hex characters)
 """
 
 import json
