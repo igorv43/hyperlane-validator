@@ -24,8 +24,8 @@
 | **S3 Bucket** | Store validator signatures | Terra Classic |
 | **KMS Key (BSC)** | Sign relayer transactions | BSC (optional) |
 | **KMS Key (Ethereum)** | Sign relayer transactions | Ethereum (optional) |
-| **KMS Key (Solana)** | Sign relayer transactions | Solana (optional) |
-| ~~KMS Key (Terra)~~ | ~~Doesn't work~~ | ❌ Don't use |
+| ~~KMS Key (Solana)~~ | ~~NOT supported~~ | ❌ Don't use (use hexKey) |
+| ~~KMS Key (Terra)~~ | ~~NOT supported~~ | ❌ Don't use (use hexKey) |
 
 ---
 
@@ -49,9 +49,9 @@
 
 ### For Solana Relayer (Optional):
 
-- ❌ **KMS Key** (NOT supported for Solana)
-- ✅ **hexKey** (local private key for Solana)
-- ✅ **hexKey** for Terra Classic
+- ❌ **KMS Key** (NOT supported - Solana does NOT support AWS KMS)
+- ✅ **hexKey** (local private key for Solana) - See [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md)
+- ✅ **hexKey** for Terra Classic - See [QUICKSTART.md](QUICKSTART.md)
 
 ---
 
@@ -510,54 +510,14 @@ cast wallet address --aws alias/hyperlane-relayer-signer-ethereum
 
 ---
 
-### STEP 5: Create KMS Key for Solana (Optional)
+### ⚠️ **Solana and Terra Classic: Use hexKey (NOT KMS)**
 
-**⚠️ ONLY if running relayer with Solana!**
+**Solana and Terra Classic do NOT support AWS KMS.**
 
-Same process as BSC, but with different alias:
+For these chains, you must use local private keys (hexKey):
 
-**Via CLI:**
-```bash
-# Step 1: Create the key
-aws kms create-key \
-  --key-spec ECC_SECG_P256K1 \
-  --key-usage SIGN_VERIFY \
-  --region us-east-1
-```
-
-**Example response:**
-```json
-{
-    "KeyMetadata": {
-        "AWSAccountId": "123456789012",
-        "KeyId": "c3d4e5f6-a7b8-9012-cdef-345678901234",
-        "Arn": "arn:aws:kms:us-east-1:123456789012:key/c3d4e5f6-a7b8-9012-cdef-345678901234",
-        "CreationDate": "2025-12-03T13:12:30.456000-03:00",
-        "Enabled": true,
-        "KeyUsage": "SIGN_VERIFY",
-        "KeyState": "Enabled",
-        "KeySpec": "ECC_SECG_P256K1",
-        "SigningAlgorithms": ["ECDSA_SHA_256"]
-    }
-}
-```
-
-```bash
-# Step 2: Create alias using KeyId from response above
-aws kms create-alias \
-  --alias-name alias/hyperlane-relayer-signer-solana \
-  --target-key-id c3d4e5f6-a7b8-9012-cdef-345678901234 \
-  --region us-east-1
-```
-
-**Get address:**
-```bash
-# Address will be shown in relayer logs after startup
-# Or get from KMS public key
-aws kms get-public-key \
-  --key-id alias/hyperlane-relayer-signer-solana \
-  --region us-east-1
-```
+- **Solana**: See [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md) - Solana section
+- **Terra Classic**: See [QUICKSTART.md](QUICKSTART.md) - Terra Classic key generation
 
 ---
 
@@ -582,12 +542,14 @@ aws kms get-public-key \
 
 ### Optional (Relayer Solana):
 
-- [ ] ⏳ KMS key for Solana: `hyperlane-relayer-signer-solana`
+- [ ] ⏳ **hexKey** generated for Solana (see [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md))
 - [ ] ⏳ Solana address obtained and funded
+- ❌ **DO NOT create KMS key** - Solana does NOT support AWS KMS
 
 ### ❌ DO NOT Create:
 
-- [ ] ~~KMS key for Terra Classic~~ (Cosmos does not support KMS)
+- [ ] ~~KMS key for Terra Classic~~ (Cosmos does not support KMS - use hexKey)
+- [ ] ~~KMS key for Solana~~ (Sealevel does not support KMS - use hexKey)
 
 ---
 
@@ -965,7 +927,8 @@ docker-compose up -d validator-terraclassic
 
 ### ✅ For Relayer (Optional):
 
-1. Create KMS key for **BSC/Ethereum/Solana** (EVM/Sealevel)
+1. Create KMS key for **BSC/Ethereum** (EVM chains only)
+   - **Solana does NOT support KMS** - use hexKey (see [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md))
 2. Use **hexKey** for **Terra Classic** (Cosmos)
 3. Configure all chains in `relayer.json`
 

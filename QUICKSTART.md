@@ -7,7 +7,8 @@
 - Docker & Docker Compose installed
 - AWS account with:
   - **S3 bucket** (required for validator signatures)
-  - **KMS keys** (optional, for EVM/Sealevel chains: BSC, Ethereum, Solana)
+  - **KMS keys** (optional, for EVM chains: BSC, Ethereum)
+  - **hexKey** (required for Solana and Terra Classic - local private keys)
 - Private key for Terra Classic (hexadecimal) - **Required for Cosmos chains**
 - **AWS CLI installed** (required for AWS commands)
 
@@ -81,7 +82,8 @@ aws --version
 
 **Required for:**
 - ✅ S3 bucket (validator signatures) - **Always required**
-- ✅ KMS keys (EVM/Sealevel chains) - **If using BSC, Ethereum, or Solana**
+- ✅ KMS keys (EVM chains only) - **If using BSC or Ethereum**
+- ✅ hexKey (local keys) - **Required for Solana and Terra Classic**
 
 ### 1.1 Create .env File
 
@@ -132,7 +134,8 @@ chmod 600 .env
 **See `SETUP-AWS-KMS.md` for complete AWS setup guide:**
 - Create IAM user
 - Create S3 bucket
-- Create KMS keys (for BSC/Ethereum/Solana)
+- Create KMS keys (for BSC/Ethereum only)
+- Generate hexKey for Solana (see [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md))
 
 ---
 
@@ -144,7 +147,7 @@ chmod 600 .env
 |----------------|----------------|------------|
 | **Cosmos** (Terra Classic) | `hexKey` (local) | ✅ Required |
 | **EVM** (BSC, Ethereum, Polygon, etc.) | AWS KMS | ✅ Supported |
-| **Sealevel** (Solana) | AWS KMS | ✅ Supported |
+| **Sealevel** (Solana) | hexKey | ❌ KMS NOT supported |
 
 **Terra Classic does NOT support AWS KMS** - You must use **local private keys (hexKey)**.
 
@@ -659,7 +662,8 @@ nano hyperlane/relayer.json
 
 **Replace:**
 - For **Terra Classic**: `0xYOUR_PRIVATE_KEY_HERE` → Your private key
-- For **BSC/Ethereum/Solana**: Use AWS KMS aliases (create keys first via `SETUP-AWS-KMS.md`)
+- For **BSC/Ethereum**: Use AWS KMS aliases (create keys first via `SETUP-AWS-KMS.md`)
+- For **Solana**: Use hexKey (see [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md))
 
 **Protect file:**
 ```bash
@@ -726,20 +730,18 @@ https://etherscan.io/address/YOUR_ETH_ADDRESS
 - **Mainnet**: 0.5-1 ETH (gas can be expensive)
 - **Testnet**: 0.1-0.5 ETH (for testing)
 
-### Solana Relayer (AWS KMS)
+### Solana Relayer (hexKey)
 
-If you configured KMS for Solana:
+If you configured hexKey for Solana:
 
+**Get address from keypair:**
 ```bash
-# Address will be shown in relayer logs after startup
-# Or get from KMS public key
-aws kms get-public-key \
-  --key-id alias/hyperlane-relayer-signer-solana \
-  --region us-east-1
+# Get address from keypair file
+solana-keygen pubkey ./solana-keypair.json
 ```
 
 **Send SOL:**
-- **Testnet**: 1-5 SOL
+- **Testnet**: 1-5 SOL (get from https://faucet.solana.com/)
 - **Mainnet**: 1-5 SOL (depending on volume)
 
 **Check balance:**
@@ -760,7 +762,7 @@ https://explorer.solana.com/address/YOUR_SOLANA_ADDRESS?cluster=testnet
 | Terra Classic | hexKey | 100-500 | LUNC |
 | BSC | AWS KMS | 0.1-0.5 | BNB |
 | Ethereum | AWS KMS | 0.5-1 | ETH |
-| Solana | AWS KMS | 1-5 | SOL |
+| Solana | hexKey | 1-5 | SOL |
 
 ---
 
@@ -972,7 +974,7 @@ docker-compose restart validator-terraclassic
 
 **Cause:** Trying to use AWS KMS for Terra Classic (not supported)
 
-**Solution:** Use `hexKey` for Terra Classic. AWS KMS only works for EVM chains (BSC, Ethereum) and Sealevel chains (Solana).
+**Solution:** Use `hexKey` for Terra Classic and Solana. AWS KMS only works for EVM chains (BSC, Ethereum).
 
 ### Error: "Chain not configured" (Relayer)
 
@@ -980,7 +982,7 @@ docker-compose restart validator-terraclassic
 
 **Solution:** Add signer configuration for each chain:
 - **EVM chains** (BSC, Ethereum): Use AWS KMS
-- **Sealevel chains** (Solana): Use AWS KMS
+- **Sealevel chains** (Solana): Use hexKey (KMS NOT supported)
 - **Cosmos chains** (Terra Classic): Use hexKey
 
 ### Error: "Route not whitelisted" (Relayer)
@@ -1198,7 +1200,8 @@ fi
 For more details:
 
 - **`SECURITY-HEXKEY.md`** - Security and key backup
-- **`SETUP-AWS-KMS.md`** - Configure AWS KMS for EVM/Sealevel chains (BSC, Ethereum, Solana)
+- **`SETUP-AWS-KMS.md`** - Configure AWS KMS for EVM chains (BSC, Ethereum)
+- **`GENERATE-KEYS-GUIDE.md`** - Generate keys for Solana, BSC, Ethereum
 - **`RELAYER-CONFIG-GUIDE.md`** - Complete relayer configuration guide with examples
 - **`DOCKER-VOLUMES-EXPLAINED.md`** - Understand Docker volumes
 - **`README.md`** - Complete overview
@@ -1227,7 +1230,8 @@ For more details:
 - [ ] Key backup completed
 
 ### Relayer Setup (Optional)
-- [ ] AWS KMS keys created (BSC/Ethereum/Solana)
+- [ ] AWS KMS keys created (BSC/Ethereum only)
+- [ ] hexKey generated for Solana (see [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md))
 - [ ] KMS addresses discovered
 - [ ] Relayer configuration (`relayer.json`) set up
 - [ ] Whitelist configured for desired routes
@@ -1268,5 +1272,5 @@ docker-compose up -d relayer
 - ✅ **Terra Classic** (Cosmos) - hexKey required
 - ✅ **BSC** (EVM) - AWS KMS supported
 - ✅ **Ethereum** (EVM) - AWS KMS supported
-- ✅ **Solana** (Sealevel) - AWS KMS supported
+- ❌ **Solana** (Sealevel) - AWS KMS NOT supported (use hexKey)
 - ✅ **Other EVM chains** (Polygon, Avalanche, etc.) - AWS KMS supported

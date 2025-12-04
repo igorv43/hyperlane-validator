@@ -41,7 +41,7 @@
     "terraclassic": {
       "signer": {
         "type": "cosmosKey",
-        "key": "0xe45624f7aca7eb9e....",
+        "key": "0xa5123190601045e1266e57c5d5b1a77f0897b39ea63ed2c761946686939c3cb6",
         "prefix": "terra"
       }
     }

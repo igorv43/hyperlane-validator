@@ -18,9 +18,10 @@ Use this checklist to ensure everything is configured correctly.
 - [ ] ⏳ Key 1 (BSC): `hyperlane-relayer-signer-bsc`
   - Type: Asymmetric, ECC_SECG_P256K1
   - Usage: BSC Relayer
-- [ ] ⏳ Key 2 (Solana - optional): `hyperlane-relayer-signer-solana`
-  - Type: Asymmetric, ECC_SECG_P256K1
+- [ ] ⏳ hexKey for Solana (optional) - See [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md)
+  - Type: Local private key (hexadecimal)
   - Usage: Solana Relayer
+  - ❌ **DO NOT create KMS key** - Solana does NOT support AWS KMS
 
 ---
 
@@ -72,11 +73,12 @@ Use this checklist to ensure everything is configured correctly.
   ```
   - Format: `0x...`
 
-- [ ] 🔑 Solana Relayer address discovered (optional, after creating KMS key)
+- [ ] 🔑 Solana Relayer address discovered (optional, after generating hexKey)
   ```bash
-  ./get-kms-addresses.sh
+  solana-keygen pubkey ./solana-keypair.json
   ```
-  - Format: Solana public key
+  - Format: Solana public key (base58)
+  - See [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md)
 
 ---
 
@@ -245,7 +247,8 @@ Use this checklist to ensure everything is configured correctly.
 - **Relayer**: Status: ___________
 
 ### Next Steps
-1. ⏳ Create KMS keys (optional, for BSC/Solana)
+1. ⏳ Create KMS keys (optional, for BSC/Ethereum only)
+2. ⏳ Generate hexKey for Solana (see [GENERATE-KEYS-GUIDE.md](GENERATE-KEYS-GUIDE.md))
 2. ⏳ Discover wallet addresses
 3. ⏳ Fund wallets with LUNC (and BNB/SOL if using relayer)
 4. ⏳ Start validator
