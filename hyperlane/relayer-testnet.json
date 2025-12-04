@@ -1,6 +1,6 @@
 {
   "db": "/etc/data/db",
-  "relayChains": "terraclassic,bsctestnet,solanatestnet",
+  "relayChains": "terraclassictestnet,bsctestnet,solanatestnet",
   "allowLocalCheckpointSyncers": "false",
   "gasPaymentEnforcement": [{ "type": "none" }],
   
@@ -37,7 +37,7 @@
         "key": "0x7c2d098a2870db43d142c87586c62d1252c97aff002176a15d87940d41c79e27"
       }
     },
-    "terraclassic": {
+    "terraclassictestnet": {
       "signer": {
         "type": "cosmosKey",
         "key": "0xa5123190601045e1266e57c5d5b1a77f0897b39ea63ed2c761946686939c3cb6",

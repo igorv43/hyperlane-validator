@@ -65,56 +65,6 @@
         "chunk": 10
       }
     },
-    "terraclassic": {
-      "blockExplorers": [
-        {
-          "apiUrl": "https://api.terra-classic.hexxagon.io",
-          "family": "other",
-          "name": "Terra Finder Testnet",
-          "url": "https://finder.terraclassic.community/testnet"
-        }
-      ],
-      "slip44": 330,
-      "name": "terraclassic",
-      "domainId": 1325,
-      "chainId": "rebel-2",
-      "protocol": "cosmos",
-      "rpcUrls": [
-        {"http": "https://rpc.luncblaze.com"}
-      ],
-      "grpcUrls": [
-        {"http": "https://grpc.terra-classic.hexxagon.dev"}
-      ],
-      "restUrls": [
-        {
-          "http": "https://lcd.luncblaze.com"
-        }
-      ],
-      "canonicalAsset": "uluna",
-      "bech32Prefix": "terra",
-      "gasPrice": {
-        "amount": "28.325",
-        "denom": "uluna"
-      },
-      "index": {
-        "from": 28276100,
-        "chunk": 5
-      },
-      "blocks": {
-        "confirmations": 1,
-        "estimateBlockTime": 3,
-        "reorgPeriod": 1
-      },
-      "contractAddressBytes": 32,
-      "mailbox": "0x18111026c945381eb4a6e6852a4affd2b4023e918787379cea28d001314ee44b",
-      "validatorAnnounce": "0x7c044284320a16735a2bb11dc8b6f081e1486208e9e89ae117ad141d6dcd7954",
-      "interchainGasPaymaster": "0x9f9e88b11e3233a01f75a8f8ddd49a4ef59f860174109da43784579c883db6b1",
-      "merkleTreeHook": "0x3152bdec927acb3783fe38d4c6a6c582cc8a0b4c9ba6e91365df824d7d8611ff",
-      "gas": {
-        "adjustment": 1.5,
-        "min_gas_amount": 2000000 
-      }
-    },
     "solanatestnet": {
       "blockExplorers": [
         {
@@ -155,6 +105,60 @@
       "index": {
         "from": 1,
         "chunk": 10
+      }
+    },
+    "terraclassictestnet": {
+      "blockExplorers": [
+        {
+          "apiUrl": "https://api.terra-classic.hexxagon.io",
+          "family": "other",
+          "name": "Terra Finder Testnet",
+          "url": "https://finder.terraclassic.community/testnet"
+        }
+      ],
+      "slip44": 330,
+      "name": "terraclassictestnet",
+      "domainId": 1325,
+      "chainId": "rebel-2",
+      "protocol": "cosmos",
+      "rpcUrls": [
+        {
+          "http": "https://rpc.luncblaze.com"
+        }
+      ],
+      "grpcUrls": [
+        {
+          "http": "https://grpc.terra-classic.hexxagon.dev"
+        }
+      ],
+      "restUrls": [
+        {
+          "http": "https://lcd.luncblaze.com"
+        }
+      ],
+      "canonicalAsset": "uluna",
+      "bech32Prefix": "terra",
+      "gasPrice": {
+        "amount": "28.325",
+        "denom": "uluna"
+      },
+      "index": {
+        "from": 28276100,
+        "chunk": 5
+      },
+      "blocks": {
+        "confirmations": 1,
+        "estimateBlockTime": 3,
+        "reorgPeriod": 1
+      },
+      "contractAddressBytes": 32,
+      "mailbox": "0x18111026c945381eb4a6e6852a4affd2b4023e918787379cea28d001314ee44b",
+      "validatorAnnounce": "0x7c044284320a16735a2bb11dc8b6f081e1486208e9e89ae117ad141d6dcd7954",
+      "interchainGasPaymaster": "0x9f9e88b11e3233a01f75a8f8ddd49a4ef59f860174109da43784579c883db6b1",
+      "merkleTreeHook": "0x3152bdec927acb3783fe38d4c6a6c582cc8a0b4c9ba6e91365df824d7d8611ff",
+      "gas": {
+        "adjustment": 1.5,
+        "min_gas_amount": 2000000
       }
     }
   }
