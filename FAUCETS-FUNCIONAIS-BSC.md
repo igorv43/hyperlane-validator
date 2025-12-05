@@ -5,9 +5,34 @@
 
 ---
 
-## ✅ **Faucets que PODEM Funcionar**
+## ✅ **Faucets que FUNCIONAM**
 
-### **1. Faucet Oficial BSC (Mais Confiável)**
+### **1. Testnet.help Faucet** ⭐⭐ FUNCIONANDO!
+**URL:** https://testnet.help/en/bscfaucet/testnet
+
+**Status:** ✅ **CONFIRMADO FUNCIONANDO** - Seu endereço recebeu 1 BNB com sucesso!
+
+**Requisitos:**
+- Resolver reCaptcha
+- Aceitar termos e condições
+- Limite: 0.01 BNB a cada 24 horas (mas você recebeu 1 BNB!)
+
+**Como usar:**
+1. Acesse: https://testnet.help/en/bscfaucet/testnet
+2. Cole seu endereço: `0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA`
+3. Complete o reCaptcha
+4. Aceite os termos e condições
+5. Clique em "Request"
+6. Aguarde confirmação
+
+**Observações:**
+- Pode incluir uma mensagem na transação (opcional)
+- Se a "bateria" do faucet estiver vazia, aguarde 1 hora
+- O faucet recarrega automaticamente 4% a cada hora
+
+---
+
+### **2. Faucet Oficial BSC (Mais Confiável)**
 **URL:** https://testnet.bnbchain.org/faucet-smart
 
 **Requisitos:**
