@@ -1,0 +1,34 @@
+╔══════════════════════════════════════════════════════════════╗
+║        ⚠️  DEVNET ≠ TESTNET - AÇÃO NECESSÁRIA                ║
+╚══════════════════════════════════════════════════════════════╝
+
+❌ NÃO é possível transferir tokens entre devnet e testnet!
+
+Você tem tokens na DEVNET ✅
+Você precisa de tokens na TESTNET ❌
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 SOLUÇÃO RÁPIDA:
+
+1. Acesse: https://faucet.solana.com/
+
+2. ⚠️  IMPORTANTE: No dropdown, selecione "testnet"
+   (NÃO "devnet" - você já tem tokens lá!)
+
+3. Cole o endereço:
+   2tNwZa6Lx5dLWKEsVDAUhZkXdB8vqksqo2sssWsJ52Y9
+
+4. Clique em "Confirm Airdrop"
+
+5. Aguarde 10-30 segundos
+
+6. Verifique:
+   ./verificar-saldos.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 DICA: Execute este comando para abrir o faucet:
+   ./obter-testnet-especifico.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

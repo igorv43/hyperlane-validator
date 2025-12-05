@@ -26,9 +26,8 @@
   "chains": {
     "bsctestnet": {
       "signer": {
-        "type": "aws",
-        "id": "alias/hyperlane-relayer-signer-bsc",
-        "region": "us-east-1"
+        "type": "hexKey",
+        "key": "0x819b680e3578eac4f79b8fde643046e88f3f9bb10a3ce1424e3642798ef39b42"
       }
     },
     "solanatestnet": {

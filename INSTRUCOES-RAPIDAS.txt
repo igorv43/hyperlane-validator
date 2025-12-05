@@ -1,0 +1,41 @@
+╔══════════════════════════════════════════════════════════════╗
+║     💰 COMO OBTER TOKENS SOLANA TESTNET - GUIA RÁPIDO       ║
+╚══════════════════════════════════════════════════════════════╝
+
+📍 SEU ENDEREÇO SOLANA:
+   2tNwZa6Lx5dLWKEsVDAUhZkXdB8vqksqo2sssWsJ52Y9
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 MÉTODO MAIS RÁPIDO:
+
+1. Execute este comando para abrir o faucet:
+   ./ABRIR-FAUCET.sh
+
+   OU acesse manualmente:
+   https://faucet.solana.com/
+
+2. No site:
+   ✓ Selecione "testnet" (não devnet) no dropdown
+   ✓ Cole o endereço: 2tNwZa6Lx5dLWKEsVDAUhZkXdB8vqksqo2sssWsJ52Y9
+   ✓ Clique em "Confirm Airdrop"
+   ✓ Aguarde 10-30 segundos
+
+3. Verifique o saldo:
+   ./verificar-saldos.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔄 ALTERNATIVAS (se o faucet oficial não funcionar):
+
+• QuickNode: https://faucet.quicknode.com/solana/devnet
+• SolFaucet: https://solfaucet.com/ (selecione Testnet)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  IMPORTANTE:
+   • O faucet oficial tem limite: 2 requests a cada 8 horas
+   • Se você já usou recentemente, aguarde ou use outro faucet
+   • Sempre selecione "testnet" (não "devnet")
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

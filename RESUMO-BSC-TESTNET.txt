@@ -1,0 +1,55 @@
+╔══════════════════════════════════════════════════════════════╗
+║        ✅ BSC TESTNET CONFIGURADO COM SUCESSO                ║
+╚══════════════════════════════════════════════════════════════╝
+
+📍 ENDEREÇO BSC TESTNET:
+   0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ CONFIGURAÇÃO ATUALIZADA:
+   • Arquivo: hyperlane/relayer-testnet.json
+   • Tipo: hexKey (chave privada local)
+   • Status: Pronto para usar!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💰 OBTER TOKENS NO FAUCET:
+
+1. Acesse: https://testnet.bnbchain.org/faucet-smart
+   (Navegador já foi aberto automaticamente)
+
+2. Cole este endereço:
+   0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+3. Complete o captcha
+
+4. Clique em "Give me BNB"
+
+5. Aguarde confirmação (pode levar alguns minutos)
+
+6. Verifique o saldo:
+   ./verificar-saldos.sh
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔗 LINKS ÚTEIS:
+
+• Explorer BSC Testnet:
+  https://testnet.bscscan.com/address/0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+• Faucet Oficial:
+  https://testnet.bnbchain.org/faucet-smart
+
+• Faucets Alternativos:
+  - QuickNode: https://faucet.quicknode.com/binance-smart-chain/bnb-testnet
+  - Chainlink: https://faucets.chain.link/bnb-chain-testnet
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️  SEGURANÇA:
+
+Chave privada BSC (mantenha segura):
+0x819b680e3578eac4f79b8fde643046e88f3f9bb10a3ce1424e3642798ef39b42
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

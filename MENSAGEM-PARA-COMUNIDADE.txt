@@ -1,0 +1,19 @@
+╔══════════════════════════════════════════════════════════════╗
+║     MENSAGEM PARA PEDIR AJUDA NA COMUNIDADE                  ║
+╚══════════════════════════════════════════════════════════════╝
+
+Olá! Estou configurando um Hyperlane relayer na BSC testnet e 
+preciso de BNB de teste. Os faucets não estão funcionando no 
+momento.
+
+Se alguém puder ajudar enviando um pouco de BNB testnet, ficaria 
+muito grato!
+
+📍 Endereço BSC Testnet:
+   0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+💰 Quantidade: 0.1 - 0.5 BNB (qualquer valor ajuda!)
+
+Obrigado pela ajuda! 🙏
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
