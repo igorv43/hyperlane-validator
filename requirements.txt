@@ -1,0 +1,10 @@
+# Dependências para scripts de conversão de endereços
+
+# Para Solana (get-solana-address.py)
+base58>=2.1.0
+pynacl>=1.5.0
+
+# Para Ethereum/Terra (get-address-from-hexkey.py)
+eth-account>=0.8.0
+bech32>=1.2.0
+
