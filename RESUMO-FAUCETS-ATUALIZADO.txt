@@ -1,0 +1,55 @@
+╔══════════════════════════════════════════════════════════════╗
+║        💰 FAUCETS BSC TESTNET - GUIA ATUALIZADO               ║
+╚══════════════════════════════════════════════════════════════╝
+
+❌ NÃO FUNCIONA:
+   • Chainlink Faucet (confirmado pelo usuário)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ TENTE ESTES (em ordem de prioridade):
+
+1. FAUCET OFICIAL BSC ⭐ PRIMEIRO
+   https://testnet.bnbchain.org/faucet-smart
+   • Pode exigir MetaMask conectado
+   • Cole: 0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+2. CHAINSTACK ⭐ NOVO (0.5 BNB/dia)
+   https://faucet.chainstack.com/bnb-testnet-faucet
+   • Exige: 0.002 ETH na mainnet + conta Chainstack
+   • Cole: 0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+3. THIRDWEB ⭐ NOVO (0.01 BNB/dia)
+   https://thirdweb.com/binance-testnet
+   • Pode exigir conta
+   • Cole: 0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+4. QUICKNODE
+   https://faucet.quicknode.com/binance-smart-chain/bnb-testnet
+   • Pode exigir login GitHub
+   • Cole: 0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+5. TATUM (0.002 BNB/dia)
+   https://tatum.io/faucets/bsc
+   • Exige conta Tatum
+   • Cole: 0x8BD456605473ad4727ACfDCA0040a0dBD4be2DEA
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 DICAS:
+
+• Faucet Oficial: Configure MetaMask para BSC Testnet
+  (RPC: https://bsc-testnet.publicnode.com, Chain ID: 97)
+
+• Chainstack: Se você tem ETH na mainnet, esta é uma boa opção
+
+• Tente TODOS - cada um tem requisitos diferentes
+
+• Aguarde alguns minutos entre tentativas
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 VERIFICAR SALDO:
+   ./verificar-saldos.sh
+
+📖 Guia completo: FAUCETS-FUNCIONAIS-BSC.md
